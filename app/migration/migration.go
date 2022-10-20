@@ -20,16 +20,15 @@ func RunMigrations(di zdi.Invoker) error {
 		migration := m.Migration()
 
 		exist := migration.HasTable()
-		zlog.Debug(exist)
 		if !exist {
-			zerror.Panic(migration.CreateTable())
 			zlog.Debug("新建")
+			zerror.Panic(migration.CreateTable())
 		} else {
-			zerror.Panic(migration.UpdateTable())
 			zlog.Debug("需要更新表结构")
+			zerror.Panic(migration.UpdateTable())
 		}
 
-		zlog.Debug(migration.InitValue())
+		zlog.Debug("初始化数据", migration.InitValue())
 		// table := builder.NewTable("user").Create()
 
 		// // schema.NewField()

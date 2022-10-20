@@ -93,12 +93,6 @@ func (m *Migration) UpdateTable() error {
 		return !zarray.Contains(newColumns, n) && !strings.HasPrefix(n, deleteFieldPrefix)
 	})
 
-	zlog.Debug(oldColumns)
-	zlog.Debug(newColumns)
-
-	zlog.Debug("addColumns", addColumns)
-	zlog.Debug("deleteColumns", deleteColumns)
-
 	for _, v := range deleteColumns {
 		// sql, values = table.RenameColumn(v, deleteFieldPrefix+v)
 		// TODO 危险操作，考虑重命名字段
