@@ -1,0 +1,27 @@
+[base]
+debug = true
+name = 'ZlsApp'
+port = '8181'
+
+[db]
+driver = 'postgres'
+[db.mysql]
+Host = '127.0.0.1'
+Port = 3306
+User = 'root'
+Password = '666666'
+DBName = 'zls'
+Parameters = ''
+
+[db.postgres]
+Host = '127.0.0.1'
+Port = 5432
+User = 'root'
+Password = '666666'
+DBName = 'zls'
+SSLMode = ''
+
+[db.sqlite]
+Path = 'db.db'
+
+

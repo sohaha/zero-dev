@@ -1,0 +1,64 @@
+{
+    "name": "用户模型",
+    "table": {
+        "name": "manage_user",
+        "comment": "用户表"
+    },
+    "columns": [
+        {
+            "label": "头像",
+            "name": "avatar",
+            "type": "string",
+            "validations": [
+                {
+                    "method": "url"
+                }
+            ]
+        },
+        {
+            "label": "email",
+            "name": "email2",
+            "type": "string",
+            "validations": [
+                {
+                    "method": "email"
+                }
+            ]
+        },
+        {
+            "name": "username",
+            "type": "string",
+            "nullable": true,
+            "label": "用户名",
+            "validations": [
+                {
+                    "method": "maxLength",
+                    "args": 10
+                }
+            ]
+        }
+    ],
+    "values": [
+        {
+            "email": "sssssssssss@qq.com",
+            "username": "xxx"
+        },
+        {
+            "id": 3,
+            "email": "ss@qq.com",
+            "username": "新闻标签"
+        },
+        {
+            "id": 5,
+            "email": "333@qq.com",
+            "username": "33"
+        }
+    ],
+    "options": {
+        "disabled_migrator": false,
+        "soft_deletes": true,
+        "timestamps": true,
+        "api_path": "user/v1",
+        "api": true
+    }
+}
