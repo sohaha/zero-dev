@@ -58,11 +58,10 @@ func (m *Model) HasTable() bool {
 }
 
 func (m *Migration) UpdateTable() error {
-	table := builder.NewTable(m.Table.Name).Create()
+	table := builder.NewTable(m.Table.Name)
+	// d := table.GetDriver()
 
-	d := table.GetDriver()
-
-	sql, values, process := d.GetColumn(m.Table.Name)
+	sql, values, process := table.GetColumn()
 	res, err := m.DB.QueryToMaps(sql, values...)
 	if err != nil {
 		return err
@@ -101,7 +100,9 @@ func (m *Migration) UpdateTable() error {
 	zlog.Debug("deleteColumns", deleteColumns)
 
 	for _, v := range deleteColumns {
-		sql, values := table.RenameColumn(v, deleteFieldPrefix+v)
+		// sql, values = table.RenameColumn(v, deleteFieldPrefix+v)
+		// TODO 危险操作，考虑重命名字段
+		sql, values = table.DropColumn(v)
 		_, err := m.DB.Exec(sql, values...)
 		if err != nil {
 			return err
