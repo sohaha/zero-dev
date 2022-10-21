@@ -19,7 +19,8 @@
         {
             "label": "email",
             "name": "email",
-            "size": 5,
+            "size": 25,
+            "read_only": true,
             "type": "string",
             "validations": [
                 {

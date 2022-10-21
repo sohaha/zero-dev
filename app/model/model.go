@@ -1,8 +1,7 @@
 package model
 
 import (
-	"time"
-
+	"github.com/sohaha/zlsgo/ztime"
 	"github.com/zlsgo/zdb"
 )
 
@@ -13,9 +12,10 @@ type (
 		Table   Table     `json:"table"`
 		Columns []*Column `json:"columns"`
 		// Relations []*relation   `json:"relations"`
-		Values      []interface{} `json:"values"`
-		columnsKeys []string
-		Options     struct {
+		Values       []interface{} `json:"values"`
+		columnsKeys  []string
+		readOnlyKeys []string
+		Options      struct {
 			DisabledMigrator bool        `json:"disabled_migrator"`
 			Api              interface{} `json:"api"`
 			ApiPath          string      `json:"api_path"`
@@ -42,6 +42,7 @@ type (
 		Unique      interface{}   `json:"unique"`
 		Index       interface{}   `json:"index"`
 		Validations []validations `json:"validations"`
+		ReadOnly    bool          `json:"read_only"` // 是否创建之后不允许更改
 		Side        bool          `json:"side"`
 	}
 )
@@ -54,7 +55,7 @@ func (m *Model) Migration() *Migration {
 
 func (m *Model) Insert(data map[string]interface{}) (lastId int64, err error) {
 	if m.Options.Timestamps {
-		now := time.Now()
+		now := ztime.Time()
 		data[CreatedAtKey] = now
 		data[UpdatedAtKey] = now
 	}

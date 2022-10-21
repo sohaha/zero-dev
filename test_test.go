@@ -2,22 +2,17 @@ package main
 
 import (
 	"testing"
-
-	"github.com/sohaha/zlsgo/zstring"
 )
 
 func TestXxx(t *testing.T) {
-	t.Log(zstring.String2Bytes("5734574.pdf"))
-	t.Log(len(zstring.String2Bytes("5734574.pdf")))
-	t.Log(len(zstring.Bytes2String([]byte{5, 5, 5, 5, 5})))
-	t.Log((zstring.Bytes2String([]byte{5, 5, 5, 5, 5})))
+	m := map[string]interface{}{"a": 123, "b": 456}
+	t.Log(m)
 
-	b, _ := zstring.Base64Decode(zstring.String2Bytes("S6B4iGEVQ1mY7TYBNxtHEw=="))
-	t.Log(b)
-	t.Log(len(b))
+	tm(m)
 
-	r, err := zstring.AesDecrypt(b, "86fefr4ozq")
-	t.Log(r, err)
-	t.Log(len(r))
-	t.Log(string(r))
+	t.Log(m)
+}
+
+func tm(m map[string]interface{}) {
+	delete(m, "a")
 }

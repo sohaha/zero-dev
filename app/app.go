@@ -5,6 +5,7 @@ import (
 
 	"github.com/sohaha/zlsgo/zdi"
 	"github.com/sohaha/zlsgo/zerror"
+	"github.com/sohaha/zlsgo/ztime"
 
 	"github.com/sohaha/zlsgo/zutil"
 )
@@ -13,6 +14,8 @@ var di zdi.Injector
 var c *service.Conf
 
 func Init() (zdi.Invoker, error) {
+	// 全局时区
+	ztime.SetTimeZone(8)
 	err := zutil.TryCatch(func() (err error) {
 		di = InitDI()
 

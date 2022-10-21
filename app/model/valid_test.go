@@ -277,33 +277,3 @@ func TestCheckData(t *testing.T) {
 		})
 	}
 }
-
-func BenchmarkXxx1(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		_, _ = validRule("ss", "v", []validations{
-			{
-				Method: "min",
-				Args:   "18",
-			},
-			{
-				Method: "max",
-				Args:   "200",
-			},
-		}, 777).String()
-	}
-}
-
-func BenchmarkXxx2(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		_, _ = validRule2("ss", "v", []validations{
-			{
-				Method: "min",
-				Args:   "18",
-			},
-			{
-				Method: "max",
-				Args:   "200",
-			},
-		}, 777).String()
-	}
-}

@@ -15,7 +15,6 @@ import (
 
 func InitDB(c *Conf) *zdb.DB {
 	var dbConf driver.IfeConfig
-
 	d := strings.ToLower(c.DB.Driver)
 	switch d {
 	case "mysql":

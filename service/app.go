@@ -6,15 +6,11 @@ import (
 	"github.com/sohaha/zlsgo/zdi"
 	"github.com/sohaha/zlsgo/zfile"
 	"github.com/sohaha/zlsgo/zlog"
-	"github.com/sohaha/zlsgo/ztime"
 )
 
 var Global *App
 
 func InitApp(conf *Conf, di zdi.Injector) *App {
-	// 全局时区
-	ztime.SetTimeZone(8)
-
 	Global = &App{
 		Di:   di,
 		Conf: conf,

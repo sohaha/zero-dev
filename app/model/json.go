@@ -13,7 +13,11 @@ func ParseJSON(db *zdb.DB, json []byte) (m *Model, err error) {
 	err = zjson.Unmarshal(json, &m)
 	if err == nil {
 		m.DB = db
+		m.readOnlyKeys = make([]string, 0)
 		m.columnsKeys = zarray.Map(m.Columns, func(_ int, c *Column) string {
+			if c.ReadOnly {
+				m.readOnlyKeys = append(m.readOnlyKeys, c.Name)
+			}
 			return c.Name
 		})
 	}

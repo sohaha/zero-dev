@@ -3,6 +3,7 @@ package model
 import (
 	"errors"
 
+	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/ztime"
 	"github.com/sohaha/zlsgo/ztype"
 	"github.com/sohaha/zlsgo/zvalid"
@@ -27,13 +28,15 @@ func filterDate(data ztype.Map, fields []string) ztype.Map {
 	if l == 0 {
 		return data
 	}
-	nmap := make(ztype.Map, l)
-	for _, key := range fields {
-		if v, ok := data[key]; ok {
-			nmap[key] = v
+
+	n := make(ztype.Map, len(data))
+	for k := range data {
+		if !zarray.Contains(fields, k) {
+			n[k] = data[k]
 		}
 	}
-	return nmap
+
+	return n
 }
 
 // CheckData 验证数据

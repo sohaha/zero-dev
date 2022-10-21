@@ -1,11 +1,11 @@
 package model
 
 import (
-	"time"
 	"zlsapp/app/error_code"
 	"zlsapp/service"
 
 	"github.com/sohaha/zlsgo/znet"
+	"github.com/sohaha/zlsgo/ztime"
 	"github.com/sohaha/zlsgo/ztype"
 	"github.com/zlsgo/zdb/builder"
 )
@@ -57,7 +57,7 @@ func (m *Model) restApiDelete(c *znet.Context) error {
 
 	if m.Options.SoftDeletes {
 		_, err = m.DB.Update(m.Table.Name, map[string]interface{}{
-			DeletedAtKey: time.Now().Unix(),
+			DeletedAtKey: ztime.Time().Unix(),
 		}, func(b *builder.UpdateBuilder) error {
 			b.Where(b.EQ(IDKey, key))
 			return nil
@@ -114,7 +114,7 @@ func (m *Model) restApiUpdate(c *znet.Context) error {
 	json = json.MatchKeys(m.columnsKeys)
 
 	data := json.MapString()
-	data, err = CheckData(data, m.Columns, activeUpdate)
+	err = m.ActionUpdate(key, data)
 	if err != nil {
 		return error_code.InvalidInput.Error(err)
 	}
