@@ -22,12 +22,12 @@ const (
 )
 
 // filterDate 过滤数据字段
-func filterDate(data map[string]interface{}, fields []string) map[string]interface{} {
+func filterDate(data ztype.Map, fields []string) ztype.Map {
 	l := len(fields)
 	if l == 0 {
 		return data
 	}
-	nmap := make(map[string]interface{}, l)
+	nmap := make(ztype.Map, l)
 	for _, key := range fields {
 		if v, ok := data[key]; ok {
 			nmap[key] = v
@@ -37,9 +37,9 @@ func filterDate(data map[string]interface{}, fields []string) map[string]interfa
 }
 
 // CheckData 验证数据
-func CheckData(data map[string]interface{}, columns []Column, active activeType) (map[string]interface{}, error) {
-	d, c := make(map[string]interface{}, len(columns)), columns[:]
-	for _, column := range c {
+func CheckData(data ztype.Map, columns []*Column, active activeType) (ztype.Map, error) {
+	d := make(ztype.Map, len(columns))
+	for _, column := range columns {
 		name := column.Name
 		label := column.Label
 		if label == "" {
@@ -47,6 +47,7 @@ func CheckData(data map[string]interface{}, columns []Column, active activeType)
 		}
 
 		v, ok := data[name]
+
 		{
 			if !ok {
 				if column.Default != nil {
@@ -132,7 +133,7 @@ var inlayRules = map[string]func(label string, rule zvalid.Engine, valid validat
 	"mobile": func(label string, rule zvalid.Engine, valid validations) zvalid.Engine {
 		return rule.IsMobile(valid.Message)
 	},
-	"mail": func(label string, rule zvalid.Engine, valid validations) zvalid.Engine {
+	"email": func(label string, rule zvalid.Engine, valid validations) zvalid.Engine {
 		return rule.IsMail(valid.Message)
 	},
 	"url": func(label string, rule zvalid.Engine, valid validations) zvalid.Engine {

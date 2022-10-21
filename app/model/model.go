@@ -42,6 +42,7 @@ type (
 		Unique      interface{}   `json:"unique"`
 		Index       interface{}   `json:"index"`
 		Validations []validations `json:"validations"`
+		Side        bool          `json:"side"`
 	}
 )
 

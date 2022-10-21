@@ -37,6 +37,19 @@
                     "args": 10
                 }
             ]
+        },
+        {
+            "name": "info",
+            "type": "text",
+            "nullable": true,
+            "side": true,
+            "label": "用户详情",
+            "validations": [
+                {
+                    "method": "maxLength",
+                    "args": 10
+                }
+            ]
         }
     ],
     "values": [

@@ -1,16 +1,12 @@
 package model
 
 import (
-	"net/http"
+	"time"
 	"zlsapp/app/error_code"
 	"zlsapp/service"
 
-	"github.com/sohaha/zlsgo/zerror"
-	"github.com/sohaha/zlsgo/zlog"
 	"github.com/sohaha/zlsgo/znet"
 	"github.com/sohaha/zlsgo/ztype"
-	"github.com/sohaha/zlsgo/zvalid"
-	"github.com/zlsgo/zdb"
 	"github.com/zlsgo/zdb/builder"
 )
 
@@ -25,74 +21,116 @@ func NewRestApi() service.Router {
 	}
 }
 
-func (h *RestApi) Init(g *znet.Engine) {
-	di := h.App.Di
+func (m *Model) restApi(g *znet.Engine, name string) {
+	g.GET(name, m.restApiGetPage)
+	g.GET(name+`/:key`, m.restApiGetInfo)
+	g.DELETE(name+`/:key`, m.restApiDelete)
+	g.PUT(name+`/:key`, m.restApiUpdate)
+}
 
-	var db *zdb.DB
-
-	zerror.Panic(di.Resolve(&db))
-
-	// g := r.Group("/api")
-	// allModel := make([]*Model,0,globalModels.Len())
-	globalModels.ForEach(func(s string, m *Model) bool {
-		zlog.Debug(s, m.Name)
-		g.Handle("GET", s, func(c *znet.Context) error {
-			page, pagesize, err := GetPages(c)
-			if err != nil {
-				return error_code.InvalidInput.Error(err)
-			}
-			rows, pages, _ := db.Pages(m.Table.Name, page, pagesize, func(b *builder.SelectBuilder) error {
-				b.Desc(IDKey)
-
-				fields := m.columnsKeys
-				fields = append(fields, IDKey)
-
-				if m.Options.Timestamps {
-					fields = append(fields, CreatedAtKey, UpdatedAtKey)
-				}
-				b.Select(fields...)
-
-				zlog.Debug(fields)
-				return nil
-			})
-
-			return Success(c, ResultPages(rows, pages))
-		})
-		return true
+func (m *Model) restApiInfo(key string) (ztype.Map, error) {
+	return m.DB.Find(m.Table.Name, func(b *builder.SelectBuilder) error {
+		b.Where(b.EQ(IDKey, key))
+		if m.Options.SoftDeletes {
+			b.Where(b.EQ(DeletedAtKey, 0))
+		}
+		return nil
 	})
 }
 
-func Success(c *znet.Context, data interface{}, msg ...string) error {
-	v := znet.ApiData{Data: data}
-	if len(msg) > 0 {
-		v.Msg = msg[0]
+func (m *Model) restApiGetInfo(c *znet.Context) error {
+	key := c.GetParam("key")
+	row, err := m.restApiInfo(key)
+	if err != nil {
+		return error_code.InvalidInput.Error(err)
 	}
-	c.JSON(http.StatusOK, v)
-	return nil
+
+	return Success(c, row)
 }
 
-func ResultPages(rows ztype.Maps, pages zdb.Pages) ztype.Map {
-	return ztype.Map{
-		"items": rows,
-		"page":  pages,
+func (m *Model) restApiDelete(c *znet.Context) error {
+	key := c.GetParam("key")
+	_, err := m.restApiInfo(key)
+	if err != nil {
+		return error_code.InvalidInput.Error(err)
 	}
+
+	if m.Options.SoftDeletes {
+		_, err = m.DB.Update(m.Table.Name, map[string]interface{}{
+			DeletedAtKey: time.Now().Unix(),
+		}, func(b *builder.UpdateBuilder) error {
+			b.Where(b.EQ(IDKey, key))
+			return nil
+		})
+	} else {
+		_, err = m.DB.Delete(m.Table.Name, func(b *builder.DeleteBuilder) error {
+			b.Where(b.EQ(IDKey, key))
+			return nil
+		})
+	}
+
+	if err != nil {
+		return err
+	}
+
+	return Success(c, nil)
+
 }
 
-func GetPages(c *znet.Context) (page, pagesize int, err error) {
-	rule := c.ValidRule().IsNumber().MinInt(1)
-	err = zvalid.Batch(
-		zvalid.BatchVar(&page, c.Valid(rule, "page", "页码").Customize(func(rawValue string, err error) (string, error) {
-			if err != nil || rawValue == "" {
-				return "1", err
-			}
-			return rawValue, nil
-		})),
-		zvalid.BatchVar(&pagesize, c.Valid(rule, "pagesize", "数量").MaxInt(1000).Customize(func(rawValue string, err error) (string, error) {
-			if err != nil || rawValue == "" {
-				return "10", err
-			}
-			return rawValue, nil
-		})),
-	)
-	return
+func (m *Model) restApiGetPage(c *znet.Context) error {
+	page, pagesize, err := GetPages(c)
+	if err != nil {
+		return error_code.InvalidInput.Error(err)
+	}
+
+	rows, pages, err := m.DB.Pages(m.Table.Name, page, pagesize, func(b *builder.SelectBuilder) error {
+		b.Desc(IDKey)
+		b.Select(m.restApiFields()...)
+		if m.Options.SoftDeletes {
+			b.Where(b.EQ(DeletedAtKey, 0))
+		}
+		return nil
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return Success(c, ResultPages(rows, pages))
+
+}
+
+func (m *Model) restApiUpdate(c *znet.Context) error {
+	key := c.GetParam("key")
+	_, err := m.restApiInfo(key)
+	if err != nil {
+		return error_code.InvalidInput.Error(err)
+	}
+
+	json, err := c.GetJSONs()
+	if err != nil {
+		return error_code.InvalidInput.Error(err)
+	}
+	json = json.MatchKeys(m.columnsKeys)
+
+	data := json.MapString()
+	data, err = CheckData(data, m.Columns, activeUpdate)
+	if err != nil {
+		return error_code.InvalidInput.Error(err)
+	}
+
+	return Success(c, data)
+}
+
+func (m *Model) restApiFields(fields ...string) []string {
+	if len(fields) > 0 {
+		return fields
+	}
+	fields = m.columnsKeys
+	fields = append(fields, IDKey)
+
+	if m.Options.Timestamps {
+		fields = append(fields, CreatedAtKey, UpdatedAtKey)
+	}
+	return fields
 }

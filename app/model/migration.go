@@ -66,7 +66,9 @@ func (m *Migration) UpdateTable() error {
 		return err
 	}
 
-	newColumns := zarray.Map(m.Columns, func(i int, v *Column) string {
+	newColumns := zarray.Map(zarray.Filter(m.Columns, func(_ int, _ *Column) bool {
+		return true
+	}), func(i int, v *Column) string {
 		return v.Name
 	})
 
@@ -141,24 +143,25 @@ func (m *Migration) CreateTable() error {
 	table := builder.NewTable(m.Table.Name).Create()
 
 	fields := make([]*schema.Field, 0, len(m.Columns))
+	// sideFields := make([]*schema.Field, 0, len(m.Columns))
 
-	fields = append(fields, schema.NewField(IDKey, schema.Uint, func(f *schema.Field) {
-		f.Comment = "ID"
-		f.Size = 64
-		f.PrimaryKey = true
-		f.AutoIncrement = true
-	}))
+	fields = append(fields, m.getPrimaryKey())
 
 	for _, v := range m.Columns {
 		f := schema.NewField(v.Name, v.Type, func(f *schema.Field) {
 			f.Comment = zutil.IfVal(v.Comment != "", v.Comment, v.Label).(string)
 			f.NotNull = !v.Nullable
 		})
+		// if !v.Side {
 		fields = append(fields, f)
+		// } else {
+		// 	sideFields = append(sideFields, f)
+		// }
 	}
 
 	if m.Options.SoftDeletes {
-		fields = append(fields, schema.NewField(DeletedAtKey, "int", func(f *schema.Field) {
+		fields = append(fields, schema.NewField(DeletedAtKey, schema.Int, func(f *schema.Field) {
+			f.Size = 9999999999
 			f.NotNull = false
 			f.Comment = "删除时间"
 		}))
@@ -177,5 +180,30 @@ func (m *Migration) CreateTable() error {
 
 	sql, values := table.Build()
 	_, err := m.DB.Exec(sql, values...)
+
+	// if err == nil && len(sideFields) > 0 {
+	// 	err = m.createSideTable(sideFields)
+	// }
+
 	return err
 }
+
+func (m *Migration) getPrimaryKey() *schema.Field {
+	return schema.NewField(IDKey, schema.Uint, func(f *schema.Field) {
+		f.Comment = "ID"
+		f.Size = 64
+		f.PrimaryKey = true
+		f.AutoIncrement = true
+	})
+}
+
+// func (m *Migration) createSideTable(fields []*schema.Field) error {
+// 	table := builder.NewTable(m.Table.Name + "__side").Create()
+
+// 	table.Column(m.getPrimaryKey())
+// 	table.Column(fields...)
+
+// 	sql, values := table.Build()
+// 	_, err := m.DB.Exec(sql, values...)
+// 	return err
+// }

@@ -2,9 +2,9 @@ package service
 
 import (
 	"fmt"
-	"net/http"
 	"reflect"
 	"strings"
+	"zlsapp/app/error_code"
 
 	"github.com/sohaha/zlsgo/zdi"
 	"github.com/sohaha/zlsgo/zerror"
@@ -40,14 +40,24 @@ func InitWeb(app *App, middlewares []znet.Handler) *znet.Engine {
 		r.SetMode(znet.DebugMode)
 	}
 
-	r.Use(znet.Recovery(func(c *znet.Context, err error) {
-		if isDebug {
-			c.Log.Track(err.Error(), 20)
+	r.Use(znet.RewriteErrorHandler(func(c *znet.Context, err error) {
+		errCode, ok := zerror.UnwrapCode(err)
+		if ok && errCode != 0 {
+			_ = error_code.ErrCode(errCode).Result(c, err)
+			return
 		}
-		c.JSON(http.StatusInternalServerError, znet.ApiData{
-			Code: http.StatusInternalServerError,
-			Msg:  err.Error(),
-		})
+
+		errMsg := err.Error()
+
+		if ok && errCode == 0 {
+			c.ApiJSON(0, errMsg, struct{}{})
+			return
+		}
+
+		if errMsg == "" {
+			errMsg = "unknown error"
+		}
+		c.ApiJSON(int32(error_code.ServerError), errMsg, struct{}{})
 	}))
 
 	for _, middleware := range middlewares {
