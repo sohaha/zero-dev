@@ -3,7 +3,6 @@ package model
 import (
 	"time"
 
-	"github.com/sohaha/zlsgo/zlog"
 	"github.com/zlsgo/zdb"
 )
 
@@ -14,8 +13,9 @@ type (
 		Table   Table     `json:"table"`
 		Columns []*Column `json:"columns"`
 		// Relations []*relation   `json:"relations"`
-		Values  []interface{} `json:"values"`
-		Options struct {
+		Values      []interface{} `json:"values"`
+		columnsKeys []string
+		Options     struct {
 			DisabledMigrator bool        `json:"disabled_migrator"`
 			Api              interface{} `json:"api"`
 			ApiPath          string      `json:"api_path"`
@@ -54,15 +54,14 @@ func (m *Model) Migration() *Migration {
 func (m *Model) Insert(data map[string]interface{}) (lastId int64, err error) {
 	if m.Options.Timestamps {
 		now := time.Now()
-		data["created_at"] = now
-		data["updated_at"] = now
+		data[CreatedAtKey] = now
+		data[UpdatedAtKey] = now
 	}
 
 	if m.Options.SoftDeletes {
-		data["deleted_at"] = 0
+		data[DeletedAtKey] = 0
 	}
 
-	zlog.Debug(data)
 	lastId, err = m.DB.InsertMaps(m.Table.Name, data)
 
 	return

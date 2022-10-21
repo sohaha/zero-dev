@@ -1,46 +1,30 @@
 package model
 
 import (
+	"strings"
+
+	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/zjson"
 	"github.com/zlsgo/zdb"
 )
 
-// 解析
+// ParseJSON 解析模型
 func ParseJSON(db *zdb.DB, json []byte) (m *Model, err error) {
 	err = zjson.Unmarshal(json, &m)
 	if err == nil {
 		m.DB = db
+		m.columnsKeys = zarray.Map(m.Columns, func(_ int, c *Column) string {
+			return c.Name
+		})
 	}
 	return
-	// j := zjson.ParseBytes(json)
+}
 
-	// columns := make([]Column, 0)
-	// j.Get("columns").ForEach(func(key, value zjson.Res) bool {
-	// 	zlog.Debug(key, value)
-	// 	column := Column{
-	// 		Name:        value.Get("name").String(),
-	// 		Comment:     value.Get("comment").String(),
-	// 		Type:        value.Get("type").String(),
-	// 		Size:        value.Get("size").Uint(),
-	// 		Nullable:    value.Get("nullable").Bool(),
-	// 		Label:       value.Get("label").String(),
-	// 		Enum:        nil,
-	// 		Unique:      nil,
-	// 		Index:       nil,
-	// 		Validations: []validations{},
-	// 	}
-
-	// 	defaultValue := value.Get("default")
-	// 	if defaultValue.Exists() {
-	// 		column.Default = defaultValue.Value()
-	// 	}
-
-	// 	validations := value.Get("validations")
-	// 	if validations.Exists() {
-	// 		_ = zjson.Unmarshal(validations.String(), &column.Validations)
-	// 	}
-	// 	columns = append(columns, column)
-	// 	return true
-	// })
-	// _ = columns
+func Add(db *zdb.DB, name string, json []byte) (m *Model, err error) {
+	m, err = ParseJSON(db, json)
+	if err == nil {
+		name = strings.TrimSuffix(name, ".model.json")
+		globalModels.Set(strings.Replace(name, "/", "-", -1), m)
+	}
+	return
 }

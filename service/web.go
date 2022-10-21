@@ -73,11 +73,19 @@ func RunWeb(r *znet.Engine, app *App, controllers []Router) {
 			if api == -1 {
 				return fmt.Errorf("%s not a legitimate controller", controller)
 			}
+
 			reflect.ValueOf(c).Elem().Field(api).Set(reflect.ValueOf(*app))
 
-			name := zstring.CamelCaseToSnakeCase(controller, "/")
-			if name == "home" {
-				name = ""
+			name := ""
+			cName := reflect.Indirect(reflect.ValueOf(c)).FieldByName("Path")
+
+			if cName.IsValid() && cName.String() != "" {
+				name = zstring.CamelCaseToSnakeCase(cName.String(), "/")
+			} else {
+				name = zstring.CamelCaseToSnakeCase(controller, "/")
+				if name == "home" {
+					name = ""
+				}
 			}
 
 			return r.BindStruct(name, c)

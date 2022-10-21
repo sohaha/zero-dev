@@ -15,7 +15,12 @@ type Migration struct {
 	Model
 }
 
-const IDKey = "id"
+const (
+	IDKey        = "id"
+	CreatedAtKey = "created_at"
+	UpdatedAtKey = "updated_at"
+	DeletedAtKey = "deleted_at"
+)
 
 func init() {
 	zdb.IDKey = IDKey
@@ -69,12 +74,12 @@ func (m *Migration) UpdateTable() error {
 
 	{
 		if m.Options.SoftDeletes {
-			newColumns = append(newColumns, "deleted_at")
+			newColumns = append(newColumns, DeletedAtKey)
 		}
 
 		if m.Options.Timestamps {
-			newColumns = append(newColumns, "created_at")
-			newColumns = append(newColumns, "updated_at")
+			newColumns = append(newColumns, CreatedAtKey)
+			newColumns = append(newColumns, UpdatedAtKey)
 		}
 	}
 
@@ -153,17 +158,17 @@ func (m *Migration) CreateTable() error {
 	}
 
 	if m.Options.SoftDeletes {
-		fields = append(fields, schema.NewField("deleted_at", "int", func(f *schema.Field) {
+		fields = append(fields, schema.NewField(DeletedAtKey, "int", func(f *schema.Field) {
 			f.NotNull = false
 			f.Comment = "删除时间"
 		}))
 	}
 
 	if m.Options.Timestamps {
-		fields = append(fields, schema.NewField("created_at", schema.Time, func(f *schema.Field) {
+		fields = append(fields, schema.NewField(CreatedAtKey, schema.Time, func(f *schema.Field) {
 			f.Comment = "创建时间"
 		}))
-		fields = append(fields, schema.NewField("updated_at", schema.Time, func(f *schema.Field) {
+		fields = append(fields, schema.NewField(UpdatedAtKey, schema.Time, func(f *schema.Field) {
 			f.Comment = "更新时间"
 		}))
 	}

@@ -12,8 +12,9 @@ import (
 
 func RunMigrations(di zdi.Invoker) error {
 	_, err := di.Invoke(func(db *zdb.DB) {
-		json, _ := zfile.ReadFile("testdata/user.model.json")
-		m, err := model.ParseJSON(db, json)
+		name := "testdata/user.model.json"
+		json, _ := zfile.ReadFile(name)
+		m, err := model.Add(db, name, json)
 
 		zerror.Panic(err)
 

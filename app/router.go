@@ -1,6 +1,7 @@
 package app
 
 import (
+	"zlsapp/app/model"
 	"zlsapp/controller"
 	"zlsapp/service"
 
@@ -11,6 +12,7 @@ import (
 func InitRouter(_ *service.Conf) []service.Router {
 	return []service.Router{
 		&controller.Home{},
+		model.NewRestApi(),
 	}
 }
 
