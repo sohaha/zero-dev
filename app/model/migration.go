@@ -5,14 +5,20 @@ import (
 	"strings"
 
 	"github.com/sohaha/zlsgo/zarray"
-	"github.com/sohaha/zlsgo/zlog"
 	"github.com/sohaha/zlsgo/zutil"
+	"github.com/zlsgo/zdb"
 	"github.com/zlsgo/zdb/builder"
 	"github.com/zlsgo/zdb/schema"
 )
 
 type Migration struct {
 	Model
+}
+
+const IDKey = "id"
+
+func init() {
+	zdb.IDKey = IDKey
 }
 
 const deleteFieldPrefix = "__del__"
@@ -31,18 +37,6 @@ func (m *Migration) InitValue() error {
 	}
 
 	return nil
-
-	// zlog.Debug(i, err)
-	// vof := reflect.ValueOf(m.Values)
-
-	// vof.Len()
-	// zlog.Debug(vof.Len())
-
-	// for i := 0; i < vof.Len(); i++ {
-	// 	zlog.Debug(vof.Index(i).Interface())
-	// }
-	// zlog.Debug(ztype.GetType(m.Values))
-	// return err
 }
 
 func (m *Model) HasTable() bool {
@@ -59,7 +53,7 @@ func (m *Model) HasTable() bool {
 
 func (m *Migration) UpdateTable() error {
 	table := builder.NewTable(m.Table.Name)
-	// d := table.GetDriver()
+	d := table.GetDriver()
 
 	sql, values, process := table.GetColumn()
 	res, err := m.DB.QueryToMaps(sql, values...)
@@ -71,7 +65,7 @@ func (m *Migration) UpdateTable() error {
 		return v.Name
 	})
 
-	newColumns = append(newColumns, "id")
+	newColumns = append(newColumns, IDKey)
 
 	{
 		if m.Options.SoftDeletes {
@@ -84,18 +78,29 @@ func (m *Migration) UpdateTable() error {
 		}
 	}
 
-	oldColumns := zarray.Keys(process(res))
+	currentColumns := process(res)
+	oldColumns := zarray.Keys(currentColumns)
+
+	updateColumns := zarray.Map(zarray.Filter(m.Columns, func(_ int, n *Column) bool {
+		c := currentColumns.Get(n.Name)
+		if !c.Exists() {
+			return false
+		}
+		t := strings.ToUpper(d.DataTypeOf(&schema.Field{DataType: schema.DataType(n.Type)}))
+		return t != c.Get("type").String()
+	}), func(i int, v *Column) string { return v.Name })
 
 	addColumns := zarray.Filter(newColumns, func(_ int, n string) bool {
 		return !zarray.Contains(oldColumns, n)
 	})
+
 	deleteColumns := zarray.Filter(oldColumns, func(_ int, n string) bool {
 		return !zarray.Contains(newColumns, n) && !strings.HasPrefix(n, deleteFieldPrefix)
 	})
 
 	for _, v := range deleteColumns {
-		// sql, values = table.RenameColumn(v, deleteFieldPrefix+v)
 		// TODO 危险操作，考虑重命名字段
+		// sql, values = table.RenameColumn(v, deleteFieldPrefix+v)
 		sql, values = table.DropColumn(v)
 		_, err := m.DB.Exec(sql, values...)
 		if err != nil {
@@ -119,6 +124,11 @@ func (m *Migration) UpdateTable() error {
 		}
 	}
 
+	// TODO 是否需要支持修改字段类型
+	for _, v := range updateColumns {
+		_ = v
+	}
+
 	return nil
 }
 
@@ -127,7 +137,7 @@ func (m *Migration) CreateTable() error {
 
 	fields := make([]*schema.Field, 0, len(m.Columns))
 
-	fields = append(fields, schema.NewField("id", schema.Uint, func(f *schema.Field) {
+	fields = append(fields, schema.NewField(IDKey, schema.Uint, func(f *schema.Field) {
 		f.Comment = "ID"
 		f.Size = 64
 		f.PrimaryKey = true
@@ -161,7 +171,6 @@ func (m *Migration) CreateTable() error {
 	table.Column(fields...)
 
 	sql, values := table.Build()
-	zlog.Debug(sql, values)
 	_, err := m.DB.Exec(sql, values...)
 	return err
 }

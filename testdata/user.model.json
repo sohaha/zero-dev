@@ -8,6 +8,7 @@
         {
             "label": "头像",
             "name": "avatar",
+            "nullable": true,
             "type": "string",
             "validations": [
                 {
@@ -17,7 +18,7 @@
         },
         {
             "label": "email",
-            "name": "email2",
+            "name": "email",
             "type": "string",
             "validations": [
                 {
@@ -44,12 +45,10 @@
             "username": "xxx"
         },
         {
-            "id": 3,
             "email": "ss@qq.com",
             "username": "新闻标签"
         },
         {
-            "id": 5,
             "email": "333@qq.com",
             "username": "33"
         }

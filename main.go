@@ -5,9 +5,12 @@ import (
 	"zlsapp/app/migration"
 	"zlsapp/service"
 
+	"github.com/arl/statsviz"
 	"github.com/sohaha/zlsgo/zcli"
+	"github.com/sohaha/zlsgo/zerror"
 	"github.com/sohaha/zlsgo/zlog"
 	"github.com/sohaha/zlsgo/znet"
+	"github.com/sohaha/zlsgo/zutil"
 )
 
 func main() {
@@ -24,23 +27,29 @@ _____
 	zcli.Version = "1.0.0"
 	zcli.EnableDetach = true
 
-	di, err := app.Init()
+	err := zutil.TryCatch(func() error {
+		di, err := app.Init()
+		if err == nil {
+			_ = di.Resolve(&c)
 
-	if err == nil {
-		_ = di.Resolve(&c)
+			zerror.Panic(migration.RunMigrations(di))
 
-		_ = di.Resolve(&c)
+			var router *znet.Engine
+			_ = di.Resolve(&router)
+			if c.Base.Debug {
+				_ = router.GET(`/debug/statsviz{*:[\S]*}`, func(c *znet.Context) {
+					if c.GetParam("*") == "/ws" {
+						statsviz.Ws(c.Writer, c.Request)
+						return
+					}
+					statsviz.IndexAtRoot("/debug/statsviz").ServeHTTP(c.Writer, c.Request)
+				})
+			}
 
-		migration.RunMigrations(di)
-
-		var router *znet.Engine
-		_ = di.Resolve(&router)
-		_ = router.GET("/__", func(c *znet.Context) {
-			c.String(200, "OK")
-		})
-
-		err = app.Start()
-	}
+			err = app.Start()
+		}
+		return err
+	})
 
 	if err != nil {
 		if c == nil || !c.Base.Debug {

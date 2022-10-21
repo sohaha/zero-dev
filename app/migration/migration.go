@@ -28,7 +28,10 @@ func RunMigrations(di zdi.Invoker) error {
 			zerror.Panic(migration.UpdateTable())
 		}
 
-		zlog.Debug("初始化数据", migration.InitValue())
+		zlog.Debug("初始化数据")
+
+		err = migration.InitValue()
+		zerror.Panic(err)
 		// table := builder.NewTable("user").Create()
 
 		// // schema.NewField()

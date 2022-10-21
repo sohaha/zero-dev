@@ -3,6 +3,7 @@ package model
 import (
 	"time"
 
+	"github.com/sohaha/zlsgo/zlog"
 	"github.com/zlsgo/zdb"
 )
 
@@ -61,6 +62,7 @@ func (m *Model) Insert(data map[string]interface{}) (lastId int64, err error) {
 		data["deleted_at"] = 0
 	}
 
+	zlog.Debug(data)
 	lastId, err = m.DB.InsertMaps(m.Table.Name, data)
 
 	return
