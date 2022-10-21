@@ -19,6 +19,7 @@
         {
             "label": "email",
             "name": "email",
+            "size": 5,
             "type": "string",
             "validations": [
                 {
@@ -43,6 +44,7 @@
             "type": "text",
             "nullable": true,
             "side": true,
+            "size": 5,
             "label": "用户详情",
             "validations": [
                 {

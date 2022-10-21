@@ -3,23 +3,25 @@ package model
 import (
 	"reflect"
 	"testing"
+
+	"github.com/sohaha/zlsgo/ztype"
 )
 
 func TestCheckData(t *testing.T) {
 	type (
 		args struct {
-			data    map[string]interface{}
-			columns []Column
+			data    ztype.Map
+			columns []*Column
 			active  activeType
 		}
 		test struct {
 			name    string
 			args    args
-			want    map[string]interface{}
+			want    ztype.Map
 			wantErr bool
 		}
 	)
-	columns := []Column{
+	columns := []*Column{
 		{
 			Label:    "用户名",
 			Name:     "username",
@@ -273,5 +275,35 @@ func TestCheckData(t *testing.T) {
 				t.Errorf("data = %+v, want %+v", got, tt.want)
 			}
 		})
+	}
+}
+
+func BenchmarkXxx1(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_, _ = validRule("ss", "v", []validations{
+			{
+				Method: "min",
+				Args:   "18",
+			},
+			{
+				Method: "max",
+				Args:   "200",
+			},
+		}, 777).String()
+	}
+}
+
+func BenchmarkXxx2(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_, _ = validRule2("ss", "v", []validations{
+			{
+				Method: "min",
+				Args:   "18",
+			},
+			{
+				Method: "max",
+				Args:   "200",
+			},
+		}, 777).String()
 	}
 }

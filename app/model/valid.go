@@ -89,8 +89,7 @@ func CheckData(data ztype.Map, columns []*Column, active activeType) (ztype.Map,
 					case "int":
 						val, err = rule.Int()
 					case "uint":
-						val, err = rule.Int()
-						val = uint(val.(int))
+						val = ztype.ToUint(rule.Value())
 					default:
 						val, err = rule.Float64()
 					}
@@ -108,51 +107,61 @@ func CheckData(data ztype.Map, columns []*Column, active activeType) (ztype.Map,
 	return d, nil
 }
 
-var inlayRules = map[string]func(label string, rule zvalid.Engine, valid validations) zvalid.Engine{
-	"regex": func(label string, rule zvalid.Engine, valid validations) zvalid.Engine {
-		return rule.Regex(ztype.ToString(valid.Args), valid.Message)
+var inlayRules = map[string]func(label string, rule *zvalid.Engine, valid validations) *zvalid.Engine{
+	"regex": func(label string, rule *zvalid.Engine, valid validations) *zvalid.Engine {
+		rule.Regex(ztype.ToString(valid.Args), valid.Message)
+		return rule
 	},
-	"json": func(label string, rule zvalid.Engine, valid validations) zvalid.Engine {
-		return rule.IsJSON(valid.Message)
+	"json": func(label string, rule *zvalid.Engine, valid validations) *zvalid.Engine {
+		rule.IsJSON(valid.Message)
+		return rule
 	},
-	"enum": func(label string, rule zvalid.Engine, valid validations) zvalid.Engine {
+	"enum": func(label string, rule *zvalid.Engine, valid validations) *zvalid.Engine {
 		switch val := valid.Args.(type) {
 		case []float64:
-			rule = rule.EnumFloat64(val)
+			rule.EnumFloat64(val)
 		case []string:
-			rule = rule.EnumString(val)
+			rule.EnumString(val)
 		case []int:
-			rule = rule.EnumInt(val)
+			rule.EnumInt(val)
 		default:
-			rule = rule.Customize(func(rawValue string, err error) (string, error) {
+			rule.Customize(func(rawValue string, err error) (string, error) {
 				return "", errors.New(label + "枚举值不在合法范围")
 			})
 		}
 		return rule
 	},
-	"mobile": func(label string, rule zvalid.Engine, valid validations) zvalid.Engine {
-		return rule.IsMobile(valid.Message)
+	"mobile": func(label string, rule *zvalid.Engine, valid validations) *zvalid.Engine {
+		rule.IsMobile(valid.Message)
+		return rule
 	},
-	"email": func(label string, rule zvalid.Engine, valid validations) zvalid.Engine {
-		return rule.IsMail(valid.Message)
+	"email": func(label string, rule *zvalid.Engine, valid validations) *zvalid.Engine {
+		rule.IsMail(valid.Message)
+		return rule
 	},
-	"url": func(label string, rule zvalid.Engine, valid validations) zvalid.Engine {
-		return rule.IsURL(valid.Message)
+	"url": func(label string, rule *zvalid.Engine, valid validations) *zvalid.Engine {
+		rule.IsURL(valid.Message)
+		return rule
 	},
-	"ip": func(label string, rule zvalid.Engine, valid validations) zvalid.Engine {
-		return rule.IsIP(valid.Message)
+	"ip": func(label string, rule *zvalid.Engine, valid validations) *zvalid.Engine {
+		rule.IsIP(valid.Message)
+		return rule
 	},
-	"minLength": func(label string, rule zvalid.Engine, valid validations) zvalid.Engine {
-		return rule.MinUTF8Length(ztype.ToInt(valid.Args), valid.Message)
+	"minLength": func(label string, rule *zvalid.Engine, valid validations) *zvalid.Engine {
+		rule.MinUTF8Length(ztype.ToInt(valid.Args), valid.Message)
+		return rule
 	},
-	"maxLength": func(label string, rule zvalid.Engine, valid validations) zvalid.Engine {
-		return rule.MaxUTF8Length(ztype.ToInt(valid.Args), valid.Message)
+	"maxLength": func(label string, rule *zvalid.Engine, valid validations) *zvalid.Engine {
+		rule.MaxUTF8Length(ztype.ToInt(valid.Args), valid.Message)
+		return rule
 	},
-	"min": func(label string, rule zvalid.Engine, valid validations) zvalid.Engine {
-		return rule.MinFloat(ztype.ToFloat64(valid.Args), valid.Message)
+	"min": func(label string, rule *zvalid.Engine, valid validations) *zvalid.Engine {
+		rule.MinFloat(ztype.ToFloat64(valid.Args), valid.Message)
+		return rule
 	},
-	"max": func(label string, rule zvalid.Engine, valid validations) zvalid.Engine {
-		return rule.MaxFloat(ztype.ToFloat64(valid.Args), valid.Message)
+	"max": func(label string, rule *zvalid.Engine, valid validations) *zvalid.Engine {
+		rule.MaxFloat(ztype.ToFloat64(valid.Args), valid.Message)
+		return rule
 	},
 }
 
@@ -162,12 +171,59 @@ func validRule(label string, v interface{}, valids []validations, max uint) zval
 	for _, valid := range valids {
 		r, ok := inlayRules[valid.Method]
 		if ok {
-			rule = r(label, rule, valid)
+			r(label, &rule, valid)
 		} else {
 			fn, ok := valid.Args.(func(label string, rule zvalid.Engine, valid validations) zvalid.Engine)
 			if ok {
 				rule = fn(label, rule, valid)
 			}
+		}
+	}
+
+	if max > 0 {
+		rule = rule.MaxUTF8Length(int(max))
+	}
+	return rule
+}
+
+func validRule2(label string, v interface{}, valids []validations, max uint) zvalid.Engine {
+	rule := zvalid.New().VerifiAny(v, label)
+
+	for _, valid := range valids {
+		switch valid.Method {
+		case "regex":
+			rule = rule.Regex(ztype.ToString(valid.Args), valid.Message)
+		case "json":
+			rule = rule.IsJSON(valid.Message)
+		case "enum":
+			switch val := valid.Args.(type) {
+			case []float64:
+				rule = rule.EnumFloat64(val)
+			case []string:
+				rule = rule.EnumString(val)
+			case []int:
+				rule = rule.EnumInt(val)
+			default:
+				rule = rule.Customize(func(rawValue string, err error) (string, error) {
+					return "", errors.New(label + "枚举值不在合法范围")
+				})
+			}
+		case "mobile":
+			rule = rule.IsMobile(valid.Message)
+		case "mail":
+			rule = rule.IsMail(valid.Message)
+		case "url":
+			rule = rule.IsURL(valid.Message)
+		case "ip":
+			rule = rule.IsIP(valid.Message)
+		case "minLength":
+			rule = rule.MinUTF8Length(ztype.ToInt(valid.Args), valid.Message)
+		case "maxLength":
+			rule = rule.MaxUTF8Length(ztype.ToInt(valid.Args), valid.Message)
+		case "min":
+			rule = rule.MinFloat(ztype.ToFloat64(valid.Args), valid.Message)
+		case "max":
+			rule = rule.MaxFloat(ztype.ToFloat64(valid.Args), valid.Message)
 		}
 	}
 
