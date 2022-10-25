@@ -33,11 +33,6 @@ func RunMigrations(di zdi.Invoker) error {
 
 		err = migration.InitValue()
 		zerror.Panic(err)
-		// table := builder.NewTable("user").Create()
-
-		// // schema.NewField()
-		// table.Column()
-		// zlog.Debug(table.Build())
 	})
 
 	return err

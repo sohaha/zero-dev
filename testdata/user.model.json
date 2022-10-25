@@ -31,9 +31,12 @@
         {
             "name": "username",
             "type": "string",
-            "nullable": true,
             "label": "用户名",
             "validations": [
+                {
+                    "method": "minLength",
+                    "args": 3
+                },
                 {
                     "method": "maxLength",
                     "args": 10
@@ -53,12 +56,27 @@
                     "args": 10
                 }
             ]
+        },
+        {
+            "name": "info2",
+            "type": "text",
+            "nullable": true,
+            "default": "默认值",
+            "side": true,
+            "size": 5,
+            "label": "用户详情",
+            "validations": [
+                {
+                    "method": "maxLength",
+                    "args": 10
+                }
+            ]
         }
     ],
     "values": [
         {
             "email": "sssssssssss@qq.com",
-            "username": "xxx"
+            "username": "xxx3"
         },
         {
             "email": "ss@qq.com",
@@ -66,7 +84,7 @@
         },
         {
             "email": "333@qq.com",
-            "username": "33"
+            "username": "1234"
         }
     ],
     "options": {

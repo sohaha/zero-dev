@@ -11,18 +11,14 @@ import (
 )
 
 func (h *RestApi) Init(g *znet.Engine) {
-	di := h.App.Di
-
-	var db *zdb.DB
+	var (
+		db *zdb.DB
+		di = h.App.Di
+	)
 
 	zerror.Panic(di.Resolve(&db))
 
-	// g := r.Group("/api")
-	// allModel := make([]*Model,0,globalModels.Len())
-	globalModels.ForEach(func(s string, m *Model) bool {
-		m.restApi(g, s)
-		return true
-	})
+	_ = modelsBindRouter(g)
 }
 
 func Success(c *znet.Context, data interface{}, msg ...string) error {

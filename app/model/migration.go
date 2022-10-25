@@ -35,7 +35,11 @@ func (m *Migration) InitValue() error {
 			return errors.New("Invalid migration value")
 		}
 
-		_, err := m.Model.Insert(data)
+		data, err := CheckData(data, m.Columns, activeCreate)
+		if err != nil {
+			return err
+		}
+		_, err = m.Model.Insert(data)
 		if err != nil {
 			return err
 		}
@@ -191,7 +195,6 @@ func (m *Migration) CreateTable() error {
 func (m *Migration) getPrimaryKey() *schema.Field {
 	return schema.NewField(IDKey, schema.Uint, func(f *schema.Field) {
 		f.Comment = "ID"
-		f.Size = 64
 		f.PrimaryKey = true
 		f.AutoIncrement = true
 	})

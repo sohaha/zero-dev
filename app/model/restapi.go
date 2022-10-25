@@ -21,13 +21,6 @@ func NewRestApi() service.Router {
 	}
 }
 
-func (m *Model) restApi(g *znet.Engine, name string) {
-	g.GET(name, m.restApiGetPage)
-	g.GET(name+`/:key`, m.restApiGetInfo)
-	g.DELETE(name+`/:key`, m.restApiDelete)
-	g.PUT(name+`/:key`, m.restApiUpdate)
-}
-
 func (m *Model) restApiInfo(key string) (ztype.Map, error) {
 	return m.DB.Find(m.Table.Name, func(b *builder.SelectBuilder) error {
 		b.Where(b.EQ(IDKey, key))
@@ -98,6 +91,24 @@ func (m *Model) restApiGetPage(c *znet.Context) error {
 
 	return Success(c, ResultPages(rows, pages))
 
+}
+
+func (m *Model) restApiCreate(c *znet.Context) error {
+	json, err := c.GetJSONs()
+	if err != nil {
+		return error_code.InvalidInput.Error(err)
+	}
+
+	json = json.MatchKeys(m.columnsKeys)
+
+	data := json.MapString()
+
+	id, err := m.ActionCreate(data)
+	if err != nil {
+		return error_code.InvalidInput.Error(err)
+	}
+
+	return Success(c, ztype.Map{"id": id})
 }
 
 func (m *Model) restApiUpdate(c *znet.Context) error {

@@ -7,6 +7,60 @@ import (
 	"github.com/sohaha/zlsgo/ztype"
 )
 
+var testColumns = []*Column{
+	{
+		Label:    "用户名",
+		Name:     "username",
+		Type:     "string",
+		Size:     10,
+		Nullable: false,
+		Validations: []validations{
+			{
+				Method: "minLength",
+				Args:   "5",
+			},
+		},
+	},
+	{
+		Name:  "age",
+		Label: "年龄",
+		Type:  "int",
+		Validations: []validations{
+			{
+				Method: "min",
+				Args:   "18",
+			},
+			{
+				Method: "max",
+				Args:   "200",
+			},
+		},
+	},
+	{
+		Name:     "gender",
+		Type:     "float",
+		Nullable: true,
+		Validations: []validations{
+			{
+				Method: "enum",
+				Args:   []float64{1.0, 1.1},
+			},
+		},
+		Label: "性别",
+	},
+	{
+		Name:     "login_ip",
+		Type:     "string",
+		Nullable: true,
+		Validations: []validations{
+			{
+				Method: "ip",
+			},
+		},
+		Label: "登录IP",
+	},
+}
+
 func TestCheckData(t *testing.T) {
 	type (
 		args struct {
@@ -21,59 +75,9 @@ func TestCheckData(t *testing.T) {
 			wantErr bool
 		}
 	)
-	columns := []*Column{
-		{
-			Label:    "用户名",
-			Name:     "username",
-			Type:     "string",
-			Size:     10,
-			Nullable: false,
-			Validations: []validations{
-				{
-					Method: "minLength",
-					Args:   "5",
-				},
-			},
-		},
-		{
-			Name:  "age",
-			Label: "年龄",
-			Type:  "int",
-			Validations: []validations{
-				{
-					Method: "min",
-					Args:   "18",
-				},
-				{
-					Method: "max",
-					Args:   "200",
-				},
-			},
-		},
-		{
-			Name:     "gender",
-			Type:     "float",
-			Nullable: true,
-			Validations: []validations{
-				{
-					Method: "enum",
-					Args:   []float64{1.0, 1.1},
-				},
-			},
-			Label: "性别",
-		},
-		{
-			Name:     "login_ip",
-			Type:     "string",
-			Nullable: true,
-			Validations: []validations{
-				{
-					Method: "ip",
-				},
-			},
-			Label: "登录IP",
-		},
-	}
+
+	columns := testColumns
+
 	var tests []test
 
 	{
@@ -275,5 +279,41 @@ func TestCheckData(t *testing.T) {
 				t.Errorf("data = %+v, want %+v", got, tt.want)
 			}
 		})
+	}
+}
+
+func BenchmarkValidRule2(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_, err := CheckData2(ztype.Map{
+			"username": "admin",
+			"age":      "18",
+		}, testColumns, 0)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkValidRule(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_, err := CheckData(ztype.Map{
+			"username": "admin",
+			"age":      "18",
+		}, testColumns, 0)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkValidRule3(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_, err := CheckData3(ztype.Map{
+			"username": "admin",
+			"age":      "18",
+		}, testColumns, 0)
+		if err != nil {
+			b.Fatal(err)
+		}
 	}
 }

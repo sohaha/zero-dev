@@ -28,23 +28,6 @@ type (
 		Name    string `json:"name"`
 		Comment string `json:"comment"`
 	}
-
-	Column struct {
-		Name        string        `json:"name"`
-		Comment     string        `json:"comment"`
-		Type        string        `json:"type"`
-		Size        uint          `json:"size"`
-		Tag         string        `json:"tag"`
-		Nullable    bool          `json:"nullable"`
-		Label       string        `json:"label"`
-		Enum        interface{}   `json:"enum"`
-		Default     interface{}   `json:"default"`
-		Unique      interface{}   `json:"unique"`
-		Index       interface{}   `json:"index"`
-		Validations []validations `json:"validations"`
-		ReadOnly    bool          `json:"read_only"` // 是否创建之后不允许更改
-		Side        bool          `json:"side"`
-	}
 )
 
 func (m *Model) Migration() *Migration {

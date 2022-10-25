@@ -18,11 +18,11 @@ func main() {
 
 	zcli.Name = "ZlsApp"
 	zcli.Logo = `
-_____                   
-/  _  \  ______  ______  
-/  /_\  \ \____ \ \____ \ 
+_____
+/  _  \  ______  ______
+/  /_\  \ \____ \ \____ \
 /    |    \|  |_> >|  |_> >
-\____|__  /|   __/ |   __/ 
+\____|__  /|   __/ |   __/
 	\/ |__|    |__|     `
 	zcli.Version = "1.0.0"
 	zcli.EnableDetach = true
@@ -30,9 +30,10 @@ _____
 	err := zutil.TryCatch(func() error {
 		di, err := app.Init()
 		if err == nil {
-			_ = di.Resolve(&c)
-
-			zerror.Panic(migration.RunMigrations(di))
+			_, _ = di.Invoke(func(app *service.App) {
+				c = app.Conf
+				zerror.Panic(migration.RunMigrations(di))
+			})
 
 			var router *znet.Engine
 			_ = di.Resolve(&router)
