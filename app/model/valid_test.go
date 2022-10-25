@@ -2,6 +2,7 @@ package model
 
 import (
 	"reflect"
+	"sync"
 	"testing"
 
 	"github.com/sohaha/zlsgo/ztype"
@@ -266,8 +267,11 @@ func TestCheckData(t *testing.T) {
 			wantErr: true,
 		})
 	}
+	var wg sync.WaitGroup
 	for _, tt := range tests {
+		wg.Add(1)
 		t.Run(tt.name, func(t *testing.T) {
+			defer wg.Done()
 			got, err := CheckData(tt.args.data, tt.args.columns, tt.args.active)
 			if err != nil {
 				if !tt.wantErr {
@@ -280,40 +284,41 @@ func TestCheckData(t *testing.T) {
 			}
 		})
 	}
+	wg.Wait()
 }
 
-func BenchmarkValidRule2(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		_, err := CheckData2(ztype.Map{
-			"username": "admin",
-			"age":      "18",
-		}, testColumns, 0)
-		if err != nil {
-			b.Fatal(err)
-		}
-	}
-}
+// func BenchmarkValidRule2(b *testing.B) {
+// 	for i := 0; i < b.N; i++ {
+// 		_, err := CheckData2(ztype.Map{
+// 			"username": "admin",
+// 			"age":      "18",
+// 		}, testColumns, 0)
+// 		if err != nil {
+// 			b.Fatal(err)
+// 		}
+// 	}
+// }
 
-func BenchmarkValidRule(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		_, err := CheckData(ztype.Map{
-			"username": "admin",
-			"age":      "18",
-		}, testColumns, 0)
-		if err != nil {
-			b.Fatal(err)
-		}
-	}
-}
+// func BenchmarkValidRule(b *testing.B) {
+// 	for i := 0; i < b.N; i++ {
+// 		_, err := CheckData(ztype.Map{
+// 			"username": "admin",
+// 			"age":      "18",
+// 		}, testColumns, 0)
+// 		if err != nil {
+// 			b.Fatal(err)
+// 		}
+// 	}
+// }
 
-func BenchmarkValidRule3(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		_, err := CheckData3(ztype.Map{
-			"username": "admin",
-			"age":      "18",
-		}, testColumns, 0)
-		if err != nil {
-			b.Fatal(err)
-		}
-	}
-}
+// func BenchmarkValidRule3(b *testing.B) {
+// 	for i := 0; i < b.N; i++ {
+// 		_, err := CheckData3(ztype.Map{
+// 			"username": "admin",
+// 			"age":      "18",
+// 		}, testColumns, 0)
+// 		if err != nil {
+// 			b.Fatal(err)
+// 		}
+// 	}
+// }

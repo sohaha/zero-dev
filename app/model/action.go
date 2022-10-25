@@ -1,7 +1,6 @@
 package model
 
 import (
-	"github.com/sohaha/zlsgo/zlog"
 	"github.com/sohaha/zlsgo/ztime"
 	"github.com/sohaha/zlsgo/ztype"
 	"github.com/zlsgo/zdb/builder"
@@ -29,8 +28,6 @@ func (m *Model) ActionUpdate(key interface{}, data ztype.Map) error {
 // ActionCreate 创建数据
 func (m *Model) ActionCreate(data ztype.Map) (lastId int64, err error) {
 	data, err = CheckData(data, m.Columns, activeCreate)
-	zlog.Log.Debug(data, err)
-
 	if err != nil {
 		return 0, err
 	}
