@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"net/http"
 	"reflect"
 	"strings"
 	"zlsapp/app/error_code"
@@ -57,7 +58,9 @@ func InitWeb(app *App, middlewares []znet.Handler) *znet.Engine {
 		if errMsg == "" {
 			errMsg = "unknown error"
 		}
-		c.ApiJSON(int32(error_code.ServerError), errMsg, struct{}{})
+		c.JSON(http.StatusInternalServerError, znet.ApiData{
+			Code: int32(error_code.ServerError), Msg: errMsg,
+		})
 	}))
 
 	for _, middleware := range middlewares {
