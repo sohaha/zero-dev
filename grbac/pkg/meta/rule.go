@@ -51,16 +51,21 @@ func (rules Rules) IsValid() error {
 
 // IsRolesGranted is used to determine whether the current role is admitted by the current rule.
 func (rules Rules) IsRolesGranted(roles []string, mode MatchMode) (PermissionState, error) {
-	if len(rules) == 0 {
+	l := len(rules)
+	if l == 0 {
 		return PermissionNeglected, nil
 	}
 
 	tail := rules[0]
 
+	if l == 1 {
+		return tail.IsGranted(roles)
+	}
+
 	switch mode {
 	case MatchAllAllow:
-		for _, rule := range rules {
-			state, err := rule.IsGranted(roles)
+		for i := range rules {
+			state, err := rules[i].IsGranted(roles)
 			if err != nil {
 				return PermissionUngranted, err
 			}
@@ -71,12 +76,29 @@ func (rules Rules) IsRolesGranted(roles []string, mode MatchMode) (PermissionSta
 
 		return PermissionGranted, nil
 	default:
-		for i := 0; i < len(rules); i++ {
-			if tail.ID <= rules[i].ID {
+		for i := 0; i < l; i++ {
+			if tail.ID < rules[i].ID {
 				tail = rules[i]
 			}
 		}
-		return tail.IsGranted(roles)
+
+		if tail.ID == 0 {
+			return tail.IsGranted(roles)
+		}
+
+		for i := range rules {
+			if rules[i].ID == tail.ID {
+				state, err := rules[i].IsGranted(roles)
+				if err != nil {
+					return PermissionUngranted, err
+				}
+				if state != PermissionGranted {
+					return PermissionUngranted, nil
+				}
+			}
+		}
+
+		return PermissionGranted, nil
 	}
 }
 

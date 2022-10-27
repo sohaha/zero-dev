@@ -1,5 +1,5 @@
 #Rule
-- id: 0
+- id: 2
   # Resource
   host: "*"
   path: "**"
@@ -10,7 +10,7 @@
   forbidden_roles: []
   allow_anyone: false
 
-- id: 0
+- id: 2
   # Resource
   host: "*"
   path: "/api/testdata-user"
@@ -22,7 +22,7 @@
   allow_anyone: false
 
 #Rule
-- id: 1
+- id: 2
   host: "*"
   path: "/api/*"
   method: "{GET,DELETE,POST,PUT}"
