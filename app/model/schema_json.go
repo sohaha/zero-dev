@@ -387,55 +387,9 @@ const (
                 },
                 "x-apifox-orders": [
                     "id"
-                ],
-                "required": [
-                    "id"
                 ]
             },
             "title": "默认数据"
-        },
-        "relations": {
-            "allOf": [
-                {
-                    "type": "object",
-                    "properties": {},
-                    "additionalProperties": {
-                        "type": "object",
-                        "properties": {
-                            "name": {
-                                "type": "string",
-                                "title": "关联名称"
-                            },
-                            "model": {
-                                "type": "string",
-                                "title": "关联数据模型名称"
-                            },
-                            "key": {
-                                "type": "string",
-                                "title": "关联数据模型字段的名称"
-                            },
-                            "foreign": {
-                                "type": "string",
-                                "title": "当前数据模型字段的名称"
-                            }
-                        },
-                        "x-apifox-orders": [
-                            "name",
-                            "model",
-                            "key",
-                            "foreign"
-                        ],
-                        "required": [
-                            "name",
-                            "model",
-                            "key",
-                            "foreign"
-                        ]
-                    },
-                    "x-apifox-orders": []
-                }
-            ],
-            "title": "关联模型"
         }
     },
     "required": [
@@ -459,6 +413,8 @@ const (
 var jsonschemaLoader, _ = gojsonschema.NewSchema(gojsonschema.NewStringLoader(modelSchema))
 
 func ValidateModelSchema(data []byte) error {
+	// TODO 先不校验 schema
+	return nil
 	res, err := jsonschemaLoader.Validate(gojsonschema.NewBytesLoader(data))
 	if err != nil {
 		return err

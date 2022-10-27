@@ -1,0 +1,42 @@
+#Rule
+- id: 0
+  # Resource
+  host: "*"
+  path: "**"
+  method: "*"
+  # Permission
+  authorized_roles:
+    - "admin"
+  forbidden_roles: []
+  allow_anyone: false
+
+- id: 0
+  # Resource
+  host: "*"
+  path: "/api/testdata-user"
+  method: "*"
+  # Permission
+  authorized_roles:
+    - "admin"
+  forbidden_roles: []
+  allow_anyone: false
+
+#Rule
+- id: 1
+  host: "*"
+  path: "/api/*"
+  method: "{GET,DELETE,POST,PUT}"
+  # Permission
+  authorized_roles:
+    - admin2
+  forbidden_roles: []
+  allow_anyone: false
+
+- id: 2
+  host: "*"
+  path: "/api/*"
+  method: "{GET,DELETE,POST,PUT}"
+  authorized_roles:
+    - "*"
+  forbidden_roles: []
+  allow_anyone: false

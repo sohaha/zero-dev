@@ -1,8 +1,10 @@
 package app
 
 import (
+	"time"
 	"zlsapp/app/model"
 	"zlsapp/controller"
+	"zlsapp/grbac"
 	"zlsapp/service"
 
 	"github.com/sohaha/zlsgo/znet"
@@ -17,7 +19,15 @@ func InitRouter(_ *service.Conf) []service.Router {
 }
 
 func InitMiddleware(conf *service.Conf, app *service.App) []znet.Handler {
+	// grbacLoader := grbac.WithLoader(func() (grbac.Rules, error) {
+	// 	rules := meta.Rules{}
+	// 	zlog.Debug("重新")
+	// 	return rules, nil
+	// }, time.Second*10)
+	grbacLoader := grbac.WithYAML("grbac/testdata/grbac.yml", time.Second*2)
+
 	return []znet.Handler{
 		cors.Default(),
+		grbac.NewMiddleware(grbacLoader),
 	}
 }
