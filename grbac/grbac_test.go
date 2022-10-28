@@ -3,7 +3,7 @@ package grbac
 import (
 	"testing"
 
-	"zlsapp/grbac/pkg/meta"
+	"zlsapp/grbac/meta"
 
 	"github.com/stretchr/testify/assert"
 )

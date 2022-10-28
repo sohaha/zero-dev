@@ -1,7 +1,7 @@
 package grbac
 
 import (
-	"zlsapp/grbac/pkg/meta"
+	"zlsapp/grbac/meta"
 )
 
 // AdvancedRule allows you to write RBAC rules in a more concise way

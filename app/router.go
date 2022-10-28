@@ -5,6 +5,7 @@ import (
 	"zlsapp/app/model"
 	"zlsapp/controller"
 	"zlsapp/grbac"
+	"zlsapp/grbac/meta"
 	"zlsapp/service"
 
 	"github.com/sohaha/zlsgo/znet"
@@ -28,6 +29,6 @@ func InitMiddleware(conf *service.Conf, app *service.App) []znet.Handler {
 
 	return []znet.Handler{
 		cors.Default(),
-		grbac.NewMiddleware(grbacLoader),
+		grbac.NewMiddleware(grbacLoader, grbac.WithMatchMode(meta.MatchPriorityAllow)),
 	}
 }

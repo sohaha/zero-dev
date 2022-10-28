@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"zlsapp/grbac/pkg/meta"
+	"zlsapp/grbac/meta"
 	"zlsapp/grbac/pkg/tree"
 
 	"github.com/sohaha/zlsgo/zlog"
@@ -36,6 +36,14 @@ type Controller struct {
 
 // ControllerOption provides an interface for user to define controller.
 type ControllerOption func(*Controller) error
+
+// WithMatchMode is used to modify the default match mode
+func WithMatchMode(mode meta.MatchMode) ControllerOption {
+	return func(c *Controller) error {
+		c.matchMode = mode
+		return nil
+	}
+}
 
 // WithJSON is used to load configuration via json file
 func WithJSON(name string, loadInterval time.Duration) ControllerOption {
@@ -105,6 +113,7 @@ func WithLoader(loader func() (Rules, error), loadInterval time.Duration) Contro
 func New(loaderOptions ControllerOption, options ...ControllerOption) (*Controller, error) {
 	log := zlog.New("[RBAC]")
 	log.ResetFlags(zlog.BitLevel)
+	log.SetLogLevel(zlog.LogSuccess)
 	c := &Controller{
 		logger: log,
 	}

@@ -8,7 +8,11 @@ import (
 type MatchMode uint
 
 const (
-	MatchSomeAllow MatchMode = iota
+	// MatchPriorityAllow The same priority, high priority rules allowed by allowed by all
+	MatchPriorityAllow MatchMode = iota
+	// MatchPrioritySomeAllow The same priority, as long as there is a permissions allow, can pass
+	MatchPrioritySomeAllow
+	// MatchAllAllow Ignore the priority, all permissions are allowed to pass
 	MatchAllAllow
 )
 
@@ -76,25 +80,28 @@ func (rules Rules) IsRolesGranted(roles []string, mode MatchMode) (PermissionSta
 
 		return PermissionGranted, nil
 	default:
-		for i := 0; i < l; i++ {
+		priorityRules := Rules{tail}
+		for i := 1; i < l; i++ {
 			if tail.ID < rules[i].ID {
 				tail = rules[i]
+				priorityRules = Rules{tail}
+			} else if tail.ID == rules[i].ID {
+				priorityRules = append(priorityRules, rules[i])
 			}
 		}
 
-		if tail.ID == 0 {
-			return tail.IsGranted(roles)
-		}
+		for i := range priorityRules {
+			state, err := priorityRules[i].IsGranted(roles)
+			if err != nil {
+				return PermissionUngranted, err
+			}
+			ok := state == PermissionGranted
+			if ok && MatchPrioritySomeAllow == mode {
+				return PermissionGranted, nil
+			}
 
-		for i := range rules {
-			if rules[i].ID == tail.ID {
-				state, err := rules[i].IsGranted(roles)
-				if err != nil {
-					return PermissionUngranted, err
-				}
-				if state != PermissionGranted {
-					return PermissionUngranted, nil
-				}
+			if !ok {
+				return PermissionUngranted, nil
 			}
 		}
 

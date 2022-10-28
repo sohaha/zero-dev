@@ -3,7 +3,7 @@ package grbac
 import (
 	"io/ioutil"
 
-	"zlsapp/grbac/pkg/meta"
+	"zlsapp/grbac/meta"
 
 	jsoniter "github.com/json-iterator/go"
 	"github.com/sohaha/zlsgo/zfile"

@@ -172,7 +172,7 @@ func TestRules_IsRolesGranted(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		got, err := tt.rules.IsRolesGranted(tt.args.roles, MatchSomeAllow)
+		got, err := tt.rules.IsRolesGranted(tt.args.roles, MatchPriorityAllow)
 		if (err != nil) != tt.wantErr {
 			t.Errorf("%q. Rules.IsRolesGranted() error = %v, wantErr %v", tt.name, err, tt.wantErr)
 			continue
