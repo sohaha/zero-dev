@@ -71,19 +71,6 @@ func WithYAML(name string, loadInterval time.Duration) ControllerOption {
 	}
 }
 
-// WithAdvancedRules provides a more concise way to define rules
-func WithAdvancedRules(rules AdvancedRules) ControllerOption {
-	return func(c *Controller) error {
-		fd, err := NewAdvancedRulesLoader(rules)
-		if err != nil {
-			return nil
-		}
-		c.loader = fd.Load
-		c.loadInterval = -1
-		return nil
-	}
-}
-
 // WithRules is used to load config via user defined rules
 func WithRules(rules Rules) ControllerOption {
 	return func(c *Controller) error {

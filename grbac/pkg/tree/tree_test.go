@@ -113,7 +113,7 @@ func BenchmarkTree_Foreach_Query(b *testing.B) {
 			for _, treeCase := range BenchForeachRecords {
 				for _, queryCase := range BenchQueryCase {
 					for i, arg := range queryCase.args {
-						matched, _ := path.Match(treeCase.args[i], arg)
+						matched := path.Match(treeCase.args[i], arg)
 						if !matched {
 							break
 						}

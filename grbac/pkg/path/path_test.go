@@ -1,10 +1,7 @@
 package path
 
 import (
-	"fmt"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestHasWildcardPrefix(t *testing.T) {
@@ -131,50 +128,41 @@ func TestTrimWildcard(t *testing.T) {
 func TestMatch(t *testing.T) {
 	type Result struct {
 		Matched bool
-		Err     bool
 	}
 	var TestMatchEqual = func(wanted Result, pattern, s string) {
-		matched, err := Match(pattern, s)
-		result := Result{matched, err != nil}
-		assert.Equal(t, wanted, result, fmt.Sprintf("[Match(..) != Wanted] Match(..):%+v, Wanted:%+v, pattern: %s, s: %s ", result, wanted, pattern, s))
+		matched := Match(pattern, s)
+		if matched != wanted.Matched {
+			t.Errorf("Match(%s, %s) = %v, wanted %v", pattern, s, matched, wanted.Matched)
+		}
 	}
-	TestMatchEqual(Result{true, false}, `*`, ``)
-	TestMatchEqual(Result{false, false}, `*`, `/`)   // Wrong
-	TestMatchEqual(Result{false, false}, `/*`, `//`) // Wrong
-	TestMatchEqual(Result{true, false}, `*/`, `debug/`)
-	TestMatchEqual(Result{true, false}, `/*`, `/debug`)
-	TestMatchEqual(Result{false, false}, `/*`, `/debug/`)
-	TestMatchEqual(Result{false, false}, `/*`, `/debug/`) // Wrong
-	TestMatchEqual(Result{false, false}, `/*`, `/debug/pprof`)
-	TestMatchEqual(Result{true, false}, `/*/`, `/debug/`)
-	TestMatchEqual(Result{true, false}, `/*/*`, `/debug/pprof`)
-	TestMatchEqual(Result{true, false}, `debug/*/`, `debug/test/`)
-	TestMatchEqual(Result{true, false}, `aa/*`, `aa/`) // Wrong
-	TestMatchEqual(Result{true, false}, `**`, ``)
-	TestMatchEqual(Result{true, false}, `/**`, `/debug`)
-	TestMatchEqual(Result{true, false}, `/**`, `/debug/pprof/profile`)
-	TestMatchEqual(Result{true, false}, `/**`, `/debug/pprof/profile/`)
-	TestMatchEqual(Result{true, false}, `/in[d]ex`, `/index`)
-	TestMatchEqual(Result{false, false}, `/in[d]ex`, `/inex`)
-	TestMatchEqual(Result{true, false}, `/in\[d\]ex`, `/in[d]ex`)
-	TestMatchEqual(Result{false, false}, `/**/profile`, `/debug/pprof/profile/`) // Wrong
-	TestMatchEqual(Result{true, false}, `/**/profile`, `/debug/pprof/profile`)
-	TestMatchEqual(Result{true, false}, `/*/*/profile`, `/debug/pprof/profile`)
-	TestMatchEqual(Result{true, false}, `/**/*`, `/debug/pprof/profile`)
-	TestMatchEqual(Result{true, false}, `/**/pprof/*`, `/debug/pprof/profile`)
-	TestMatchEqual(Result{true, false}, `/**/pprof/*/`, `/debug/pprof/profile/`)
-	TestMatchEqual(Result{true, false}, `/*/[pz]rofile/`, `/debug/profile/`)
-	TestMatchEqual(Result{true, false}, `/{debug,test}/profile`, `/debug/profile`)
-	TestMatchEqual(Result{false, false}, `/{debug,test}/profile`, `/debug/profile/`)
-	TestMatchEqual(Result{true, false}, `\**`, `*GET`)
-	TestMatchEqual(Result{true, false}, `\\[0-9]`, `\8`)
-	TestMatchEqual(Result{true, false}, `\\\[0-9]`, `\[0-9]`)
-	TestMatchEqual(Result{true, false}, `\\A`, `\A`)
-	TestMatchEqual(Result{true, false}, `\A`, `A`)
-	TestMatchEqual(Result{false, false}, `[^visitor]*`, `va`)
-	TestMatchEqual(Result{true, false}, `dashboard*.xxxx.com`, `dashboard.xxxx.com`)
-	TestMatchEqual(Result{true, false}, `dashboard{-sit,-prod}.xxxx.com`, `dashboard-sit.xxxx.com`)
-	TestMatchEqual(Result{false, false}, `dashboard{-sit,-prod}.xxxx.com`, `dashboard-si.xxxx.com`)
-	TestMatchEqual(Result{false, true}, `/{config/*,instance}`, `/config/delete`)
-	TestMatchEqual(Result{true, false}, `**`, `/config`)
+	TestMatchEqual(Result{true}, `*`, ``)
+	TestMatchEqual(Result{false}, `*`, `/`)
+	TestMatchEqual(Result{true}, `/*`, `//`)
+	TestMatchEqual(Result{true}, `*/`, `debug/`)
+	TestMatchEqual(Result{true}, `/*`, `/debug`)
+	TestMatchEqual(Result{true}, `/*`, `/debug/`)
+	TestMatchEqual(Result{true}, `/*`, `/debug/`)
+	TestMatchEqual(Result{true}, `/*`, `/debug/pprof`)
+	TestMatchEqual(Result{true}, `/*/`, `/debug/`)
+	TestMatchEqual(Result{true}, `/*/*`, `/debug/pprof`)
+	TestMatchEqual(Result{true}, `debug/*/`, `debug/test/`)
+	TestMatchEqual(Result{true}, `aa/*`, `aa/`) // Wrong
+	TestMatchEqual(Result{true}, `**`, ``)
+	TestMatchEqual(Result{true}, `/**`, `/debug`)
+	TestMatchEqual(Result{true}, `/**`, `/debug/pprof/profile`)
+	TestMatchEqual(Result{true}, `/**`, `/debug/pprof/profile/`)
+	TestMatchEqual(Result{false}, `/**/profile`, `/debug/pprof/profile/`) // Wrong
+	TestMatchEqual(Result{true}, `/**/profile`, `/debug/pprof/profile`)
+	TestMatchEqual(Result{true}, `/*/*/profile`, `/debug/pprof/profile`)
+	TestMatchEqual(Result{true}, `/**/*`, `/debug/pprof/profile`)
+	TestMatchEqual(Result{true}, `/**/pprof/*`, `/debug/pprof/profile`)
+	TestMatchEqual(Result{true}, `/**/pprof/*/`, `/debug/pprof/profile/`)
+	TestMatchEqual(Result{true}, `/{debug,test}/profile`, `/debug/profile`)
+	TestMatchEqual(Result{false}, `/{debug,test}/profile`, `/debug/profile/`)
+
+	TestMatchEqual(Result{true}, `dashboard*.xxxx.com`, `dashboard.xxxx.com`)
+	TestMatchEqual(Result{true}, `dashboard{-sit,-prod}.xxxx.com`, `dashboard-sit.xxxx.com`)
+	TestMatchEqual(Result{false}, `dashboard{-sit,-prod}.xxxx.com`, `dashboard-si.xxxx.com`)
+	TestMatchEqual(Result{true}, `/{config/*,instance}`, `/config/delete`)
+	TestMatchEqual(Result{true}, `**`, `/config`)
 }

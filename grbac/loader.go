@@ -1,8 +1,6 @@
 package grbac
 
 import (
-	"io/ioutil"
-
 	"zlsapp/grbac/meta"
 
 	"github.com/sohaha/zlsgo/zfile"
@@ -30,7 +28,7 @@ func NewYAMLLoader(file string) (*YAMLLoader, error) {
 
 // Load is used to return a list of rules
 func (loader *YAMLLoader) Load() (meta.Rules, error) {
-	bytes, err := ioutil.ReadFile(loader.path)
+	bytes, err := zfile.ReadFile(loader.path)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +60,7 @@ func NewJSONLoader(file string) (*JSONLoader, error) {
 
 // Load is used to return a list of rules
 func (loader *JSONLoader) Load() (meta.Rules, error) {
-	bytes, err := ioutil.ReadFile(loader.path)
+	bytes, err := zfile.ReadFile(loader.path)
 	if err != nil {
 		return nil, err
 	}

@@ -35,11 +35,11 @@ func NewNode(key string, data Data) *Node {
 }
 
 // Match is used to determine whether the current node's key matches the given key.
-func (node *Node) match(key string) (bool, error) {
+func (node *Node) match(key string) bool {
 	if node.isWildcardKey {
 		return path.Match(node.key, key)
 	}
-	return node.key == key, nil
+	return node.key == key
 }
 
 // Find is used to find child nodes by a specified key
@@ -58,10 +58,7 @@ func (node *Node) Find(key string) ([]*Node, []Data, error) {
 	var tmp []*Node
 	var data []Data
 	for _, node := range nodes {
-		matched, err := node.match(key)
-		if err != nil {
-			return nil, nil, err
-		}
+		matched := node.match(key)
 		if matched {
 			if node.data != nil {
 				data = append(data, node.data)

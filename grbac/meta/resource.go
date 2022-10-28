@@ -29,18 +29,16 @@ type Resource struct {
 }
 
 // Match is used to calculate whether the query matches the resource
-func (r *Resource) Match(query *Query) (bool, error) {
+func (r *Resource) Match(query *Query) bool {
 	args := query.GetArguments()
 	for i, res := range r.GetArguments() {
-		matched, err := path.Match(res, args[i])
-		if err != nil {
-			return false, err
-		}
+		matched := path.Match(res, args[i])
+
 		if !matched {
-			return false, nil
+			return false
 		}
 	}
-	return true, nil
+	return true
 }
 
 // GetArguments is used to convert the current argument to a string slice

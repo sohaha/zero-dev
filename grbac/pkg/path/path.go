@@ -3,7 +3,7 @@ package path
 import (
 	"strings"
 
-	"zlsapp/grbac/pkg/path/doublestar"
+	"github.com/sohaha/zlsgo/zstring"
 )
 
 // HasWildcardPrefix is​used to determine whether an expression is a wildcard at the beginning
@@ -12,7 +12,7 @@ func HasWildcardPrefix(pattern string) bool {
 		return false
 	}
 	switch pattern[0] {
-	case '?', '*', '[', '{':
+	case '?', '*', '{':
 		return true
 	}
 	return false
@@ -29,7 +29,7 @@ Pattern:
 				break Pattern
 			}
 			i++
-		case '?', '*', '[', '{':
+		case '?', '*', '{':
 			hasWildcard = true
 			break Pattern
 		}
@@ -38,44 +38,16 @@ Pattern:
 	return string(chars), hasWildcard
 }
 
-// Match returns true if name matches the shell file name pattern.
-// The pattern syntax is:
-//
-//	pattern:
-//	  { term }
-//	term:
-//	  '*'         matches any sequence of non-path-separators
-//	  '**'        matches any sequence of characters, including
-//	              path separators.
-//	  '?'         matches any single non-path-separator character
-//	  '[' [ '^' ] { character-range } ']'
-//	        character class (must be non-empty)
-//	  '{' { term } [ ',' { term } ... ] '}'
-//	  c           matches character c (c != '*', '?', '\\', '[')
-//	  '\\' c      matches character c
-//
-//	character-range:
-//	  c           matches character c (c != '\\', '-', ']')
-//	  '\\' c      matches character c
-//	  lo '-' hi   matches character c for lo <= c <= hi
-//
-// Match requires pattern to match all of name, not just a substring.
-// The path-separator defaults to the '/' character. The only possible
-// returned error is ErrBadPattern, when pattern is malformed.
-//
-// Note: this is meant as a drop-in replacement for path.Match() which
-// always uses '/' as the path separator. If you want to support systems
-// which use a different path separator (such as Windows), what you want
-// is the PathMatch() function below.
-func Match(pattern string, s string) (bool, error) {
+// Match returns true if name matches the shell file name pattern
+func Match(pattern string, s string) bool {
 	switch pattern {
 	case "**":
-		return true, nil
+		return true
 	case "*":
 		if strings.Contains(s, "/") {
-			return false, nil
+			return false
 		}
-		return true, nil
+		return true
 	}
-	return doublestar.Match(pattern, s)
+	return zstring.Match(s, pattern)
 }
