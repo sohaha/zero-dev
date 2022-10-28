@@ -5,8 +5,8 @@ import (
 
 	"zlsapp/grbac/meta"
 
-	jsoniter "github.com/json-iterator/go"
 	"github.com/sohaha/zlsgo/zfile"
+	"github.com/sohaha/zlsgo/zjson"
 	"gopkg.in/yaml.v3"
 )
 
@@ -67,7 +67,7 @@ func (loader *JSONLoader) Load() (meta.Rules, error) {
 		return nil, err
 	}
 	rules := meta.Rules{}
-	err = jsoniter.Unmarshal(bytes, &rules)
+	err = zjson.Unmarshal(bytes, &rules)
 	if err != nil {
 		return nil, err
 	}

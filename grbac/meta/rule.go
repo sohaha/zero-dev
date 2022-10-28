@@ -2,7 +2,8 @@ package meta
 
 import (
 	"github.com/hashicorp/go-multierror"
-	jsoniter "github.com/json-iterator/go"
+	"github.com/sohaha/zlsgo/zjson"
+	"github.com/sohaha/zlsgo/zstring"
 )
 
 type MatchMode uint
@@ -21,7 +22,7 @@ type Rules []*Rule
 
 // Rule is used to define the relationship between "resource" and "permission"
 type Rule struct {
-	ID          int `json:"id" yaml:"id"`
+	Sort        int `json:"sort" yaml:"sort"`
 	*Resource   `yaml:",inline"`
 	*Permission `yaml:",inline"`
 }
@@ -82,10 +83,10 @@ func (rules Rules) IsRolesGranted(roles []string, mode MatchMode) (PermissionSta
 	default:
 		priorityRules := Rules{tail}
 		for i := 1; i < l; i++ {
-			if tail.ID < rules[i].ID {
+			if tail.Sort < rules[i].Sort {
 				tail = rules[i]
 				priorityRules = Rules{tail}
-			} else if tail.ID == rules[i].ID {
+			} else if tail.Sort == rules[i].Sort {
 				priorityRules = append(priorityRules, rules[i])
 			}
 		}
@@ -110,6 +111,6 @@ func (rules Rules) IsRolesGranted(roles []string, mode MatchMode) (PermissionSta
 }
 
 func (rules Rules) String() string {
-	s, _ := jsoniter.MarshalToString(rules)
-	return s
+	s, _ := zjson.Marshal(rules)
+	return zstring.Bytes2String(s)
 }

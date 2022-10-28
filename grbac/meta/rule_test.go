@@ -52,7 +52,7 @@ func TestRule_IsValid(t *testing.T) {
 	}
 	for _, tt := range tests {
 		rule := &Rule{
-			ID:         tt.fields.ID,
+			Sort:       tt.fields.ID,
 			Resource:   tt.fields.Resource,
 			Permission: tt.fields.Permission,
 		}

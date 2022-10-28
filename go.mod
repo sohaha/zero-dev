@@ -6,7 +6,6 @@ require (
 	github.com/arl/statsviz v0.5.1
 	github.com/bxcodec/faker/v3 v3.8.0
 	github.com/hashicorp/go-multierror v1.1.0
-	github.com/json-iterator/go v1.1.12
 	github.com/sohaha/zlsgo v1.3.7
 	github.com/stretchr/testify v1.7.2
 	github.com/xeipuuv/gojsonschema v1.2.0
@@ -18,8 +17,6 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
-	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
-	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 )
 
