@@ -37,7 +37,7 @@ func NewNode(key string, data Data) *Node {
 // Match is used to determine whether the current node's key matches the given key.
 func (node *Node) match(key string) bool {
 	if node.isWildcardKey {
-		return path.Match(node.key, key)
+		return path.Match(key, node.key)
 	}
 	return node.key == key
 }

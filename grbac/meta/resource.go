@@ -32,7 +32,7 @@ type Resource struct {
 func (r *Resource) Match(query *Query) bool {
 	args := query.GetArguments()
 	for i, res := range r.GetArguments() {
-		matched := path.Match(res, args[i])
+		matched := path.Match(args[i], res)
 
 		if !matched {
 			return false

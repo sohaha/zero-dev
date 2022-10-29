@@ -1,8 +1,6 @@
 package path
 
 import (
-	"strings"
-
 	"github.com/sohaha/zlsgo/zstring"
 )
 
@@ -39,15 +37,6 @@ Pattern:
 }
 
 // Match returns true if name matches the shell file name pattern
-func Match(pattern string, s string) bool {
-	switch pattern {
-	case "**":
-		return true
-	case "*":
-		if strings.Contains(s, "/") {
-			return false
-		}
-		return true
-	}
+func Match(s, pattern string) bool {
 	return zstring.Match(s, pattern)
 }
