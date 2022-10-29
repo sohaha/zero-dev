@@ -9,12 +9,14 @@ import (
 type MatchMode uint
 
 const (
-	// MatchPriorityAllow The same priority, high priority rules allowed by allowed by all
-	MatchPriorityAllow MatchMode = iota
 	// MatchPrioritySomeAllow The same priority, as long as there is a permissions allow, can pass
-	MatchPrioritySomeAllow
+	MatchPrioritySomeAllow MatchMode = iota
+	// MatchPriorityAllow The same priority, high priority rules allowed by allowed by all
+	MatchPriorityAllow
 	// MatchAllAllow Ignore the priority, all permissions are allowed to pass
 	MatchAllAllow
+	// MatchSomeAllow As long as there is a permission, you can pass
+	MatchSomeAllow
 )
 
 // Rules is the list of Rule
@@ -68,13 +70,17 @@ func (rules Rules) IsRolesGranted(roles []string, mode MatchMode) (PermissionSta
 	}
 
 	switch mode {
-	case MatchAllAllow:
+	case MatchAllAllow, MatchSomeAllow:
 		for i := range rules {
 			state, err := rules[i].IsGranted(roles)
 			if err != nil {
 				return PermissionUngranted, err
 			}
-			if state != PermissionGranted {
+			ok := state == PermissionGranted
+			if ok && MatchSomeAllow == mode {
+				return PermissionGranted, nil
+			}
+			if !ok {
 				return PermissionUngranted, nil
 			}
 		}
