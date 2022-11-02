@@ -184,18 +184,68 @@ func (h *Account) Init(r *znet.Engine) {
 			"name":    "account_user",
 			"comment": "用户表",
 		})
-		json, _ = zjson.SetBytes(json, "columns", ztype.Maps{
-			ztype.Map{
-				"name":    "account_user",
-				"comment": "用户表",
+
+		json, _ = zjson.SetBytes(json, "options", ztype.Map{
+			"timestamps": true,
+		})
+
+		json, _ = zjson.SetBytes(json, "values", ztype.Maps{
+			{
+				"account":  "admin",
+				"password": "admin",
 			},
 		})
+		zlog.Success("初始化用户")
+		zlog.Printf("        账号: %s\n        密码: %s\n", "admin", "admin")
+		json, _ = zjson.SetBytes(json, "columns", ztype.Maps{
+			{
+				"label":    "头像",
+				"name":     "avatar",
+				"nullable": true,
+				"type":     "string",
+				"validations": ztype.Maps{
+					{
+						"method": "url",
+					},
+				},
+			},
+			{
+				"name":  "account",
+				"type":  "string",
+				"label": "账号",
+				"validations": ztype.Maps{
+					{
+						"method": "minLength",
+						"args":   3,
+					},
+					{
+						"method": "maxLength",
+						"args":   10,
+					},
+				},
+			},
+			{
+				"name":  "password",
+				"type":  "string",
+				"label": "密码",
+				"validations": ztype.Maps{
+					{
+						"method": "minLength",
+						"args":   3,
+					},
+					{
+						"method": "maxLength",
+						"args":   20,
+					},
+				},
+			},
+		})
+
 		m, err := model.Add(db, "account", json)
 		zerror.Panic(err)
 		zerror.Panic(m.Migration().Auto())
 	})
 	zerror.Panic(err)
-	zlog.Debug(33)
 }
 
 // PostLogin 用户登录

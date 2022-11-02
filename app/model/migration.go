@@ -96,19 +96,23 @@ func (m *Migration) UpdateTable() error {
 
 	newColumns = append(newColumns, IDKey)
 
+	currentColumns := process(res)
+	oldColumns := zarray.Keys(currentColumns)
+
 	{
 		if m.Options.SoftDeletes {
 			newColumns = append(newColumns, DeletedAtKey)
 		}
 
 		if m.Options.Timestamps {
-			newColumns = append(newColumns, CreatedAtKey)
-			newColumns = append(newColumns, UpdatedAtKey)
+			if zarray.Contains(oldColumns, CreatedAtKey) {
+				newColumns = append(newColumns, CreatedAtKey)
+			}
+			if zarray.Contains(oldColumns, UpdatedAtKey) {
+				newColumns = append(newColumns, UpdatedAtKey)
+			}
 		}
 	}
-
-	currentColumns := process(res)
-	oldColumns := zarray.Keys(currentColumns)
 
 	updateColumns := zarray.Map(zarray.Filter(m.Columns, func(_ int, n *Column) bool {
 		c := currentColumns.Get(n.Name)
@@ -137,6 +141,24 @@ func (m *Migration) UpdateTable() error {
 		}
 	}
 
+	if m.Options.Timestamps {
+		zlog.Debug(zarray.Contains(oldColumns, CreatedAtKey))
+		if !zarray.Contains(oldColumns, CreatedAtKey) {
+			sql, values := table.AddColumn(CreatedAtKey, "time")
+			_, err := m.DB.Exec(sql, values...)
+			if err != nil {
+				return err
+			}
+		}
+		if !zarray.Contains(oldColumns, UpdatedAtKey) {
+			sql, values := table.AddColumn(UpdatedAtKey, "time")
+			_, err := m.DB.Exec(sql, values...)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
 	// TODO 如果有删除字段可以按需恢复
 	for _, v := range addColumns {
 		c, ok := zarray.Find(m.Columns, func(i int, c *Column) bool {
@@ -161,6 +183,27 @@ func (m *Migration) UpdateTable() error {
 	return nil
 }
 
+func (m *Migration) fillField(fields []*schema.Field) []*schema.Field {
+
+	if m.Options.SoftDeletes {
+		fields = append(fields, schema.NewField(DeletedAtKey, schema.Int, func(f *schema.Field) {
+			f.Size = 9999999999
+			f.NotNull = false
+			f.Comment = "删除时间"
+		}))
+	}
+
+	if m.Options.Timestamps {
+		fields = append(fields, schema.NewField(CreatedAtKey, schema.Time, func(f *schema.Field) {
+			f.Comment = "创建时间"
+		}))
+		fields = append(fields, schema.NewField(UpdatedAtKey, schema.Time, func(f *schema.Field) {
+			f.Comment = "更新时间"
+		}))
+	}
+	return fields
+}
+
 func (m *Migration) CreateTable() error {
 	table := builder.NewTable(m.Table.Name).Create()
 
@@ -181,22 +224,7 @@ func (m *Migration) CreateTable() error {
 		// }
 	}
 
-	if m.Options.SoftDeletes {
-		fields = append(fields, schema.NewField(DeletedAtKey, schema.Int, func(f *schema.Field) {
-			f.Size = 9999999999
-			f.NotNull = false
-			f.Comment = "删除时间"
-		}))
-	}
-
-	if m.Options.Timestamps {
-		fields = append(fields, schema.NewField(CreatedAtKey, schema.Time, func(f *schema.Field) {
-			f.Comment = "创建时间"
-		}))
-		fields = append(fields, schema.NewField(UpdatedAtKey, schema.Time, func(f *schema.Field) {
-			f.Comment = "更新时间"
-		}))
-	}
+	fields = m.fillField(fields)
 
 	table.Column(fields...)
 
