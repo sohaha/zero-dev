@@ -2,6 +2,7 @@ package app
 
 import (
 	"time"
+	"zlsapp/app/account"
 	"zlsapp/app/model"
 	"zlsapp/controller"
 	"zlsapp/grbac"
@@ -15,6 +16,9 @@ import (
 func InitRouter(_ *service.Conf) []service.Router {
 	return []service.Router{
 		&controller.Home{},
+		&account.Account{
+			Path: "/base",
+		},
 		model.NewRestApi(),
 	}
 }

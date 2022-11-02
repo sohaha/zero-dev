@@ -6,7 +6,6 @@ import (
 	"github.com/sohaha/zlsgo/zdi"
 	"github.com/sohaha/zlsgo/zerror"
 	"github.com/sohaha/zlsgo/zfile"
-	"github.com/sohaha/zlsgo/zlog"
 	"github.com/zlsgo/zdb"
 )
 
@@ -23,19 +22,7 @@ func RunMigrations(di zdi.Invoker) error {
 
 		migration := m.Migration()
 
-		exist := migration.HasTable()
-		if !exist {
-			zlog.Debug("新建")
-			zerror.Panic(migration.CreateTable())
-		} else {
-			zlog.Debug("需要更新表结构")
-			zerror.Panic(migration.UpdateTable())
-		}
-
-		zlog.Debug("初始化数据")
-
-		err = migration.InitValue()
-		zerror.Panic(err)
+		zerror.Panic(migration.Auto())
 	})
 
 	return err

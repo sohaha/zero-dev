@@ -7,40 +7,6 @@
   # Permission
   authorized_roles:
     - "admin"
-    - "1"
   forbidden_roles: []
   allow_anyone: false
 
-# 2222
-- id: 2
-  host: "*"
-  path: "/api/testdata-user"
-  method: "*"
-  # Permission
-  authorized_roles:
-    - "admin"
-    - "2"
-  forbidden_roles: []
-  allow_anyone: false
-
-#333
-- id: 2
-  host: "*"
-  path: "/api/*"
-  method: "{GET,DELETE,POST,PUT}"
-  authorized_roles:
-    - admin2
-    - "3"
-  forbidden_roles: []
-  allow_anyone: false
-
-# 444
-- id: 1
-  host: "*"
-  path: "/api/*"
-  method: "{GET,DELETE,POST,PUT}"
-  authorized_roles:
-    - "*"
-    - "4"
-  forbidden_roles: []
-  allow_anyone: false

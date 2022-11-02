@@ -4,20 +4,24 @@ go 1.18
 
 require (
 	github.com/arl/statsviz v0.5.1
-	github.com/bxcodec/faker/v3 v3.8.0
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/hashicorp/go-multierror v1.1.0
 	github.com/sohaha/zlsgo v1.3.7
 	github.com/stretchr/testify v1.7.2
 	github.com/xeipuuv/gojsonschema v1.2.0
 	github.com/zlsgo/conf v0.0.0-20220614015108-b4ee9fc367b0
 	github.com/zlsgo/zdb v0.0.0-00010101000000-000000000000
+	go.mongodb.org/mongo-driver v1.10.0
 )
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/golang/snappy v0.0.3 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
+	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/youmark/pkcs8 v0.0.0-20181117223130-1be2e3e5546d // indirect
 )
 
 require (

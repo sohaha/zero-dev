@@ -34,7 +34,6 @@ func NewMiddleware(loaderOptions ControllerOption, options ...ControllerOption) 
 			return error_code.PermissionDenied.Text("权限不足")
 		}
 
-		zlog.Debug("ok")
 		c.Next()
 		return nil
 	}

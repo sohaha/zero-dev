@@ -32,7 +32,7 @@ type (
 func InitWeb(app *App, middlewares []znet.Handler) *znet.Engine {
 	r := znet.New()
 	r.Log = app.Log
-	r.BindStructSuffix = ".go"
+	r.BindStructSuffix = ""
 	r.BindStructDelimiter = "-"
 	r.SetAddr(app.Conf.Base.Port)
 

@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/sohaha/zlsgo/zarray"
+	"github.com/sohaha/zlsgo/zlog"
 	"github.com/sohaha/zlsgo/zutil"
 	"github.com/zlsgo/zdb"
 	"github.com/zlsgo/zdb/builder"
@@ -27,6 +28,23 @@ func init() {
 }
 
 const deleteFieldPrefix = "__del__"
+
+func (m *Migration) Auto() (err error) {
+	exist := m.HasTable()
+	if !exist {
+		zlog.Debug("新建")
+		err = m.CreateTable()
+	} else {
+		zlog.Debug("需要更新表结构")
+		err = m.UpdateTable()
+	}
+	if err != nil {
+		return
+	}
+	zlog.Debug("初始化数据")
+
+	return m.InitValue()
+}
 
 func (m *Migration) InitValue() error {
 	for _, v := range m.Values {
