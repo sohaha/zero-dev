@@ -30,6 +30,7 @@ func migration(di zdi.Invoker) (m *model.Model, err error) {
 				"password": "admin",
 				"status":   1,
 				"roles":    "admin",
+				"avatar":   "",
 			},
 		})
 
