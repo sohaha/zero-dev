@@ -1,7 +1,7 @@
 package meta
 
 import (
-	"github.com/hashicorp/go-multierror"
+	"github.com/sohaha/zlsgo/zerror"
 	"github.com/sohaha/zlsgo/zjson"
 	"github.com/sohaha/zlsgo/zstring"
 )
@@ -47,7 +47,7 @@ func (rules Rules) IsValid() error {
 	for _, rule := range rules {
 		err := rule.IsValid()
 		if err != nil {
-			errs = multierror.Append(errs, err)
+			errs = zerror.With(errs, err.Error())
 		}
 	}
 	if errs != nil {

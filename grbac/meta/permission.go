@@ -15,7 +15,7 @@ type Permission struct {
 // IsValid is used to test the validity of the Rule
 func (p *Permission) IsValid() error {
 	if !p.AllowAnyone && len(p.AuthorizedRoles) == 0 && len(p.ForbiddenRoles) == 0 {
-		return zerror.SupText(ErrEmptyStructure, "permission: ")
+		return zerror.With(ErrEmptyStructure, "permission: ")
 	}
 	return nil
 }
