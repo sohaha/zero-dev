@@ -139,10 +139,10 @@ func (h *Account) PostLogin(c *znet.Context) error {
 }
 
 // GetMessage 获取站内消息
-func (h *Account) GetMessage(c *znet.Context) error {
-	return error_code.Success.Result(c, map[string]interface{}{
+func (h *Account) GetMessage(c *znet.Context) (interface{}, error) {
+	return ztype.Map{
 		"unread": 0,
-	})
+	}, nil
 }
 
 // // GetMe 获取当前用户信息
