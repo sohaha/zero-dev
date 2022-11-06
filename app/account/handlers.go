@@ -147,23 +147,24 @@ func (h *AccountHandlers) ResetManageToken(c *znet.Context, user ztype.Map, key 
 	}
 }
 
-func (h *AccountHandlers) QueryRoles(j *jwt.JwtInfo) (roles []string, err error) {
-	var uid interface{}
+func (h *AccountHandlers) QueryRoles(j *jwt.JwtInfo) (uid string, roles []string, err error) {
 	if h.Model.Options.CryptID {
-		uid, err = hashid.DecryptID(h.hashid, j.U[8:])
+		var id int64
+		id, err = hashid.DecryptID(h.hashid, j.U[8:])
 		if err != nil {
-			return nil, err
+			return "", nil, err
 		}
+		uid = ztype.ToString(id)
 	} else {
 		uid = j.U[8:]
 	}
 
 	user, err := h.CacheForID(uid)
 	if err != nil {
-		return nil, err
+		return "", nil, err
 	}
 
 	roles = strings.Split(user.Get("roles").String(), ",")
 
-	return roles, err
+	return
 }

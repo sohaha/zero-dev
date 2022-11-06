@@ -50,11 +50,13 @@ func NewMiddleware(app *service.App) znet.Handler {
 			return err
 		}
 
+		zlog.Debug(j)
 		zlog.Debug(h)
-		roles, err := h.QueryRoles(j)
+		uid, roles, err := h.QueryRoles(j)
 		if err != nil {
 			return error_code.Unauthorized.Text(err.Error())
 		}
+		c.WithValue("uid", uid)
 
 		state, err := rbac.IsRequestGranted(c.Request, roles)
 		if err != nil {

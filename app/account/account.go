@@ -2,11 +2,13 @@ package account
 
 import (
 	"zlsapp/app/error_code"
+	"zlsapp/common"
 	"zlsapp/service"
 
 	"zlsapp/app/model"
 
 	"github.com/sohaha/zlsgo/zcache"
+	"github.com/sohaha/zlsgo/zlog"
 	"github.com/sohaha/zlsgo/znet"
 	"github.com/sohaha/zlsgo/zstring"
 	"github.com/sohaha/zlsgo/ztime"
@@ -145,22 +147,24 @@ func (h *Account) GetMessage(c *znet.Context) (interface{}, error) {
 	}, nil
 }
 
-// // GetMe 获取当前用户信息
-// func (h *Account) GetMe(c *znet.Context) error {
-// 	uid := logic.GetUID(c)
-// 	info, _ := h.MDB.Collection(context.TODO(), h.Model).FindOne(uid, func(opts *options.FindOneOptions) {
-// 		opts.Projection = bson.M{"password": 0, "key": 0}
-// 	})
-// 	res := map[string]interface{}{
-// 		"info": info,
-// 	}
-// 	roles, ok := c.Value("roles")
-// 	if ok {
-// 		res["roles"] = roles
-// 	}
+// GetMe 获取当前用户信息
+func (h *Account) GetMe(c *znet.Context) (interface{}, error) {
+	uid := common.GetUID(c)
+	zlog.Debug(uid)
+	return uid, nil
+	// info, _ := h.MDB.Collection(context.TODO(), h.Model).FindOne(uid, func(opts *options.FindOneOptions) {
+	// 	opts.Projection = bson.M{"password": 0, "key": 0}
+	// })
+	// res := map[string]interface{}{
+	// 	"info": info,
+	// }
+	// roles, ok := c.Value("roles")
+	// if ok {
+	// 	res["roles"] = roles
+	// }
 
-// 	return restapi.Success.Result(c, res)
-// }
+	// return restapi.Success.Result(c, res)
+}
 
 // // AnyLogout 用户退出
 // func (h *Account) AnyLogout(c *znet.Context) error {
