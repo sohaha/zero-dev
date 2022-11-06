@@ -34,16 +34,18 @@ func (m *Migration) Auto() (err error) {
 	if !exist {
 		zlog.Debug("新建")
 		err = m.CreateTable()
+		if err != nil {
+			return
+		}
+
+		zlog.Debug("初始化数据")
+		return m.InitValue()
 	} else {
 		zlog.Debug("需要更新表结构")
 		err = m.UpdateTable()
 	}
-	if err != nil {
-		return
-	}
-	zlog.Debug("初始化数据")
 
-	return m.InitValue()
+	return
 }
 
 func (m *Migration) InitValue() error {

@@ -58,6 +58,19 @@ func WithJSON(name string, loadInterval time.Duration) ControllerOption {
 	}
 }
 
+// WithFile is used to load configuration via loacl file
+func WithFile(name string, loadInterval time.Duration) ControllerOption {
+	return func(c *Controller) error {
+		fd, err := NewFileLoader(name)
+		if err != nil {
+			return err
+		}
+		c.loader = fd.Load
+		c.loadInterval = loadInterval
+		return nil
+	}
+}
+
 // WithYAML is used to load configuration via yaml file
 func WithYAML(name string, loadInterval time.Duration) ControllerOption {
 	return func(c *Controller) error {

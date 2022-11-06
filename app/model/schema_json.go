@@ -1,11 +1,5 @@
 package model
 
-import (
-	"fmt"
-
-	"github.com/xeipuuv/gojsonschema"
-)
-
 const (
 	modelSchema = `{
     "type": "object",
@@ -410,17 +404,17 @@ const (
 `
 )
 
-var jsonschemaLoader, _ = gojsonschema.NewSchema(gojsonschema.NewStringLoader(modelSchema))
+// var jsonschemaLoader, _ = gojsonschema.NewSchema(gojsonschema.NewStringLoader(modelSchema))
 
 func ValidateModelSchema(data []byte) error {
 	// TODO 先不校验 schema
 	return nil
-	res, err := jsonschemaLoader.Validate(gojsonschema.NewBytesLoader(data))
-	if err != nil {
-		return err
-	}
-	if !res.Valid() {
-		return fmt.Errorf("schema is not valid: %s", res.Errors())
-	}
-	return nil
+	// res, err := jsonschemaLoader.Validate(gojsonschema.NewBytesLoader(data))
+	// if err != nil {
+	// 	return err
+	// }
+	// if !res.Valid() {
+	// 	return fmt.Errorf("schema is not valid: %s", res.Errors())
+	// }
+	// return nil
 }

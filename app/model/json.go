@@ -14,9 +14,16 @@ func ParseJSON(db *zdb.DB, json []byte) (m *Model, err error) {
 	if err == nil {
 		m.DB = db
 		m.readOnlyKeys = make([]string, 0)
+		m.cryptKeys = make(map[string]cryptProcess, 0)
 		m.columnsKeys = zarray.Map(m.Columns, func(_ int, c *Column) string {
 			if c.ReadOnly {
 				m.readOnlyKeys = append(m.readOnlyKeys, c.Name)
+			}
+			if c.Crypt != "" {
+				p, err := m.GetCryptProcess(c.Crypt)
+				if err == nil {
+					m.cryptKeys[c.Name] = p
+				}
 			}
 			return c.Name
 		})

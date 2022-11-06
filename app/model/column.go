@@ -23,6 +23,8 @@ type Column struct {
 	validRules  zvalid.Engine `json:"-"`
 	ReadOnly    bool          `json:"read_only"` // 是否创建之后不允许更改
 	Side        bool          `json:"side"`
+	// 加密字段
+	Crypt string `json:"crypt"`
 }
 
 func (c *Column) GetValidations() zvalid.Engine {

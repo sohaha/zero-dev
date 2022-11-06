@@ -2,7 +2,9 @@ package model
 
 import (
 	"github.com/sohaha/zlsgo/ztime"
+	"github.com/sohaha/zlsgo/ztype"
 	"github.com/zlsgo/zdb"
+	"github.com/zlsgo/zdb/builder"
 )
 
 type (
@@ -15,7 +17,9 @@ type (
 		Values       []interface{} `json:"values"`
 		columnsKeys  []string
 		readOnlyKeys []string
+		cryptKeys    map[string]cryptProcess
 		Options      struct {
+			CryptID          bool        `json:"crypt_id"`
 			DisabledMigrator bool        `json:"disabled_migrator"`
 			Api              interface{} `json:"api"`
 			ApiPath          string      `json:"api_path"`
@@ -36,7 +40,17 @@ func (m *Model) Migration() *Migration {
 	}
 }
 
-func (m *Model) Insert(data map[string]interface{}) (lastId int64, err error) {
+func (m *Model) Insert(data ztype.Map) (lastId int64, err error) {
+	for k := range m.cryptKeys {
+		if _, ok := data[k]; ok {
+			data[k], err = m.cryptKeys[k](data.Get(k).String())
+			if err != nil {
+				return 0, err
+			}
+		}
+
+	}
+
 	if m.Options.Timestamps {
 		now := ztime.Time()
 		data[CreatedAtKey] = now
@@ -50,4 +64,26 @@ func (m *Model) Insert(data map[string]interface{}) (lastId int64, err error) {
 	lastId, err = m.DB.InsertMaps(m.Table.Name, data)
 
 	return
+}
+
+func (m *Model) Find(fn func(b *builder.SelectBuilder) error, force bool) (ztype.Maps, error) {
+	return m.DB.FindAll(m.Table.Name, func(b *builder.SelectBuilder) error {
+		if !force && m.Options.SoftDeletes {
+			b.Where(b.EQ(DeletedAtKey, 0))
+		}
+		return fn(b)
+	})
+}
+
+func (m *Model) FindOne(fn func(b *builder.SelectBuilder) error, force bool) (ztype.Map, error) {
+	return m.DB.Find(m.Table.Name, func(b *builder.SelectBuilder) error {
+		if !force && m.Options.SoftDeletes {
+			b.Where(b.EQ(DeletedAtKey, 0))
+		}
+		return fn(b)
+	})
+}
+
+func (m *Model) Update(data interface{}, fn func(b *builder.UpdateBuilder) error) (int64, error) {
+	return m.DB.Update(m.Table.Name, data, fn)
 }

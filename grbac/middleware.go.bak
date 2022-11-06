@@ -20,6 +20,7 @@ func NewMiddleware(loaderOptions ControllerOption, options ...ControllerOption) 
 	zerror.Panic(err)
 
 	return func(c *znet.Context) error {
+		// 定义公共路径
 		roles, err := QueryRolesByHeaders(c.Request.Header)
 		if err != nil {
 			return error_code.Unauthorized.Text(err.Error())

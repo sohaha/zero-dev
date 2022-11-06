@@ -5,8 +5,70 @@ import (
 
 	"github.com/sohaha/zlsgo/zfile"
 	"github.com/sohaha/zlsgo/zjson"
+	"github.com/sohaha/zlsgo/zlog"
+	"github.com/sohaha/zlsgo/ztype"
+	"github.com/zlsgo/conf"
 	"gopkg.in/yaml.v3"
 )
+
+// FileLoader implements the Loader interface
+// it is used to load configuration from a local file.
+type FileLoader struct {
+	path string
+}
+
+// FileLoader is used to initialize a FileLoader
+func NewFileLoader(file string) (*FileLoader, error) {
+	loader := &FileLoader{
+		path: zfile.RealPath(file),
+	}
+	_, err := loader.Load()
+	if err != nil {
+		return nil, err
+	}
+	return loader, nil
+}
+
+// Load is used to return a list of rules
+func (loader *FileLoader) Load() (rules meta.Rules, err error) {
+	c := conf.New(loader.path)
+
+	err = c.Read()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, v := range c.GetAll() {
+		m := ztype.ToMap(v)
+		rule := &meta.Rule{
+			Sort: m.Get("sort").Int(),
+			Resource: &meta.Resource{
+				Host:   m.Get("host").String(),
+				Path:   m.Get("path").String(),
+				Method: m.Get("method").String(),
+			},
+			Permission: &meta.Permission{
+				AuthorizedRoles: m.Get("authorized_roles").Slice().String(),
+				ForbiddenRoles:  m.Get("forbidden_roles").Slice().String(),
+				AllowAnyone:     m.Get("allow_anyone").Bool(),
+			},
+		}
+		rules = append(rules, rule)
+	}
+	zlog.Debug(rules)
+	return
+	// rules := meta.Rules{}
+	// err = c.Unmarshal(&rules, func(dc *mapstructure.DecoderConfig) {
+
+	// })
+	// zlog.Debug(c.GetAll())
+	// zlog.Debug(11, rules, err)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// return rules, nil
+}
 
 // YAMLLoader implements the Loader interface
 // it is used to load configuration from a local yaml file.

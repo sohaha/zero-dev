@@ -1,12 +1,9 @@
 package app
 
 import (
-	"time"
 	"zlsapp/app/account"
 	"zlsapp/app/model"
 	"zlsapp/controller"
-	"zlsapp/grbac"
-	"zlsapp/grbac/meta"
 	"zlsapp/service"
 
 	"github.com/sohaha/zlsgo/znet"
@@ -29,10 +26,9 @@ func InitMiddleware(conf *service.Conf, app *service.App) []znet.Handler {
 	// 	zlog.Debug("重新")
 	// 	return rules, nil
 	// }, time.Second*10)
-	grbacLoader := grbac.WithYAML("grbac/testdata/grbac.yml", time.Second*2)
 
 	return []znet.Handler{
 		cors.Default(),
-		grbac.NewMiddleware(grbacLoader, grbac.WithMatchMode(meta.MatchPriorityAllow)),
+		account.NewMiddleware(app),
 	}
 }

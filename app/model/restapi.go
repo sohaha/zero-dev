@@ -22,13 +22,10 @@ func NewRestApi() service.Router {
 }
 
 func (m *Model) restApiInfo(key string) (ztype.Map, error) {
-	return m.DB.Find(m.Table.Name, func(b *builder.SelectBuilder) error {
+	return m.FindOne(func(b *builder.SelectBuilder) error {
 		b.Where(b.EQ(IDKey, key))
-		if m.Options.SoftDeletes {
-			b.Where(b.EQ(DeletedAtKey, 0))
-		}
 		return nil
-	})
+	}, false)
 }
 
 func (m *Model) restApiGetInfo(c *znet.Context) error {

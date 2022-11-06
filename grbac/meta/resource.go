@@ -21,7 +21,7 @@ import (
 // Resource defines resources
 type Resource struct {
 	// Host defines the host of the resource, allowing wildcards to be used.
-	Host string `json:"host" yaml:"host"`
+	Host string `mapstructure:"host" json:"host" yaml:"host"`
 	// Path defines the path of the resource, allowing wildcards to be used.
 	Path string `json:"path" yaml:"path"`
 	// Method defines the method of the resource, allowing wildcards to be used.

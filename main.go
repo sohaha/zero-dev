@@ -27,6 +27,14 @@ _____
 	zcli.Version = "1.0.0"
 	zcli.EnableDetach = true
 
+	// s := conf.New("ss.toml")
+	// s.SetDefault("app", []map[string]interface{}{
+	// 	{"id": "33"},
+	// 	{"id": "22"},
+	// })
+	// zlog.Debug(s.Read())
+	// zlog.Debug(s.Core.AllSettings())
+	// os.Exit(0)
 	err := zutil.TryCatch(func() error {
 		di, err := app.Init()
 		if err == nil {

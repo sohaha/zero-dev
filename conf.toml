@@ -25,3 +25,6 @@ SSLMode = ''
 Path = 'db.db'
 
 
+[account]
+only = true
+key = "678777654a"

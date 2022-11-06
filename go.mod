@@ -11,7 +11,6 @@ require (
 	github.com/xeipuuv/gojsonschema v1.2.0
 	github.com/zlsgo/conf v0.0.0-20220614015108-b4ee9fc367b0
 	github.com/zlsgo/zdb v0.0.0-00010101000000-000000000000
-	go.mongodb.org/mongo-driver v1.10.0
 )
 
 require (
@@ -40,15 +39,16 @@ require (
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.2 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
+	github.com/speps/go-hashids/v2 v2.0.1
 	github.com/spf13/afero v1.8.2 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/spf13/viper v1.12.0 // indirect
+	github.com/spf13/viper v1.12.0
 	github.com/subosito/gotenv v1.4.0 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
-	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
+	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect
 	golang.org/x/text v0.3.7 // indirect

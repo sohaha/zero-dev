@@ -6,19 +6,22 @@ import (
 	"zlsapp/conf"
 
 	"github.com/sohaha/zlsgo/zerror"
+	"github.com/spf13/viper"
 	gconf "github.com/zlsgo/conf"
 )
 
 // Conf 配置项
 type Conf struct {
+	cfg *gconf.Confhub
+
 	Base conf.Base
 
 	DB conf.DB
 }
 
 func InitConf() *Conf {
-	c := &Conf{}
 	cfg := gconf.New(conf.FileName)
+	c := &Conf{cfg: cfg}
 
 	for _, c := range conf.DefaultConf {
 		m, t := make(map[string]interface{}), reflect.TypeOf(c)
@@ -53,4 +56,8 @@ func InitConf() *Conf {
 	zerror.Panic(cfg.Unmarshal(&c))
 
 	return c
+}
+
+func (c *Conf) Core() *viper.Viper {
+	return c.cfg.Core
 }
