@@ -111,14 +111,19 @@ func Result(c *znet.Context, code ErrCode, data interface{}, err ...error) {
 		}
 	}
 
-	var status int32 = http.StatusOK
-	switch code {
-	case InvalidInput, InvalidAccount:
-		status = http.StatusBadRequest
-	case Unauthorized, AuthorizedExpires:
-		status = http.StatusUnauthorized
-	case PermissionDenied:
-		status = http.StatusForbidden
+	var status int32 = http.StatusBadRequest
+	switch true {
+	case code >= 20000 && code <= 29999:
+		status = http.StatusInternalServerError
+	case code == 0:
+		status = http.StatusOK
+	default:
+		switch code {
+		case Unauthorized, AuthorizedExpires:
+			status = http.StatusUnauthorized
+		case PermissionDenied:
+			status = http.StatusForbidden
+		}
 	}
 
 	c.JSON(status, ApiData{code, m, info})
