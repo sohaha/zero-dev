@@ -32,8 +32,10 @@ func migration(di zdi.Invoker) (m *model.Model, err error) {
 				"roles":    "admin",
 			},
 		})
+
 		zlog.Success("初始化用户")
 		zlog.Printf("        账号: %s\n        密码: %s\n", "admin", "admin")
+
 		json, _ = zjson.SetBytes(json, "columns", ztype.Maps{
 			{
 				"label":    "头像",
@@ -79,12 +81,13 @@ func migration(di zdi.Invoker) (m *model.Model, err error) {
 			},
 			{
 				"name":  "status",
-				"type":  "int8",
+				"type":  "int",
+				"size":  10,
 				"label": "状态",
 				"validations": ztype.Maps{
 					{
 						"method": "enum",
-						"args":   []int8{0, 1, 2},
+						"args":   []string{"0", "1", "2"},
 					},
 				},
 			},

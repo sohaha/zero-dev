@@ -56,7 +56,7 @@ func (h *Account) Init(r *znet.Engine) {
 
 	h.failedCache = zcache.New("__account" + h.Model.Table.Name + "Failed__")
 
-	h.Di.Invoke(func(hashid *hashids.HashID) {
+	_, _ = h.Di.Invoke(func(hashid *hashids.HashID) {
 		h.Handlers = &AccountHandlers{
 			Model:  h.Model,
 			hashid: hashid,
@@ -92,6 +92,9 @@ func (h *Account) PostLogin(c *znet.Context) error {
 		b.Where(b.EQ("account", account))
 		return nil
 	}, false)
+	if user.IsEmpty() {
+		return error_code.InvalidInput.Text("账号或密码错误")
+	}
 	if err != nil {
 		return err
 	}
@@ -150,20 +153,13 @@ func (h *Account) GetMessage(c *znet.Context) (interface{}, error) {
 // GetMe 获取当前用户信息
 func (h *Account) GetMe(c *znet.Context) (interface{}, error) {
 	uid := common.GetUID(c)
-	zlog.Debug(uid)
-	return uid, nil
-	// info, _ := h.MDB.Collection(context.TODO(), h.Model).FindOne(uid, func(opts *options.FindOneOptions) {
-	// 	opts.Projection = bson.M{"password": 0, "key": 0}
-	// })
-	// res := map[string]interface{}{
-	// 	"info": info,
-	// }
-	// roles, ok := c.Value("roles")
-	// if ok {
-	// 	res["roles"] = roles
-	// }
-
-	// return restapi.Success.Result(c, res)
+	info, err := h.Model.FindOne(func(b *builder.SelectBuilder) error {
+		b.Where(b.EQ(model.IDKey, uid))
+		b.Select(h.Model.GetFields("password", "salt")...)
+		return nil
+	}, false)
+	zlog.Dump(info)
+	return info, err
 }
 
 // // AnyLogout 用户退出

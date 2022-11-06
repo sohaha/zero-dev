@@ -5,7 +5,6 @@ import (
 
 	"github.com/sohaha/zlsgo/zfile"
 	"github.com/sohaha/zlsgo/zjson"
-	"github.com/sohaha/zlsgo/zlog"
 	"github.com/sohaha/zlsgo/ztype"
 	"github.com/zlsgo/conf"
 	"gopkg.in/yaml.v3"
@@ -55,7 +54,7 @@ func (loader *FileLoader) Load() (rules meta.Rules, err error) {
 		}
 		rules = append(rules, rule)
 	}
-	zlog.Debug(rules)
+
 	return
 	// rules := meta.Rules{}
 	// err = c.Unmarshal(&rules, func(dc *mapstructure.DecoderConfig) {

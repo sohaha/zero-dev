@@ -3,6 +3,7 @@ package model
 import (
 	"sync"
 
+	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/zvalid"
 )
 
@@ -38,4 +39,14 @@ func (c *Column) GetValidations() zvalid.Engine {
 	})
 
 	return c.validRules
+}
+
+func (m *Model) GetFields(exclude ...string) []string {
+	if len(exclude) == 0 {
+		return m.columnsKeys
+	}
+
+	return zarray.Filter(m.columnsKeys, func(_ int, v string) bool {
+		return !zarray.Contains(exclude, v)
+	})
 }
