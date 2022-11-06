@@ -45,6 +45,7 @@ func (m *Migration) Auto() (err error) {
 		err = m.UpdateTable()
 	}
 
+	return m.InitValue()
 	return
 }
 
@@ -215,10 +216,13 @@ func (m *Migration) CreateTable() error {
 	fields = append(fields, m.getPrimaryKey())
 
 	for _, v := range m.Columns {
-		f := schema.NewField(v.Name, v.Type, func(f *schema.Field) {
-			f.Comment = zutil.IfVal(v.Comment != "", v.Comment, v.Label).(string)
-			f.NotNull = !v.Nullable
-		})
+		f := &schema.Field{
+			Name:     v.Name,
+			NotNull:  !v.Nullable,
+			DataType: schema.DataType(v.Type),
+			Comment:  zutil.IfVal(v.Comment != "", v.Comment, v.Label).(string),
+		}
+
 		// if !v.Side {
 		fields = append(fields, f)
 		// } else {

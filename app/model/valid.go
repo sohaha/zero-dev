@@ -407,7 +407,11 @@ func parseValidRule(label string, valids []validations, max uint) zvalid.Engine 
 				rule = rule.EnumInt(val)
 			default:
 				rule = rule.Customize(func(rawValue string, err error) (string, error) {
-					return "", errors.New(label + "枚举值不在合法范围")
+					ok := zarray.Contains(ztype.ToSlice(val).String(), rawValue)
+					if !ok {
+						return "", errors.New(label + "枚举值不在合法范围")
+					}
+					return rawValue, nil
 				})
 			}
 		case "mobile":

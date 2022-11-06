@@ -28,7 +28,7 @@ func migration(di zdi.Invoker) (m *model.Model, err error) {
 			{
 				"account":  "admin",
 				"password": "admin",
-				"status":   "1",
+				"status":   1,
 				"roles":    "admin",
 			},
 		})
@@ -87,7 +87,7 @@ func migration(di zdi.Invoker) (m *model.Model, err error) {
 				"validations": ztype.Maps{
 					{
 						"method": "enum",
-						"args":   []string{"0", "1", "2"},
+						"args":   []int{0, 1, 2},
 					},
 				},
 			},
