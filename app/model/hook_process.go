@@ -50,6 +50,15 @@ func (m *Model) GetAfterProcess(p []string) (fn []afterProcess, err error) {
 }
 
 func (m *Model) valuesBeforeProcess(data ztype.Map) (newData ztype.Map, err error) {
+	for k := range m.cryptKeys {
+		if _, ok := data[k]; ok {
+			data[k], err = m.cryptKeys[k](data.Get(k).String())
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
 	for name, fns := range m.beforeProcess {
 		val := data.Get(name)
 		if !val.Exists() {

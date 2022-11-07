@@ -162,6 +162,14 @@ func (h *Account) GetMe(c *znet.Context) (interface{}, error) {
 	return info, err
 }
 
+// PatchMe 修改当前用户信息
+func (h *Account) PatchMe(c *znet.Context) (interface{}, error) {
+	uid := common.GetUID(c)
+	data, _ := c.GetJSONs()
+	err := h.Handlers.Update(uid, data.MapString())
+	return nil, err
+}
+
 // AnyLogout 用户退出
 func (h *Account) AnyLogout(c *znet.Context) (interface{}, error) {
 	uid := common.GetUID(c)

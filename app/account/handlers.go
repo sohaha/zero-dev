@@ -23,17 +23,21 @@ type AccountHandlers struct {
 	hashid *hashids.HashID
 }
 
-func (h *AccountHandlers) Update(id interface{}, update interface{}) error {
-	row, _ := h.Model.FindOne(func(b *builder.SelectBuilder) error {
+func (h *AccountHandlers) Update(id interface{}, update ztype.Map) error {
+	row, err := h.Model.FindOne(func(b *builder.SelectBuilder) error {
 		b.Where(b.EQ(model.IDKey, id))
 		return nil
 	}, true)
 
-	if row.IsEmpty() {
+	if row.IsEmpty() || err != nil {
 		return errors.New("账号不存在")
 	}
+	update, err = model.CheckData(update, h.Model.Columns, 2)
+	if err != nil {
+		return error_code.InvalidAccount.Error(err)
+	}
 
-	_, err := h.Model.Update(update, func(b *builder.UpdateBuilder) error {
+	_, err = h.Model.Update(update, func(b *builder.UpdateBuilder) error {
 		b.Where(b.EQ(model.IDKey, id))
 		return nil
 	})

@@ -43,16 +43,6 @@ func (m *Model) Migration() *Migration {
 }
 
 func (m *Model) Insert(data ztype.Map) (lastId int64, err error) {
-	for k := range m.cryptKeys {
-		if _, ok := data[k]; ok {
-			data[k], err = m.cryptKeys[k](data.Get(k).String())
-			if err != nil {
-				return 0, err
-			}
-		}
-
-	}
-
 	data, err = m.valuesBeforeProcess(data)
 	if err != nil {
 		return 0, err
@@ -111,6 +101,11 @@ func (m *Model) FindOne(fn func(b *builder.SelectBuilder) error, force bool) (zt
 	return ztype.Map{}, err
 }
 
-func (m *Model) Update(data interface{}, fn func(b *builder.UpdateBuilder) error) (int64, error) {
-	return m.DB.Update(m.Table.Name, data, fn)
+func (m *Model) Update(data ztype.Map, fn func(b *builder.UpdateBuilder) error) (int64, error) {
+	ndata, err := m.valuesBeforeProcess(data)
+	if err != nil {
+		return 0, err
+	}
+
+	return m.DB.Update(m.Table.Name, ndata, fn)
 }

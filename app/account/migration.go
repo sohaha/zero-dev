@@ -96,6 +96,14 @@ func migration(di zdi.Invoker) (m *model.Model, err error) {
 				"label":    "登录时间",
 			},
 			{
+				"name":     "remark",
+				"type":     "string",
+				"size":     100,
+				"default":  "",
+				"nullable": true,
+				"label":    "备注",
+			},
+			{
 				"name":     "roles",
 				"type":     "json",
 				"nullable": true,
