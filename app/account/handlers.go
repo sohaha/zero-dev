@@ -3,7 +3,6 @@ package account
 import (
 	"errors"
 	"fmt"
-	"strings"
 	"time"
 	"zlsapp/app/error_code"
 	"zlsapp/app/model"
@@ -164,7 +163,6 @@ func (h *AccountHandlers) QueryRoles(j *jwt.JwtInfo) (uid string, roles []string
 		return "", nil, err
 	}
 
-	roles = strings.Split(user.Get("roles").String(), ",")
-
+	roles = user.Get("roles").Slice().String()
 	return
 }

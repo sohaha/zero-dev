@@ -12,7 +12,7 @@ type Column struct {
 	Name        string        `json:"name"`
 	Comment     string        `json:"comment"`
 	Type        string        `json:"type"`
-	Size        uint          `json:"size"`
+	Size        uint64        `json:"size"`
 	Tag         string        `json:"tag"`
 	Nullable    bool          `json:"nullable"`
 	Label       string        `json:"label"`
@@ -25,7 +25,9 @@ type Column struct {
 	ReadOnly    bool          `json:"read_only"` // 是否创建之后不允许更改
 	Side        bool          `json:"side"`
 	// 加密字段
-	Crypt string `json:"crypt"`
+	Crypt  string   `json:"crypt"`
+	Before []string `json:"before"`
+	After  []string `json:"after"`
 }
 
 func (c *Column) GetValidations() zvalid.Engine {

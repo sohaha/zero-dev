@@ -1,6 +1,7 @@
 package model
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/sohaha/zlsgo/zstring"
@@ -11,6 +12,8 @@ type cryptProcess func(string) (string, error)
 
 func (m *Model) GetCryptProcess(cryptName string) (fn cryptProcess, err error) {
 	switch strings.ToLower(cryptName) {
+	default:
+		return nil, errors.New("crypt name not found")
 	case "md5":
 		fn = func(s string) (string, error) {
 			return zstring.Md5(s), nil

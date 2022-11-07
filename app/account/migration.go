@@ -24,18 +24,13 @@ func migration(di zdi.Invoker) (m *model.Model, err error) {
 			"crypt_id":   true,
 		})
 
-		json, _ = zjson.SetBytes(json, "values", ztype.Maps{
-			{
-				"account":  "admin",
-				"password": "admin",
-				"status":   1,
-				"roles":    "admin",
-				"avatar":   "",
-			},
-		})
+		defAccount := defaultAccount()
+		json, _ = zjson.SetBytes(json, "values", defAccount)
 
-		zlog.Success("初始化用户")
-		zlog.Printf("        账号: %s\n        密码: %s\n", "admin", "admin")
+		zlog.Success("初始化管理账号：")
+		for _, v := range defAccount {
+			zlog.Printf("        账号：%s 密码：%s\n", v["account"], v["password"])
+		}
 
 		json, _ = zjson.SetBytes(json, "columns", ztype.Maps{
 			{
@@ -82,8 +77,8 @@ func migration(di zdi.Invoker) (m *model.Model, err error) {
 			},
 			{
 				"name":  "status",
-				"type":  "int",
-				"size":  10,
+				"type":  "int8",
+				"size":  9,
 				"label": "状态",
 				"validations": ztype.Maps{
 					{
@@ -107,7 +102,7 @@ func migration(di zdi.Invoker) (m *model.Model, err error) {
 			},
 			{
 				"name":     "roles",
-				"type":     "string",
+				"type":     "json",
 				"nullable": true,
 				"size":     200,
 				"label":    "角色",
@@ -126,4 +121,16 @@ func migration(di zdi.Invoker) (m *model.Model, err error) {
 	}
 
 	return
+}
+
+func defaultAccount() ztype.Maps {
+	return ztype.Maps{
+		{
+			"account":  "admin",
+			"password": "admin",
+			"status":   1,
+			"roles":    []string{"admin"},
+			"avatar":   "",
+		},
+	}
 }

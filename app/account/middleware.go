@@ -34,12 +34,9 @@ func NewMiddleware(app *service.App) znet.Handler {
 	})
 
 	key := app.Conf.Core().GetString("account.key")
-	zlog.Debug(key)
 
-	zlog.Debug(h)
 	return func(c *znet.Context) error {
 		path := c.Request.URL.Path
-		zlog.Debug(path)
 		if zarray.Contains(pubPath, path) {
 			c.Next()
 			return nil
@@ -50,8 +47,6 @@ func NewMiddleware(app *service.App) znet.Handler {
 			return err
 		}
 
-		zlog.Debug(j)
-		zlog.Debug(h)
 		uid, roles, err := h.QueryRoles(j)
 		if err != nil {
 			return error_code.Unauthorized.Text(err.Error())

@@ -8,7 +8,6 @@ import (
 	"zlsapp/app/model"
 
 	"github.com/sohaha/zlsgo/zcache"
-	"github.com/sohaha/zlsgo/zlog"
 	"github.com/sohaha/zlsgo/znet"
 	"github.com/sohaha/zlsgo/zstring"
 	"github.com/sohaha/zlsgo/ztime"
@@ -158,7 +157,6 @@ func (h *Account) GetMe(c *znet.Context) (interface{}, error) {
 		b.Select(h.Model.GetFields("password", "salt")...)
 		return nil
 	}, false)
-	zlog.Dump(info)
 	return info, err
 }
 

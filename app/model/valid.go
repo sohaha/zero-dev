@@ -388,7 +388,7 @@ func CheckData(data ztype.Map, columns []*Column, active activeType) (ztype.Map,
 // 	return rule
 // }
 
-func parseValidRule(label string, valids []validations, max uint) zvalid.Engine {
+func parseValidRule(label string, valids []validations, max uint64) zvalid.Engine {
 	rule := zvalid.New().SetAlias(label)
 
 	for _, valid := range valids {

@@ -39,21 +39,25 @@ func (m *Migration) Auto() (err error) {
 		}
 
 		zlog.Debug("初始化数据")
-		return m.InitValue()
+		return m.InitValue(true)
 	} else {
 		zlog.Debug("需要更新表结构")
 		err = m.UpdateTable()
 	}
 
-	return m.InitValue()
-	return
+	return m.InitValue(false)
 }
 
-func (m *Migration) InitValue() error {
+func (m *Migration) InitValue(all bool) error {
 	for _, v := range m.Values {
 		data, ok := v.(map[string]interface{})
 		if !ok {
 			return errors.New("Invalid migration value")
+		}
+		if !all {
+			if _, ok := data[IDKey]; ok {
+				continue
+			}
 		}
 
 		data, err := CheckData(data, m.Columns, activeCreate)
@@ -147,14 +151,19 @@ func (m *Migration) UpdateTable() error {
 	if m.Options.Timestamps {
 		zlog.Debug(zarray.Contains(oldColumns, CreatedAtKey))
 		if !zarray.Contains(oldColumns, CreatedAtKey) {
-			sql, values := table.AddColumn(CreatedAtKey, "time")
+			sql, values := table.AddColumn(CreatedAtKey, "time", func(f *schema.Field) {
+				f.Comment = "更新时间"
+
+			})
 			_, err := m.DB.Exec(sql, values...)
 			if err != nil {
 				return err
 			}
 		}
 		if !zarray.Contains(oldColumns, UpdatedAtKey) {
-			sql, values := table.AddColumn(UpdatedAtKey, "time")
+			sql, values := table.AddColumn(UpdatedAtKey, "time", func(f *schema.Field) {
+				f.Comment = "更新时间"
+			})
 			_, err := m.DB.Exec(sql, values...)
 			if err != nil {
 				return err
@@ -171,7 +180,11 @@ func (m *Migration) UpdateTable() error {
 			continue
 		}
 
-		sql, values := table.AddColumn(v, c.Type)
+		sql, values := table.AddColumn(v, c.Type, func(f *schema.Field) {
+			f.Comment = zutil.IfVal(c.Comment != "", c.Comment, c.Label).(string)
+			f.NotNull = !c.Nullable
+			f.Size = c.Size
+		})
 		_, err := m.DB.Exec(sql, values...)
 		if err != nil {
 			return err
@@ -216,12 +229,11 @@ func (m *Migration) CreateTable() error {
 	fields = append(fields, m.getPrimaryKey())
 
 	for _, v := range m.Columns {
-		f := &schema.Field{
-			Name:     v.Name,
-			NotNull:  !v.Nullable,
-			DataType: schema.DataType(v.Type),
-			Comment:  zutil.IfVal(v.Comment != "", v.Comment, v.Label).(string),
-		}
+		f := schema.NewField(v.Name, schema.DataType(v.Type), func(f *schema.Field) {
+			f.Comment = zutil.IfVal(v.Comment != "", v.Comment, v.Label).(string)
+			f.NotNull = !v.Nullable
+			f.Size = v.Size
+		})
 
 		// if !v.Side {
 		fields = append(fields, f)
