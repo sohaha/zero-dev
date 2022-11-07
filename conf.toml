@@ -4,7 +4,7 @@ name = 'ZlsApp'
 port = '8181'
 
 [db]
-driver = 'mysql'
+driver = 'sqlite'
 [db.mysql]
 Host = '127.0.0.1'
 Port = 3306

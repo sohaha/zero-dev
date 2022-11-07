@@ -1,9 +1,9 @@
 package app
 
 import (
-	"zlsapp/app/account"
-	"zlsapp/app/model"
 	"zlsapp/controller"
+	"zlsapp/internal/account"
+	"zlsapp/internal/model"
 	"zlsapp/service"
 
 	"github.com/sohaha/zlsgo/znet"

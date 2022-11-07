@@ -1,11 +1,11 @@
 package account
 
 import (
-	"zlsapp/app/error_code"
 	"zlsapp/common"
+	"zlsapp/internal/error_code"
 	"zlsapp/service"
 
-	"zlsapp/app/model"
+	"zlsapp/internal/model"
 
 	"github.com/sohaha/zlsgo/zcache"
 	"github.com/sohaha/zlsgo/znet"

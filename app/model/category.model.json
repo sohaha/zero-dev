@@ -1,0 +1,18 @@
+{
+  "name": "分类模型",
+  "table": {
+    "name": "category",
+    "comment": "分类表"
+  },
+  "columns": [
+    {
+      "label": "name",
+      "name": "string",
+      "size": 25,
+      "type": "string"
+    }
+  ],
+  "values": [],
+  "options": {
+  }
+}

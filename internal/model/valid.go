@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"time"
 
 	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/ztime"
@@ -211,12 +212,19 @@ func CheckData(data ztype.Map, columns []*Column, active activeType) (ztype.Map,
 			case "bool":
 				d[name] = ztype.ToBool(v)
 			case "time":
-				t, _ := v.(string)
-				parse, err := ztime.Parse(t)
-				if err != nil {
-					return d, errors.New(label + ": 时间格式错误")
+				switch t := v.(type) {
+				case time.Time:
+					d[name] = DataTime{Time: t}
+				case int:
+					// TODO 时间戳转换
+				case string:
+					r, err := ztime.Parse(t)
+					if err != nil {
+						return d, errors.New(label + ": 时间格式错误")
+					}
+					d[name] = DataTime{Time: r}
 				}
-				d[name] = DataTime{Time: parse}
+
 			case "int", "uint", "float", "string":
 				var (
 					val interface{}

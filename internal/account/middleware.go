@@ -2,10 +2,11 @@ package account
 
 import (
 	"time"
-	"zlsapp/app/error_code"
-	"zlsapp/app/model"
+
 	"zlsapp/grbac"
 	"zlsapp/grbac/meta"
+	"zlsapp/internal/error_code"
+	"zlsapp/internal/model"
 	"zlsapp/service"
 
 	"github.com/sohaha/zlsgo/zarray"

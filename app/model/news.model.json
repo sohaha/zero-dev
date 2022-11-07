@@ -1,0 +1,34 @@
+{
+    "name": "新闻模型",
+    "table": {
+        "name": "news",
+        "comment": "新闻表"
+    },
+    "columns": [
+        {
+            "label": "title",
+            "name": "string",
+            "size": 25,
+            "type": "string"
+        },
+        {
+            "name": "content",
+            "type": "string",
+            "label": "内容",
+            "validations": [
+                {
+                    "method": "minLength",
+                    "args": 3
+                },
+                {
+                    "method": "maxLength",
+                    "args": 9999
+                }
+            ]
+        }
+    ],
+    "values": [],
+    "options": {
+        "timestamps": true
+    }
+}

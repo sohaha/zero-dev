@@ -5,7 +5,8 @@ import (
 	"net/http"
 	"reflect"
 	"strings"
-	"zlsapp/app/error_code"
+
+	"zlsapp/internal/error_code"
 
 	"github.com/sohaha/zlsgo/zdi"
 	"github.com/sohaha/zlsgo/zerror"

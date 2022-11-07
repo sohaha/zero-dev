@@ -1,7 +1,7 @@
 package migration
 
 import (
-	"zlsapp/app/model"
+	"zlsapp/internal/model"
 
 	"github.com/sohaha/zlsgo/zdi"
 	"github.com/sohaha/zlsgo/zerror"

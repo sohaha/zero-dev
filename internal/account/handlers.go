@@ -4,10 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"time"
-	"zlsapp/app/error_code"
-	"zlsapp/app/model"
+
 	"zlsapp/common/hashid"
 	"zlsapp/common/jwt"
+	"zlsapp/internal/error_code"
+	"zlsapp/internal/model"
 
 	gjwt "github.com/golang-jwt/jwt"
 	"github.com/sohaha/zlsgo/zcache"
@@ -34,7 +35,7 @@ func (h *AccountHandlers) Update(id interface{}, update ztype.Map) error {
 	}
 	update, err = model.CheckData(update, h.Model.Columns, 2)
 	if err != nil {
-		return error_code.InvalidAccount.Error(err)
+		return error_code.InvalidInput.Error(err)
 	}
 
 	_, err = h.Model.Update(update, func(b *builder.UpdateBuilder) error {

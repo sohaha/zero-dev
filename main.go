@@ -1,8 +1,9 @@
 package main
 
 import (
-	"zlsapp/app"
-	"zlsapp/app/migration"
+	"zlsapp/internal"
+	"zlsapp/internal/migration"
+	"zlsapp/internal/model"
 	"zlsapp/service"
 
 	"github.com/arl/statsviz"
@@ -42,6 +43,8 @@ _____
 				c = app.Conf
 				zerror.Panic(migration.RunMigrations(di))
 			})
+
+			model.NewLoader(di)
 
 			var router *znet.Engine
 			_ = di.Resolve(&router)

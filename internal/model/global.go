@@ -1,7 +1,7 @@
 package model
 
 import (
-	"zlsapp/app/error_code"
+	"zlsapp/internal/error_code"
 
 	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/znet"

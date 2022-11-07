@@ -1,0 +1,25 @@
+### 用户登录
+POST {{host}}/base/login
+Content-Type: application/json
+
+{
+  "account": "admin",
+  "password": "admin"
+}
+
+> {% client.global.set("token", response.body.data.token); %}
+
+### 用户信息
+GET {{host}}/base/me
+Authorization: Basic {{token}}
+
+
+### 修改资料
+PATCH {{host}}/base/me
+Authorization: Basic {{token}}
+Content-Type: application/json
+
+{
+  "avatar": "",
+  "remark": "备注"
+}
