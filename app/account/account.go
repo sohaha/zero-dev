@@ -43,6 +43,7 @@ func (h *Account) loginFailed(c *znet.Context) {
 func (h *Account) logout(user ztype.Map) error {
 	salt := zstring.Rand(8)
 	_ = user.Set("salt", salt)
+
 	return h.Handlers.Update(user.Get(model.IDKey).Value(), map[string]interface{}{
 		"salt": salt,
 		// "updated_at": time.Now(),
@@ -160,17 +161,18 @@ func (h *Account) GetMe(c *znet.Context) (interface{}, error) {
 	return info, err
 }
 
-// // AnyLogout 用户退出
-// func (h *Account) AnyLogout(c *znet.Context) error {
-// 	u, ok := c.Value("user")
-// 	if !ok {
-// 		return restapi.ErrorMsg(restapi.ServerError, "未登录")
-// 	}
+// AnyLogout 用户退出
+func (h *Account) AnyLogout(c *znet.Context) error {
+	uid := common.GetUID(c)
+	user, err := h.Handlers.CacheForID(uid)
+	if err != nil {
+		return err
+	}
 
-// 	_ = h.logout(h.MDB, u.(ztype.Map))
+	_ = h.logout(user)
 
-// 	return restapi.Success.Result(c, nil)
-// }
+	return nil
+}
 
 // // PatchPassword 修改密码
 // func (h *Account) AnyPassword(c *znet.Context) error {

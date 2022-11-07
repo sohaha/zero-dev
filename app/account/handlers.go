@@ -24,7 +24,6 @@ type AccountHandlers struct {
 }
 
 func (h *AccountHandlers) Update(id interface{}, update interface{}) error {
-
 	row, _ := h.Model.FindOne(func(b *builder.SelectBuilder) error {
 		b.Where(b.EQ(model.IDKey, id))
 		return nil
@@ -42,14 +41,18 @@ func (h *AccountHandlers) Update(id interface{}, update interface{}) error {
 		return err
 	}
 
-	_, _ = zcache.New("__account_" + h.Model.Table.Name + "__").Delete(row.Get(model.IDKey).String())
+	_, _ = h.Cache().Delete(row.Get(model.IDKey).String())
 
 	return nil
 }
 
+func (h *AccountHandlers) Cache() *zcache.Table {
+	return zcache.New("__account_" + h.Model.Table.Name + "__")
+}
+
 func (h *AccountHandlers) CacheForID(uid interface{}) (row ztype.Map, err error) {
 	idStr := ztype.ToString(uid)
-	data, err := zcache.New("__account_"+h.Model.Table.Name+"__").MustGet(idStr, func(set func(data interface{},
+	data, err := h.Cache().MustGet(idStr, func(set func(data interface{},
 		lifeSpan time.Duration, interval ...bool)) (err error) {
 		row, err := h.Model.FindOne(func(b *builder.SelectBuilder) error {
 			b.EQ(model.IDKey, uid)
@@ -146,23 +149,20 @@ func (h *AccountHandlers) ResetManageToken(c *znet.Context, user ztype.Map, key 
 	}
 }
 
-func (h *AccountHandlers) QueryRoles(j *jwt.JwtInfo) (uid string, roles []string, err error) {
+func (h *AccountHandlers) QueryRoles(j *jwt.JwtInfo) (user ztype.Map, err error) {
+	var uid interface{}
 	if h.Model.Options.CryptID {
 		var id int64
 		id, err = hashid.DecryptID(h.hashid, j.U[8:])
 		if err != nil {
-			return "", nil, err
+			return nil, err
 		}
 		uid = ztype.ToString(id)
 	} else {
 		uid = j.U[8:]
 	}
 
-	user, err := h.CacheForID(uid)
-	if err != nil {
-		return "", nil, err
-	}
+	user, err = h.CacheForID(uid)
 
-	roles = user.Get("roles").Slice().String()
 	return
 }

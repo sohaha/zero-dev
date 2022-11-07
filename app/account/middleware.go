@@ -3,6 +3,7 @@ package account
 import (
 	"time"
 	"zlsapp/app/error_code"
+	"zlsapp/app/model"
 	"zlsapp/grbac"
 	"zlsapp/grbac/meta"
 	"zlsapp/service"
@@ -47,11 +48,20 @@ func NewMiddleware(app *service.App) znet.Handler {
 			return err
 		}
 
-		uid, roles, err := h.QueryRoles(j)
+		user, err := h.QueryRoles(j)
 		if err != nil {
 			return error_code.Unauthorized.Text(err.Error())
 		}
-		c.WithValue("uid", uid)
+
+		if app.Conf.Core().GetBool("account.only") {
+			salt := user.Get("salt").String()
+			if salt != j.U[:8] {
+				return error_code.AuthorizedExpires.Text("登录状态失效，请重新登录")
+			}
+		}
+
+		roles := user.Get("roles").Slice().String()
+		c.WithValue("uid", user.Get(model.IDKey).Value())
 
 		state, err := rbac.IsRequestGranted(c.Request, roles)
 		if err != nil {

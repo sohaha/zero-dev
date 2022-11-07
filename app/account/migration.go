@@ -27,11 +27,6 @@ func migration(di zdi.Invoker) (m *model.Model, err error) {
 		defAccount := defaultAccount()
 		json, _ = zjson.SetBytes(json, "values", defAccount)
 
-		zlog.Success("初始化管理账号：")
-		for _, v := range defAccount {
-			zlog.Printf("        账号：%s 密码：%s\n", v["account"], v["password"])
-		}
-
 		json, _ = zjson.SetBytes(json, "columns", ztype.Maps{
 			{
 				"label":    "头像",
@@ -114,6 +109,13 @@ func migration(di zdi.Invoker) (m *model.Model, err error) {
 
 		zerror.Panic(m.Migration().Auto())
 
+		if !m.HasTable() {
+			zlog.Success("初始化管理账号：")
+			for _, v := range defAccount {
+				zlog.Printf("        账号：%s 密码：%s\n", v["account"], v["password"])
+			}
+		}
+
 	})
 
 	if diErr != nil {
@@ -126,11 +128,12 @@ func migration(di zdi.Invoker) (m *model.Model, err error) {
 func defaultAccount() ztype.Maps {
 	return ztype.Maps{
 		{
-			"account":  "admin",
-			"password": "admin",
-			"status":   1,
-			"roles":    []string{"admin"},
-			"avatar":   "",
+			model.IDKey: 1,
+			"account":   "admin",
+			"password":  "admin",
+			"status":    1,
+			"roles":     []string{"admin"},
+			"avatar":    "",
 		},
 	}
 }

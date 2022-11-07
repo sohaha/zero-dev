@@ -2,6 +2,7 @@ package common
 
 import (
 	"github.com/sohaha/zlsgo/znet"
+	"github.com/sohaha/zlsgo/ztype"
 )
 
 // type Controller func(*znet.Context) (ztype.Map, error)
@@ -15,5 +16,5 @@ func GetUID(c *znet.Context) string {
 	if !ok {
 		return ""
 	}
-	return id.(string)
+	return ztype.ToString(id)
 }
