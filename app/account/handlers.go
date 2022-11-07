@@ -142,11 +142,12 @@ func (h *AccountHandlers) ParsingManageToken(c *znet.Context, key string) (*jwt.
 	return j, nil
 }
 
-func (h *AccountHandlers) ResetManageToken(c *znet.Context, user ztype.Map, key string, expire int) {
+func (h *AccountHandlers) ResetManageToken(c *znet.Context, user ztype.Map, key string, expire int) string {
 	token, err := h.CreateManageToken(user, key, expire)
 	if err == nil {
 		c.SetHeader("Re-Token", token)
 	}
+	return token
 }
 
 func (h *AccountHandlers) QueryRoles(j *jwt.JwtInfo) (user ztype.Map, err error) {

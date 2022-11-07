@@ -12,6 +12,7 @@ import (
 	"github.com/sohaha/zlsgo/zstring"
 	"github.com/sohaha/zlsgo/ztime"
 	"github.com/sohaha/zlsgo/ztype"
+	"github.com/sohaha/zlsgo/zvalid"
 	"github.com/speps/go-hashids/v2"
 	"github.com/zlsgo/zdb/builder"
 	"golang.org/x/crypto/bcrypt"
@@ -162,57 +163,58 @@ func (h *Account) GetMe(c *znet.Context) (interface{}, error) {
 }
 
 // AnyLogout 用户退出
-func (h *Account) AnyLogout(c *znet.Context) error {
+func (h *Account) AnyLogout(c *znet.Context) (interface{}, error) {
 	uid := common.GetUID(c)
 	user, err := h.Handlers.CacheForID(uid)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	_ = h.logout(user)
 
-	return nil
+	return nil, nil
 }
 
-// // PatchPassword 修改密码
-// func (h *Account) AnyPassword(c *znet.Context) error {
-// 	var (
-// 		old    string
-// 		passwd string
-// 	)
-// 	rule := c.ValidRule().Required()
-// 	err := zvalid.Batch(
-// 		zvalid.BatchVar(&old, c.Valid(rule, "old_password", "旧密码")),
-// 		zvalid.BatchVar(&passwd, c.Valid(rule, "password", "新密码")),
-// 	)
-// 	if err != nil {
-// 		return restapi.InvalidInput.Error(err)
-// 	}
+// PatchPassword 修改密码
+func (h *Account) PatchPassword(c *znet.Context) (interface{}, error) {
+	var (
+		old    string
+		passwd string
+	)
+	rule := c.ValidRule().Required()
+	err := zvalid.Batch(
+		zvalid.BatchVar(&old, c.Valid(rule, "old_password", "旧密码")),
+		zvalid.BatchVar(&passwd, c.Valid(rule.EncryptPassword(), "password", "新密码")),
+	)
+	if err != nil {
+		return nil, error_code.InvalidInput.Error(err)
+	}
 
-// 	u, _ := c.Value("user")
-// 	user := ztype.ToMap(u)
-// 	if user.IsEmpty() {
-// 		return restapi.InvalidInput.Error(err)
-// 	}
+	uid := common.GetUID(c)
+	user, _ := h.Handlers.CacheForID(uid)
+	if user.IsEmpty() {
+		return nil, error_code.InvalidInput.Error(err)
+	}
 
-// 	if !common.PasswordVerify(old, user.Get("password").String()) {
-// 		return restapi.InvalidInput.Text("原密码错误")
-// 	}
+	if !zvalid.Text(old).CheckPassword(user.Get("password").String()).Ok() {
+		return nil, error_code.InvalidInput.Text("原密码错误")
+	}
 
-// 	key := zstring.Rand(8)
-// 	_ = user.Set("key", key)
-// 	newPasswd, _ := common.PasswordHash(passwd)
-// 	err = h.Handlers.Update(h.MDB, user.Get("_id").Value(), map[string]interface{}{
-// 		"key":      key,
-// 		"password": newPasswd,
-// 	})
-// 	if err != nil {
-// 		return restapi.ServerError.Error(err)
-// 	}
+	salt := zstring.Rand(8)
+	_ = user.Set("salt", salt)
 
-// 	tokenKey := h.Conf.Auth.Key
-// 	tokenExpire := h.Conf.Auth.Expire
-// 	h.Handlers.ResetManageToken(c, user, tokenKey, tokenExpire)
+	err = h.Handlers.Update(uid, map[string]interface{}{
+		"salt":     salt,
+		"password": passwd,
+	})
+	if err != nil {
+		return nil, error_code.ServerError.Error(err)
+	}
 
-// 	return restapi.Success.Result(c, nil)
-// }
+	conf := ztype.Map(h.App.Conf.Core().GetStringMap("account"))
+	token := h.Handlers.ResetManageToken(c, user, conf.Get("key").String(), conf.Get("expire").Int())
+
+	return ztype.Map{
+		"token": token,
+	}, nil
+}
