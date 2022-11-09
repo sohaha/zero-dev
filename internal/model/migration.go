@@ -42,7 +42,8 @@ func (m *Migration) Auto() (err error) {
 			return
 		}
 
-		return m.InitValue(true)
+		err = m.InitValue(true)
+		return
 	}
 
 	err = m.UpdateTable()
@@ -50,7 +51,8 @@ func (m *Migration) Auto() (err error) {
 		return
 	}
 
-	return m.InitValue(false)
+	err = m.InitValue(false)
+	return
 }
 
 func (m *Migration) InitValue(all bool) error {
@@ -65,7 +67,7 @@ func (m *Migration) InitValue(all bool) error {
 	for _, v := range m.Values {
 		data, ok := v.(map[string]interface{})
 		if !ok {
-			return errors.New("Invalid migration value")
+			return errors.New("初始化数据格式错误")
 		}
 		if !all {
 			if _, ok := data[IDKey]; ok {

@@ -29,12 +29,13 @@ _____
 	err := zutil.TryCatch(func() error {
 		di, err := app.Init()
 		if err == nil {
-			_, _ = di.Invoke(func(app *service.App, l *loader.Loader) {
-				c = app.Conf
-			})
+			di.Resolve(&c)
 
 			var router *znet.Engine
-			_ = di.Resolve(&router)
+			_, _ = di.Invoke(func(r *znet.Engine, l *loader.Loader) {
+				router = r
+			})
+
 			if c.Base.Debug {
 				_ = router.GET(`/debug/statsviz{*:[\S]*}`, func(c *znet.Context) {
 					if c.GetParam("*") == "/ws" {
