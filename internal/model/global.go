@@ -34,16 +34,16 @@ func modelsBindRouter(g *znet.Engine) error {
 		return c.MustValue("model").(*Model).restApiGetInfo(c)
 	})
 
-	g.DELETE(":model/:key", func(c *znet.Context) error {
-		return c.MustValue("model").(*Model).restApiDelete(c)
-	})
-
 	g.POST(":model", func(c *znet.Context) error {
 		return c.MustValue("model").(*Model).restApiCreate(c)
 	})
 
-	g.PUT(":model/:key", func(c *znet.Context) error {
+	g.PATCH(":model/:key", func(c *znet.Context) error {
 		return c.MustValue("model").(*Model).restApiUpdate(c)
+	})
+
+	g.DELETE(":model/:key", func(c *znet.Context) error {
+		return c.MustValue("model").(*Model).restApiDelete(c)
 	})
 
 	return nil

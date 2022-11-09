@@ -6,6 +6,11 @@
     },
     "columns": [
         {
+            "label": "分类 ID",
+            "name": "category",
+            "type": "int"
+        },
+        {
             "label": "title",
             "name": "string",
             "size": 25,
