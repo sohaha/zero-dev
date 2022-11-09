@@ -3,23 +3,11 @@ package model
 import (
 	"net/http"
 
-	"github.com/sohaha/zlsgo/zerror"
 	"github.com/sohaha/zlsgo/znet"
 	"github.com/sohaha/zlsgo/ztype"
 	"github.com/sohaha/zlsgo/zvalid"
 	"github.com/zlsgo/zdb"
 )
-
-func (h *RestApi) Init(g *znet.Engine) {
-	var (
-		db *zdb.DB
-		di = h.App.Di
-	)
-
-	zerror.Panic(di.Resolve(&db))
-
-	_ = modelsBindRouter(g)
-}
 
 func Success(c *znet.Context, data interface{}, msg ...string) error {
 	v := znet.ApiData{Data: data}

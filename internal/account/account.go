@@ -1,6 +1,7 @@
 package account
 
 import (
+	"errors"
 	"zlsapp/common"
 	"zlsapp/internal/error_code"
 	"zlsapp/service"
@@ -8,6 +9,7 @@ import (
 	"zlsapp/internal/model"
 
 	"github.com/sohaha/zlsgo/zcache"
+	"github.com/sohaha/zlsgo/zerror"
 	"github.com/sohaha/zlsgo/znet"
 	"github.com/sohaha/zlsgo/zstring"
 	"github.com/sohaha/zlsgo/ztime"
@@ -26,6 +28,8 @@ type Account struct {
 	Model       *model.Model
 	Handlers    *AccountHandlers
 }
+
+const AccountModel = "inlay::account"
 
 // isBusyLogin 短时间内登录失败超过指定次数禁止登录
 func (h *Account) isBusyLogin(c *znet.Context) bool {
@@ -53,7 +57,11 @@ func (h *Account) logout(user ztype.Map) error {
 }
 
 func (h *Account) Init(r *znet.Engine) {
-	h.Model, _ = model.GetModel("account")
+	var ok bool
+	h.Model, ok = model.Get(AccountModel)
+	if !ok {
+		zerror.Panic(errors.New("model account not found"))
+	}
 
 	h.failedCache = zcache.New("__account" + h.Model.Table.Name + "Failed__")
 
@@ -67,7 +75,6 @@ func (h *Account) Init(r *znet.Engine) {
 
 // PostLogin 用户登录
 func (h *Account) PostLogin(c *znet.Context) error {
-
 	c.SetHeader("Test", "test")
 	if h.isBusyLogin(c) {
 		return error_code.InvalidInput.Text("错误次数过多，请稍后再试")

@@ -1,9 +1,6 @@
 package model
 
 import (
-	"errors"
-	"strings"
-
 	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/zjson"
 	"github.com/zlsgo/zdb"
@@ -53,19 +50,6 @@ func ParseJSON(db *zdb.DB, json []byte) (m *Model, err error) {
 			}
 			return c.Name
 		})
-	}
-	return
-}
-
-func Add(db *zdb.DB, name string, json []byte, force bool) (m *Model, err error) {
-	m, err = ParseJSON(db, json)
-	if err == nil {
-		name = strings.TrimSuffix(name, ".model.json")
-		name = strings.Replace(name, "/", "-", -1)
-		if _, ok := globalModels.Get(name); ok && !force {
-			return nil, errors.New("model already exists")
-		}
-		globalModels.Set(name, m)
 	}
 	return
 }

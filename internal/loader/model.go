@@ -35,6 +35,9 @@ func (l *Loader) newModeler() {
 				l.err = zerror.With(err, "添加模型失败: "+path)
 				return
 			}
+			// 因为模型文件可能和内置模型重名，所以这里需要追加前缀
+			mv.Table.Name = "model_" + mv.Table.Name
+			mv.Path = path
 			models[path] = mv
 		}
 

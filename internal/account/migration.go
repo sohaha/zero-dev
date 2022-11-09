@@ -14,6 +14,7 @@ import (
 func migration(di zdi.Invoker) (m *model.Model, err error) {
 	_, diErr := di.Invoke(func(db *zdb.DB) {
 		json, _ := zjson.SetBytes([]byte("{}"), "name", ztype.Map{})
+		json, _ = zjson.SetBytes(json, "name", "账号模型")
 		json, _ = zjson.SetBytes(json, "table", ztype.Map{
 			"name":    "account_user",
 			"comment": "用户表",
@@ -112,7 +113,7 @@ func migration(di zdi.Invoker) (m *model.Model, err error) {
 			},
 		})
 
-		m, err = model.Add(db, "account", json, false)
+		m, err = model.Add(db, AccountModel, json, false)
 		zerror.Panic(err)
 
 		zerror.Panic(m.Migration(true).Auto())

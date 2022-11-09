@@ -17,6 +17,7 @@ func InitRouter(_ *service.Conf) []service.Router {
 			Path: "/base",
 		},
 		model.NewRestApi(),
+		model.NewManageRestApi(),
 	}
 }
 

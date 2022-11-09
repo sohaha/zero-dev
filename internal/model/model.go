@@ -11,6 +11,7 @@ type (
 	Model struct {
 		DB      *zdb.DB
 		Name    string    `json:"name"`
+		Path    string    `json:"-"`
 		Table   Table     `json:"table"`
 		Columns []*Column `json:"columns"`
 		// Relations []*relation   `json:"relations"`

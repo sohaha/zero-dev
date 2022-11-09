@@ -4,20 +4,31 @@ import (
 	"zlsapp/internal/error_code"
 	"zlsapp/service"
 
+	"github.com/sohaha/zlsgo/zerror"
 	"github.com/sohaha/zlsgo/znet"
 	"github.com/sohaha/zlsgo/ztime"
 	"github.com/sohaha/zlsgo/ztype"
+	"github.com/zlsgo/zdb"
 	"github.com/zlsgo/zdb/builder"
 )
 
 type RestApi struct {
 	service.App
+	db   *zdb.DB
 	Path string
 }
 
 func NewRestApi() service.Router {
 	return &RestApi{
-		Path: "/api",
+		Path: "/model",
+	}
+}
+
+func (h *RestApi) Init(g *znet.Engine) {
+	zerror.Panic(h.App.Di.Resolve(&h.db))
+	err := modelsBindRouter(g)
+	if err != nil {
+		zerror.Panic(zerror.With(err, "绑定模型接口路由失败"))
 	}
 }
 

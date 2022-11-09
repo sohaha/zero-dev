@@ -1,16 +1,32 @@
 package model
 
 import (
+	"errors"
+	"strings"
 	"zlsapp/internal/error_code"
 
 	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/znet"
+	"github.com/zlsgo/zdb"
 )
 
 var globalModels = zarray.NewHashMap[string, *Model]()
 
-func GetModel(name string) (*Model, bool) {
+func Get(name string) (*Model, bool) {
 	return globalModels.Get(name)
+}
+
+func Add(db *zdb.DB, name string, json []byte, force bool) (m *Model, err error) {
+	m, err = ParseJSON(db, json)
+	if err == nil {
+		name = strings.TrimSuffix(name, ".model.json")
+		name = strings.Replace(name, "/", "-", -1)
+		if _, ok := globalModels.Get(name); ok && !force {
+			return nil, errors.New("model already exists")
+		}
+		globalModels.Set(name, m)
+	}
+	return
 }
 
 func modelsBindRouter(g *znet.Engine) error {
