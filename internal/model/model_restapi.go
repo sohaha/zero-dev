@@ -32,16 +32,28 @@ func (h *RestApi) Init(g *znet.Engine) {
 	}
 }
 
-func (m *Model) restApiInfo(key string) (ztype.Map, error) {
+func (m *Model) restApiInfo(key string, fn ...func(b *builder.SelectBuilder) error) (ztype.Map, error) {
 	return m.FindOne(func(b *builder.SelectBuilder) error {
-		b.Where(b.EQ(IDKey, key))
+		if key != "" {
+			b.Where(b.EQ(IDKey, key))
+		}
+
+		if len(fn) > 0 {
+			return fn[0](b)
+		}
+
 		return nil
 	}, false)
 }
 
 func (m *Model) restApiGetInfo(c *znet.Context) error {
 	key := c.GetParam("key")
-	row, err := m.restApiInfo(key)
+	fields := GetRequestFields(c, m)
+
+	row, err := m.restApiInfo(key, func(b *builder.SelectBuilder) error {
+		b.Select(fields...)
+		return nil
+	})
 	if err != nil {
 		return error_code.InvalidInput.Error(err)
 	}
@@ -84,9 +96,11 @@ func (m *Model) restApiGetPage(c *znet.Context) error {
 		return error_code.InvalidInput.Error(err)
 	}
 
+	fields := GetRequestFields(c, m)
+
 	rows, pages, err := m.DB.Pages(m.Table.Name, page, pagesize, func(b *builder.SelectBuilder) error {
 		b.Desc(IDKey)
-		b.Select(m.restApiFields()...)
+		b.Select(fields...)
 		if m.Options.SoftDeletes {
 			b.Where(b.EQ(DeletedAtKey, 0))
 		}
@@ -139,17 +153,4 @@ func (m *Model) restApiUpdate(c *znet.Context) error {
 	}
 
 	return Success(c, data)
-}
-
-func (m *Model) restApiFields(fields ...string) []string {
-	if len(fields) > 0 {
-		return fields
-	}
-	fields = m.columnsKeys
-	fields = append(fields, IDKey)
-
-	if m.Options.Timestamps {
-		fields = append(fields, CreatedAtKey, UpdatedAtKey)
-	}
-	return fields
 }
