@@ -22,7 +22,7 @@ func Add(db *zdb.DB, name string, json []byte, force bool) (m *Model, err error)
 		name = strings.TrimSuffix(name, ".model.json")
 		name = strings.Replace(name, "/", "-", -1)
 		if _, ok := globalModels.Get(name); ok && !force {
-			return nil, errors.New("model already exists")
+			return nil, errors.New("model(" + name + ") already exists")
 		}
 		globalModels.Set(name, m)
 	}

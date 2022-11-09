@@ -73,12 +73,7 @@ func (m *Migration) InitValue(all bool) error {
 			}
 		}
 
-		data, err := CheckData(data, m.Columns, activeCreate)
-		if err != nil {
-			return err
-		}
-		zlog.Debug(data, err)
-		_, err = m.Model.Insert(data)
+		_, err := m.Model.Insert(data)
 		if err != nil {
 			return err
 		}

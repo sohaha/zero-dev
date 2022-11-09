@@ -28,8 +28,6 @@ type Account struct {
 	Path        string
 }
 
-const AccountModel = "inlay::account"
-
 // isBusyLogin 短时间内登录失败超过指定次数禁止登录
 func (h *Account) isBusyLogin(c *znet.Context) bool {
 	ip := c.GetClientIP()
@@ -57,7 +55,7 @@ func (h *Account) logout(user ztype.Map) error {
 
 func (h *Account) Init(r *znet.Engine) {
 	var ok bool
-	h.Model, ok = model.Get(AccountModel)
+	h.Model, ok = model.Get(UserModel)
 	if !ok {
 		zerror.Panic(errors.New("model account not found"))
 	}
@@ -198,7 +196,7 @@ func (h *Account) PatchPassword(c *znet.Context) (interface{}, error) {
 	rule := c.ValidRule().Required()
 	err := zvalid.Batch(
 		zvalid.BatchVar(&old, c.Valid(rule, "old_password", "旧密码")),
-		zvalid.BatchVar(&passwd, c.Valid(rule.EncryptPassword(), "password", "新密码")),
+		zvalid.BatchVar(&passwd, c.Valid(rule, "password", "新密码")),
 	)
 	if err != nil {
 		return nil, error_code.InvalidInput.Error(err)
@@ -227,6 +225,8 @@ func (h *Account) PatchPassword(c *znet.Context) (interface{}, error) {
 
 	conf := ztype.Map(h.App.Conf.Core().GetStringMap("account"))
 	token := h.Handlers.ResetManageToken(c, user, conf.Get("key").String(), conf.Get("expire").Int())
+
+	_ = WrapLogs(c, "修改密码", "")
 
 	return ztype.Map{
 		"token": token,

@@ -53,19 +53,21 @@ func (m *Model) Insert(data ztype.Map) (lastId int64, err error) {
 		return 0, err
 	}
 
+	data, err = CheckData(data, m.Columns, activeCreate)
+	if err != nil {
+		return 0, err
+	}
+
 	if m.Options.Timestamps {
-		now := ztime.Time()
-		data[CreatedAtKey] = now
-		data[UpdatedAtKey] = now
+		data[CreatedAtKey] = ztime.Time()
+		data[UpdatedAtKey] = ztime.Time()
 	}
 
 	if m.Options.SoftDeletes {
 		data[DeletedAtKey] = 0
 	}
 
-	lastId, err = m.DB.InsertMaps(m.Table.Name, data)
-
-	return
+	return m.DB.InsertMaps(m.Table.Name, data)
 }
 
 func (m *Model) Find(fn func(b *builder.SelectBuilder) error, force bool) (ztype.Maps, error) {
@@ -110,10 +112,21 @@ func (m *Model) FindOne(fn func(b *builder.SelectBuilder) error, force bool) (zt
 }
 
 func (m *Model) Update(data ztype.Map, fn func(b *builder.UpdateBuilder) error) (int64, error) {
-	ndata, err := m.valuesBeforeProcess(data)
+	data = filterDate(data, m.readOnlyKeys)
+
+	data, err := m.valuesBeforeProcess(data)
 	if err != nil {
 		return 0, err
 	}
 
-	return m.DB.Update(m.Table.Name, ndata, fn)
+	data, err = CheckData(data, m.Columns, activeUpdate)
+	if err != nil {
+		return 0, err
+	}
+
+	if m.Options.Timestamps {
+		data[UpdatedAtKey] = ztime.Time()
+	}
+
+	return m.DB.Update(m.Table.Name, data, fn)
 }

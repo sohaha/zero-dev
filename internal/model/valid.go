@@ -83,13 +83,20 @@ func CheckData(data ztype.Map, columns []*Column, active activeType) (ztype.Map,
 					}
 					d[name] = DataTime{Time: r}
 				}
+
+			case schema.JSON:
+				err := column.GetValidations().VerifiAny(v).Error()
+				if err != nil {
+					return d, err
+				}
 			default:
+				// d[name] = v
 				var (
 					val interface{}
 					err error
 				)
 				switch typ {
-				case "string":
+				case schema.String:
 					val, err = column.GetValidations().VerifiAny(v).String()
 					if val == "" && !column.Nullable {
 						return d, errors.New(label + "不能为空")
