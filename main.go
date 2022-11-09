@@ -1,14 +1,12 @@
 package main
 
 import (
-	"zlsapp/internal"
-	"zlsapp/internal/migration"
-	"zlsapp/internal/model"
+	app "zlsapp/internal"
+	"zlsapp/internal/loader"
 	"zlsapp/service"
 
 	"github.com/arl/statsviz"
 	"github.com/sohaha/zlsgo/zcli"
-	"github.com/sohaha/zlsgo/zerror"
 	"github.com/sohaha/zlsgo/zlog"
 	"github.com/sohaha/zlsgo/znet"
 	"github.com/sohaha/zlsgo/zutil"
@@ -28,23 +26,12 @@ _____
 	zcli.Version = "1.0.0"
 	zcli.EnableDetach = true
 
-	// s := conf.New("ss.toml")
-	// s.SetDefault("app", []map[string]interface{}{
-	// 	{"id": "33"},
-	// 	{"id": "22"},
-	// })
-	// zlog.Debug(s.Read())
-	// zlog.Debug(s.Core.AllSettings())
-	// os.Exit(0)
 	err := zutil.TryCatch(func() error {
 		di, err := app.Init()
 		if err == nil {
-			_, _ = di.Invoke(func(app *service.App) {
+			_, _ = di.Invoke(func(app *service.App, l *loader.Loader) {
 				c = app.Conf
-				zerror.Panic(migration.RunMigrations(di))
 			})
-
-			model.NewLoader(di)
 
 			var router *znet.Engine
 			_ = di.Resolve(&router)

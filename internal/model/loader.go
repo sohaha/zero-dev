@@ -13,27 +13,26 @@ import (
 	"github.com/zlsgo/zdb"
 )
 
-func Loader(db *zdb.DB, path, name string) error {
+func Loader(db *zdb.DB, path, name string, force bool) error {
 	json, _ := zfile.ReadFile(path)
 
 	zerror.Panic(ValidateModelSchema(json))
 	// baseName := filepath.Base(path)
-	m, err := Add(db, name, json)
+	m, err := Add(db, name, json, force)
 	zlog.Debug(name)
 	_ = m
 	return err
 }
 
 func NewLoader(di zdi.Invoker) error {
+	suffix := ".model.json"
 	_, err := di.Invoke(func(db *zdb.DB) {
 		filepath.WalkDir(zfile.RealPath("./app/model"), func(path string, d fs.DirEntry, err error) error {
-			// zlog.Debug(path, d)
 			baseName := filepath.Base(path)
-			// ext := filepath.Ext(baseName)
-			if strings.HasSuffix(baseName, ".model.json") {
+			if strings.HasSuffix(baseName, suffix) {
 				zlog.Debug(baseName)
-				name := strings.TrimSuffix(baseName, ".model.json")
-				err = Loader(db, path, name)
+				name := strings.TrimSuffix(baseName, suffix)
+				err = Loader(db, path, name, false)
 				if err != nil {
 					zlog.Error(err)
 				}
@@ -42,11 +41,7 @@ func NewLoader(di zdi.Invoker) error {
 			return err
 		})
 	})
-	globalModels.ForEach(func(key string, value *Model) bool {
-		zlog.Debug(key, value)
-		value.Migration().Auto()
-		return true
-	})
+
 	os.Exit(0)
 	return err
 }

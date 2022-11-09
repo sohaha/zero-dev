@@ -2,6 +2,7 @@ package app
 
 import (
 	"zlsapp/common/hashid"
+	"zlsapp/internal/loader"
 	"zlsapp/service"
 
 	"github.com/sohaha/zlsgo/zdi"
@@ -20,7 +21,10 @@ func InitDI() zdi.Injector {
 
 	di.Provide(InitMiddleware)
 	di.Provide(InitRouter)
+
 	di.Provide(hashid.Init)
+
+	di.Provide(loader.Init)
 
 	return di
 }

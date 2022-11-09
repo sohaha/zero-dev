@@ -14,6 +14,7 @@ import (
 
 type Migration struct {
 	Model
+	Delete bool
 }
 
 const (
@@ -30,25 +31,37 @@ func init() {
 const deleteFieldPrefix = "__del__"
 
 func (m *Migration) Auto() (err error) {
+	if m.Model.Table.Name == "" {
+		return errors.New("表名不能为空")
+	}
+
 	exist := m.HasTable()
 	if !exist {
-		zlog.Debug("新建")
 		err = m.CreateTable()
 		if err != nil {
 			return
 		}
 
-		zlog.Debug("初始化数据")
 		return m.InitValue(true)
-	} else {
-		zlog.Debug("需要更新表结构")
-		err = m.UpdateTable()
+	}
+
+	err = m.UpdateTable()
+	if err != nil {
+		return
 	}
 
 	return m.InitValue(false)
 }
 
 func (m *Migration) InitValue(all bool) error {
+	if !all {
+		row, _ := m.FindOne(func(b *builder.SelectBuilder) error {
+			b.Select("COUNT(*) AS count")
+			return nil
+		}, true)
+		all = row.Get("count").Int() == 0
+	}
+
 	for _, v := range m.Values {
 		data, ok := v.(map[string]interface{})
 		if !ok {
@@ -126,8 +139,9 @@ func (m *Migration) UpdateTable() error {
 		if !c.Exists() {
 			return false
 		}
-		t := strings.ToUpper(d.DataTypeOf(&schema.Field{DataType: schema.DataType(n.Type)}))
-		return t != c.Get("type").String()
+		nf := schema.NewField(n.Name, schema.DataType(n.Type))
+		t := d.DataTypeOf(nf, true)
+		return strings.ToUpper(t) != strings.ToUpper(c.Get("type").String())
 	}), func(i int, v *Column) string { return v.Name })
 
 	addColumns := zarray.Filter(newColumns, func(_ int, n string) bool {
@@ -139,9 +153,12 @@ func (m *Migration) UpdateTable() error {
 	})
 
 	for _, v := range deleteColumns {
-		// TODO 危险操作，考虑重命名字段
-		// sql, values = table.RenameColumn(v, deleteFieldPrefix+v)
-		sql, values = table.DropColumn(v)
+		if m.Delete {
+			sql, values = table.DropColumn(v)
+		} else {
+			sql, values = table.RenameColumn(v, deleteFieldPrefix+v)
+		}
+
 		_, err := m.DB.Exec(sql, values...)
 		if err != nil {
 			return err
@@ -149,7 +166,6 @@ func (m *Migration) UpdateTable() error {
 	}
 
 	if m.Options.Timestamps {
-		zlog.Debug(zarray.Contains(oldColumns, CreatedAtKey))
 		if !zarray.Contains(oldColumns, CreatedAtKey) {
 			sql, values := table.AddColumn(CreatedAtKey, "time", func(f *schema.Field) {
 				f.Comment = "更新时间"
@@ -171,7 +187,6 @@ func (m *Migration) UpdateTable() error {
 		}
 	}
 
-	// TODO 如果有删除字段可以按需恢复
 	for _, v := range addColumns {
 		c, ok := zarray.Find(m.Columns, func(i int, c *Column) bool {
 			return c.Name == v
@@ -185,6 +200,17 @@ func (m *Migration) UpdateTable() error {
 			f.NotNull = !c.Nullable
 			f.Size = c.Size
 		})
+
+		if !m.Delete {
+			recovery := deleteFieldPrefix + v
+			_, ok := zarray.Find(oldColumns, func(i int, n string) bool {
+				return n == recovery
+			})
+			if ok {
+				sql, values = table.RenameColumn(recovery, v)
+			}
+		}
+
 		_, err := m.DB.Exec(sql, values...)
 		if err != nil {
 			return err
@@ -192,8 +218,8 @@ func (m *Migration) UpdateTable() error {
 	}
 
 	// TODO 是否需要支持修改字段类型
-	for _, v := range updateColumns {
-		_ = v
+	if len(updateColumns) > 0 {
+		zlog.Warn("暂不支持修改字段类型")
 	}
 
 	return nil
@@ -224,7 +250,6 @@ func (m *Migration) CreateTable() error {
 	table := builder.NewTable(m.Table.Name).Create()
 
 	fields := make([]*schema.Field, 0, len(m.Columns))
-	// sideFields := make([]*schema.Field, 0, len(m.Columns))
 
 	fields = append(fields, m.getPrimaryKey())
 
@@ -234,17 +259,16 @@ func (m *Migration) CreateTable() error {
 			f.NotNull = !v.Nullable
 			f.Size = v.Size
 		})
-
-		// if !v.Side {
 		fields = append(fields, f)
-		// } else {
-		// 	sideFields = append(sideFields, f)
-		// }
 	}
 
 	fields = m.fillField(fields)
 
 	table.Column(fields...)
+
+	if len(fields) == 0 {
+		return errors.New("表字段不能为空")
+	}
 
 	sql, values := table.Build()
 	_, err := m.DB.Exec(sql, values...)

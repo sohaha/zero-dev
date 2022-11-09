@@ -36,9 +36,10 @@ type (
 	}
 )
 
-func (m *Model) Migration() *Migration {
+func (m *Model) Migration(deleteColumn bool) *Migration {
 	return &Migration{
-		*m,
+		Model:  *m,
+		Delete: deleteColumn,
 	}
 }
 

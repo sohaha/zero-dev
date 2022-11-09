@@ -11,7 +11,6 @@ import (
 
 	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/zerror"
-	"github.com/sohaha/zlsgo/zlog"
 	"github.com/sohaha/zlsgo/znet"
 	"github.com/speps/go-hashids/v2"
 )
@@ -27,7 +26,6 @@ func NewMiddleware(app *service.App) znet.Handler {
 	m, err := migration(app.Di)
 	zerror.Panic(err)
 
-	zlog.Debug(m, err)
 	h := &AccountHandlers{
 		Model: m,
 	}

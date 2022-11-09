@@ -112,10 +112,10 @@ func migration(di zdi.Invoker) (m *model.Model, err error) {
 			},
 		})
 
-		m, err = model.Add(db, "account", json)
+		m, err = model.Add(db, "account", json, false)
 		zerror.Panic(err)
 
-		zerror.Panic(m.Migration().Auto())
+		zerror.Panic(m.Migration(true).Auto())
 
 		if !m.HasTable() {
 			zlog.Success("初始化管理账号：")

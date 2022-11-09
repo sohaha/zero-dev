@@ -56,17 +56,6 @@ func (loader *FileLoader) Load() (rules meta.Rules, err error) {
 	}
 
 	return
-	// rules := meta.Rules{}
-	// err = c.Unmarshal(&rules, func(dc *mapstructure.DecoderConfig) {
-
-	// })
-	// zlog.Debug(c.GetAll())
-	// zlog.Debug(11, rules, err)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// return rules, nil
 }
 
 // YAMLLoader implements the Loader interface

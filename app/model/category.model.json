@@ -6,13 +6,30 @@
   },
   "columns": [
     {
-      "label": "name",
-      "name": "string",
+      "label": "名称",
+      "name": "name",
       "size": 25,
       "type": "string"
+    },
+    {
+      "label": "描述",
+      "name": "description",
+      "size": 255,
+      "type": "string"
+    },
+    {
+      "label": "父分类",
+      "name": "parent_id",
+      "type": "uint"
     }
   ],
-  "values": [],
-  "options": {
-  }
+  "values": [
+    {
+      "parent_id": 0,
+      "id": 1,
+      "name": "二次元",
+      "description": "动漫相关"
+    }
+  ],
+  "options": {}
 }

@@ -16,11 +16,11 @@ func RunMigrations(di zdi.Invoker) error {
 
 		zerror.Panic(model.ValidateModelSchema(json))
 
-		m, err := model.Add(db, name, json)
+		m, err := model.Add(db, name, json, false)
 
 		zerror.Panic(err)
 
-		migration := m.Migration()
+		migration := m.Migration(false)
 
 		zerror.Panic(migration.Auto())
 	})
