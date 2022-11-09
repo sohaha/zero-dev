@@ -62,32 +62,6 @@ func TestRule_IsValid(t *testing.T) {
 	}
 }
 
-func TestRules_IsValid(t *testing.T) {
-	tests := []struct {
-		name    string
-		rules   Rules
-		wantErr bool
-	}{
-		{
-			name:    "test0",
-			rules:   Rules{},
-			wantErr: false,
-		},
-		{
-			name: "test1",
-			rules: Rules{
-				{},
-			},
-			wantErr: true,
-		},
-	}
-	for _, tt := range tests {
-		if err := tt.rules.IsValid(); (err != nil) != tt.wantErr {
-			t.Errorf("%q. Rules.IsValid() error = %v, wantErr %v", tt.name, err, tt.wantErr)
-		}
-	}
-}
-
 func TestRules_IsRolesGranted(t *testing.T) {
 	type args struct {
 		roles []string
