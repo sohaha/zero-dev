@@ -70,9 +70,9 @@ func TestCheckData(t *testing.T) {
 			active  activeType
 		}
 		test struct {
+			want    ztype.Map
 			name    string
 			args    args
-			want    ztype.Map
 			wantErr bool
 		}
 	)

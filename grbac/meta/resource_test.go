@@ -15,9 +15,9 @@ func TestResource_Match(t *testing.T) {
 		query *Query
 	}
 	tests := []struct {
-		name    string
-		fields  fields
 		args    args
+		fields  fields
+		name    string
 		want    bool
 		wantErr bool
 	}{

@@ -77,6 +77,7 @@ func (m *Migration) InitValue(all bool) error {
 		if err != nil {
 			return err
 		}
+		zlog.Debug(data, err)
 		_, err = m.Model.Insert(data)
 		if err != nil {
 			return err

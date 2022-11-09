@@ -24,14 +24,29 @@
       "default": 0,
       "name": "parent_id",
       "type": "uint"
+    },
+    {
+      "label": "状态",
+      "name": "status",
+      "type": "int8",
+      "options": [
+        {
+          "label": "正常",
+          "value": 1
+        },
+        {
+          "label": "禁用",
+          "value": 0
+        }
+      ]
     }
   ],
   "values": [
     {
-      "parent_id": 0,
-      "id": 1,
+      "parent_id": "ss",
       "name": "二次元",
-      "description": "动漫相关"
+      "description": "动漫相关",
+      "status": 1
     }
   ],
   "options": {}

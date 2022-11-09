@@ -5,42 +5,40 @@ import (
 
 	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/zvalid"
+	"github.com/zlsgo/zdb/schema"
 )
 
 type Column struct {
+	Default     interface{}     `json:"default"`
+	Unique      interface{}     `json:"unique"`
+	Index       interface{}     `json:"index"`
+	Crypt       string          `json:"crypt"`
+	Name        string          `json:"name"`
+	Comment     string          `json:"comment"`
+	Label       string          `json:"label"`
+	Type        schema.DataType `json:"type"`
+	Tag         string          `json:"tag"`
+	Validations []validations   `json:"validations"`
+	Options     []ColumnEnum    `json:"options"`
+	Before      []string        `json:"before"`
+	After       []string        `json:"after"`
+	validRules  zvalid.Engine   `json:"-"`
+	Size        uint64          `json:"size"`
 	once        sync.Once
-	Name        string        `json:"name"`
-	Comment     string        `json:"comment"`
-	Type        string        `json:"type"`
-	Size        uint64        `json:"size"`
-	Tag         string        `json:"tag"`
-	Nullable    bool          `json:"nullable"`
-	Label       string        `json:"label"`
-	Enum        interface{}   `json:"enum"`
-	Default     interface{}   `json:"default"`
-	Unique      interface{}   `json:"unique"`
-	Index       interface{}   `json:"index"`
-	Validations []validations `json:"validations"`
-	validRules  zvalid.Engine `json:"-"`
-	ReadOnly    bool          `json:"read_only"` // 是否创建之后不允许更改
-	Side        bool          `json:"side"`
-	// 加密字段
-	Crypt  string   `json:"crypt"`
-	Before []string `json:"before"`
-	After  []string `json:"after"`
+	ReadOnly    bool `json:"read_only"`
+	Nullable    bool `json:"nullable"`
 }
 
 func (c *Column) GetValidations() zvalid.Engine {
-	c.once.Do(func() {
-		name := c.Name
-		label := c.Label
-		if label == "" {
-			label = name
-		}
-		c.validRules = parseValidRule(label, c.Validations, c.Size)
-	})
-
 	return c.validRules
+}
+
+func (c *Column) GetLabel() string {
+	label := c.Label
+	if label == "" {
+		label = c.Name
+	}
+	return label
 }
 
 func (m *Model) GetFields(exclude ...string) []string {
@@ -51,4 +49,9 @@ func (m *Model) GetFields(exclude ...string) []string {
 	return zarray.Filter(m.columnsKeys, func(_ int, v string) bool {
 		return !zarray.Contains(exclude, v)
 	})
+}
+
+type ColumnEnum struct {
+	Value string `json:"value"`
+	Label string `json:"label"`
 }

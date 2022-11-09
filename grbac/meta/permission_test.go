@@ -7,8 +7,8 @@ import (
 
 func TestPermission_IsValid(t *testing.T) {
 	tests := []struct {
-		name    string
 		p       *Permission
+		name    string
 		wantErr bool
 	}{
 		{

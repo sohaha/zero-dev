@@ -4,13 +4,13 @@ import "testing"
 
 func TestRule_IsValid(t *testing.T) {
 	type fields struct {
-		ID         int
 		Resource   *Resource
 		Permission *Permission
+		ID         int
 	}
 	tests := []struct {
-		name    string
 		fields  fields
+		name    string
 		wantErr bool
 	}{
 		{
@@ -160,8 +160,8 @@ func TestRules_IsRolesGranted(t *testing.T) {
 func TestRules_String(t *testing.T) {
 	tests := []struct {
 		name  string
-		rules Rules
 		want  string
+		rules Rules
 	}{
 		{
 			name:  "test0",

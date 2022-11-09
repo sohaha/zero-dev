@@ -5,8 +5,8 @@ import (
 )
 
 type Result struct {
-	State PermissionState
 	Error error
+	State PermissionState
 }
 
 func NewQuery(c *Controller, host, path, method string, roles []string) *Result {

@@ -76,11 +76,10 @@ func migration(di zdi.Invoker) (m *model.Model, err error) {
 				"type":  "int8",
 				"size":  9,
 				"label": "状态",
-				"validations": ztype.Maps{
-					{
-						"method": "enum",
-						"args":   []int{0, 1, 2},
-					},
+				"enum": []model.ColumnEnum{
+					{Value: "0", Label: "待激活"},
+					{Value: "1", Label: "正常"},
+					{Value: "2", Label: "禁用"},
 				},
 			},
 			{

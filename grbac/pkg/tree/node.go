@@ -8,14 +8,12 @@ import (
 
 // Node defines the wildcard node
 type Node struct {
+	data          Data
+	tree          *iradix.Tree
 	key           string
 	indexKey      []byte
+	catchAll      []*Node
 	isWildcardKey bool
-
-	data Data
-
-	tree     *iradix.Tree
-	catchAll []*Node
 }
 
 // Data is the data type of the data node

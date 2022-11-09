@@ -1,13 +1,13 @@
 package conf
 
 type Base struct {
-	Name        string `mapstructure:"name"`         // 项目名称
-	Debug       bool   `mapstructure:"debug"`        // 开启全局调试模式
-	LogDir      string `mapstructure:"log_dir"`      // 日志目录
-	LogPosition bool   `mapstructure:"log_position"` // 调试下打印日志显示输出位置
-	Port        string // 项目端口
-	Pprof       bool   // 开启 pprof
-	PprofToken  string // pprof Token
+	Name        string `mapstructure:"name"`
+	LogDir      string `mapstructure:"log_dir"`
+	Port        string
+	PprofToken  string
+	Debug       bool `mapstructure:"debug"`
+	LogPosition bool `mapstructure:"log_position"`
+	Pprof       bool
 }
 
 const (

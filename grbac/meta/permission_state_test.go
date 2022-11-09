@@ -77,8 +77,8 @@ func TestPermissionState_IsGranted(t *testing.T) {
 func TestPermissionState_String(t *testing.T) {
 	tests := []struct {
 		name  string
-		state PermissionState
 		want  string
+		state PermissionState
 	}{
 		{
 			name:  "test0",

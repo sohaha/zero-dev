@@ -42,9 +42,9 @@ func ErrorMsg(code ErrCode, text string, err ...error) error {
 }
 
 type ApiData struct {
-	Code ErrCode     `json:"code"`
-	Msg  string      `json:"msg,omitempty"`
 	Data interface{} `json:"data"`
+	Msg  string      `json:"msg,omitempty"`
+	Code ErrCode     `json:"code"`
 }
 
 func (code ErrCode) Text(msg string, err ...error) error {
@@ -77,7 +77,7 @@ func Result(c *znet.Context, code ErrCode, data interface{}, err ...error) {
 		if data != nil {
 			d = data
 		}
-		c.JSON(200, ApiData{code, "", d})
+		c.JSON(200, ApiData{Code: code, Msg: "", Data: d})
 		return
 	}
 
@@ -131,5 +131,5 @@ func Result(c *znet.Context, code ErrCode, data interface{}, err ...error) {
 		}
 	}
 
-	c.JSON(status, ApiData{code, m, info})
+	c.JSON(status, ApiData{Code: code, Msg: m, Data: info})
 }

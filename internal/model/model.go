@@ -25,10 +25,10 @@ type (
 		beforeProcess map[string][]beforeProcess
 		afterProcess  map[string][]afterProcess
 		Options       struct {
-			CryptID          bool        `json:"crypt_id"`
-			DisabledMigrator bool        `json:"disabled_migrator"`
 			Api              interface{} `json:"api"`
 			ApiPath          string      `json:"api_path"`
+			CryptID          bool        `json:"crypt_id"`
+			DisabledMigrator bool        `json:"disabled_migrator"`
 			SoftDeletes      bool        `json:"soft_deletes"`
 			Timestamps       bool        `json:"timestamps"`
 		} `json:"options"`

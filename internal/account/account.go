@@ -22,11 +22,10 @@ import (
 
 type Account struct {
 	service.App
-	// failedCache 防止登录爆破
 	failedCache *zcache.Table
-	Path        string
 	Model       *model.Model
 	Handlers    *AccountHandlers
+	Path        string
 }
 
 const AccountModel = "inlay::account"

@@ -22,16 +22,13 @@ var (
 type Controller struct {
 	cron         *time.Ticker
 	loader       func() (Rules, error)
+	tree         *tree.Tree
+	logger       *zlog.Logger
+	rules        Rules
 	loadInterval time.Duration
-
-	rules     Rules
-	rulesLock sync.RWMutex
-
-	tree     *tree.Tree
-	treeLock sync.RWMutex
-
-	logger    *zlog.Logger
-	matchMode meta.MatchMode
+	matchMode    meta.MatchMode
+	rulesLock    sync.RWMutex
+	treeLock     sync.RWMutex
 }
 
 // ControllerOption provides an interface for user to define controller.

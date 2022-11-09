@@ -24,9 +24,9 @@ type Rules []*Rule
 
 // Rule is used to define the relationship between "resource" and "permission"
 type Rule struct {
-	Sort        int `mapstructure:"sort" json:"sort" yaml:"sort"`
 	*Resource   `mapstructure:",squash" yaml:",inline"`
 	*Permission `yaml:",inline"`
+	Sort        int `mapstructure:"sort" json:"sort" yaml:"sort"`
 }
 
 // IsValid is used to test the validity of the Rule
