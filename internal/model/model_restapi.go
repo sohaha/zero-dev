@@ -46,26 +46,21 @@ func (m *Model) restApiInfo(key string, fn ...func(b *builder.SelectBuilder) err
 	}, false)
 }
 
-func (m *Model) restApiGetInfo(c *znet.Context) error {
+func (m *Model) restApiGetInfo(c *znet.Context) (interface{}, error) {
 	key := c.GetParam("key")
 	fields := GetRequestFields(c, m)
 
-	row, err := m.restApiInfo(key, func(b *builder.SelectBuilder) error {
+	return m.restApiInfo(key, func(b *builder.SelectBuilder) error {
 		b.Select(fields...)
 		return nil
 	})
-	if err != nil {
-		return error_code.InvalidInput.Error(err)
-	}
-
-	return Success(c, row)
 }
 
-func (m *Model) restApiDelete(c *znet.Context) error {
+func (m *Model) restApiDelete(c *znet.Context) (interface{}, error) {
 	key := c.GetParam("key")
 	_, err := m.restApiInfo(key)
 	if err != nil {
-		return error_code.InvalidInput.Error(err)
+		return nil, err
 	}
 
 	if m.Options.SoftDeletes {
@@ -82,18 +77,13 @@ func (m *Model) restApiDelete(c *znet.Context) error {
 		})
 	}
 
-	if err != nil {
-		return err
-	}
-
-	return Success(c, nil)
-
+	return nil, err
 }
 
-func (m *Model) restApiGetPage(c *znet.Context) error {
+func (m *Model) restApiGetPage(c *znet.Context) (interface{}, error) {
 	page, pagesize, err := GetPages(c)
 	if err != nil {
-		return error_code.InvalidInput.Error(err)
+		return nil, error_code.InvalidInput.Error(err)
 	}
 
 	fields := GetRequestFields(c, m)
@@ -108,49 +98,52 @@ func (m *Model) restApiGetPage(c *znet.Context) error {
 	})
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return Success(c, ResultPages(rows, pages))
+	return ResultPages(rows, pages), nil
 
 }
 
-func (m *Model) restApiCreate(c *znet.Context) error {
+func (m *Model) restApiCreate(c *znet.Context) (interface{}, error) {
 	json, err := c.GetJSONs()
 	if err != nil {
-		return error_code.InvalidInput.Error(err)
+		return nil, error_code.InvalidInput.Error(err)
 	}
 
 	json = json.MatchKeys(m.columnsKeys)
-
 	data := json.MapString()
 
 	id, err := m.ActionCreate(data)
 	if err != nil {
-		return error_code.InvalidInput.Error(err)
+		return nil, error_code.InvalidInput.Error(err)
 	}
 
-	return Success(c, ztype.Map{"id": id})
+	return ztype.Map{"id": id}, nil
 }
 
-func (m *Model) restApiUpdate(c *znet.Context) error {
+func (m *Model) restApiUpdate(c *znet.Context) (interface{}, error) {
 	key := c.GetParam("key")
 	_, err := m.restApiInfo(key)
 	if err != nil {
-		return error_code.InvalidInput.Error(err)
+		return nil, error_code.InvalidInput.Error(err)
 	}
 
 	json, err := c.GetJSONs()
 	if err != nil {
-		return error_code.InvalidInput.Error(err)
+		return nil, error_code.InvalidInput.Error(err)
 	}
 	json = json.MatchKeys(m.columnsKeys)
 
 	data := json.MapString()
-	err = m.ActionUpdate(key, data)
-	if err != nil {
-		return error_code.InvalidInput.Error(err)
+	if len(data) == 0 {
+		return nil, error_code.InvalidInput.Text("没有可更新数据")
 	}
 
-	return Success(c, data)
+	err = m.ActionUpdate(key, data)
+	if err != nil {
+		return nil, error_code.InvalidInput.Error(err)
+	}
+
+	return nil, nil
 }

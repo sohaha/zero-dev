@@ -13,8 +13,8 @@ import (
 // | :----------- | :----------- | :--------- |
 // | 服务级错误码 | 模块级错误码 | 具体错误码 |
 
-// - 服务级错误码：1 位数进行表示，比如 1 为系统级错误；2 为普通错误，通常是由用户非法操作引起。
-// - 模块级错误码：2 位数进行表示，比如 01 为用户模块；02 为订单模块。
+// - 服务级错误码：1 位数进行表示，比如 1 为系统错误；2 为普通错误，通常是由用户非法操作引起。
+// - 模块级错误码：2 位数进行表示，比如 01 为用户模块；02 为系统模块。
 // - 具体的错误码：2 位数进行表示，比如 01 为账号不存在；02 为手机号不合法。
 
 type ErrCode zerror.ErrCode
@@ -58,6 +58,11 @@ func (code ErrCode) Error(err error) error {
 func (code ErrCode) Result(c *znet.Context, data interface{}, err ...error) error {
 	Result(c, code, data, err...)
 	return nil
+}
+
+func (n ErrCode) String() string {
+	l, _ := GetI18n(n)
+	return l
 }
 
 func Result(c *znet.Context, code ErrCode, data interface{}, err ...error) {

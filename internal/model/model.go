@@ -1,6 +1,9 @@
 package model
 
 import (
+	"zlsapp/internal/error_code"
+
+	"github.com/sohaha/zlsgo/zerror"
 	"github.com/sohaha/zlsgo/ztime"
 	"github.com/sohaha/zlsgo/ztype"
 	"github.com/zlsgo/zdb"
@@ -100,6 +103,9 @@ func (m *Model) FindOne(fn func(b *builder.SelectBuilder) error, force bool) (zt
 		return rows[0], nil
 	}
 
+	if err == zdb.ErrRecordNotFound {
+		return ztype.Map{}, zerror.Wrap(err, zerror.ErrCode(error_code.NotFound), "")
+	}
 	return ztype.Map{}, err
 }
 

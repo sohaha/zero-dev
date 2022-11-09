@@ -42,23 +42,23 @@ func modelsBindRouter(g *znet.Engine) error {
 		return nil
 	})
 
-	g.GET(":model", func(c *znet.Context) error {
+	g.GET(":model", func(c *znet.Context) (interface{}, error) {
 		return c.MustValue("model").(*Model).restApiGetPage(c)
 	})
 
-	g.GET(":model/:key", func(c *znet.Context) error {
+	g.GET(":model/:key", func(c *znet.Context) (interface{}, error) {
 		return c.MustValue("model").(*Model).restApiGetInfo(c)
 	})
 
-	g.POST(":model", func(c *znet.Context) error {
+	g.POST(":model", func(c *znet.Context) (interface{}, error) {
 		return c.MustValue("model").(*Model).restApiCreate(c)
 	})
 
-	g.PATCH(":model/:key", func(c *znet.Context) error {
+	g.PATCH(":model/:key", func(c *znet.Context) (interface{}, error) {
 		return c.MustValue("model").(*Model).restApiUpdate(c)
 	})
 
-	g.DELETE(":model/:key", func(c *znet.Context) error {
+	g.DELETE(":model/:key", func(c *znet.Context) (interface{}, error) {
 		return c.MustValue("model").(*Model).restApiDelete(c)
 	})
 

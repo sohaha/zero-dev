@@ -13,12 +13,15 @@
     },
     {
       "label": "描述",
+      "nullable": true,
       "name": "description",
       "size": 255,
       "type": "string"
     },
     {
       "label": "父分类",
+      "nullable": true,
+      "default": 0,
       "name": "parent_id",
       "type": "uint"
     }
