@@ -34,7 +34,7 @@ func (h *RestApi) Init(g *znet.Engine) {
 
 func (m *Model) restApiInfo(key string, fn ...func(b *builder.SelectBuilder) error) (ztype.Map, error) {
 	return m.FindOne(func(b *builder.SelectBuilder) error {
-		if key != "" {
+		if key != "" && key != "0" {
 			b.Where(b.EQ(IDKey, key))
 		}
 
@@ -49,11 +49,39 @@ func (m *Model) restApiInfo(key string, fn ...func(b *builder.SelectBuilder) err
 func (m *Model) restApiGetInfo(c *znet.Context) (interface{}, error) {
 	key := c.GetParam("key")
 	fields := GetRequestFields(c, m)
-
-	return m.restApiInfo(key, func(b *builder.SelectBuilder) error {
+	info, err := m.restApiInfo(key, func(b *builder.SelectBuilder) error {
 		b.Select(fields...)
 		return nil
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	if !info.IsEmpty() {
+		withs := GetRequestWiths(c, m)
+		for k, v := range withs {
+			m, ok := Get(v.Model)
+			if !ok {
+				return nil, zerror.With(err, "关联模型("+v.Model+")不存在")
+			}
+
+			rinfo, err := m.FindOne(func(b *builder.SelectBuilder) error {
+				if len(v.Fields) > 0 {
+					b.Select(v.Fields...)
+				}
+				b.Where(b.EQ(v.Foreign, info.Get(v.Key).Value()))
+				return nil
+			}, false)
+			if err != nil {
+				return nil, zerror.With(err, "获取关联数据("+v.Model+")失败")
+			}
+
+			_ = info.Set(k, rinfo)
+		}
+	}
+
+	return info, nil
+
 }
 
 func (m *Model) restApiDelete(c *znet.Context) (interface{}, error) {

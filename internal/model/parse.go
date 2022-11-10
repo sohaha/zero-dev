@@ -7,7 +7,11 @@ import (
 	"github.com/zlsgo/zdb/schema"
 )
 
-func parseColumn(m *Model, c *Column) *Column {
+func parseRelation(m *Model, c *Column) {
+
+}
+
+func parseColumn(m *Model, c *Column) {
 	if c.ReadOnly {
 		m.readOnlyKeys = append(m.readOnlyKeys, c.Name)
 	}
@@ -44,8 +48,6 @@ func parseColumn(m *Model, c *Column) *Column {
 
 	parseValidRule(c)
 	parseOptions(c)
-
-	return c
 }
 
 // ParseJSON 解析模型
@@ -60,8 +62,12 @@ func ParseJSON(db *zdb.DB, json []byte) (m *Model, err error) {
 
 		m.columnsKeys = zarray.Map(m.Columns, func(_ int, c *Column) string {
 			parseColumn(m, c)
+			parseRelation(m, c)
 			return c.Name
 		})
+
+		// m.relationKeys =
+		convertRelation(m)
 	}
 	return
 }

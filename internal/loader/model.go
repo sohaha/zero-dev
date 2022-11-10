@@ -6,6 +6,7 @@ import (
 
 	"github.com/sohaha/zlsgo/zerror"
 	"github.com/sohaha/zlsgo/zfile"
+	"github.com/sohaha/zlsgo/zlog"
 	"github.com/zlsgo/zdb"
 )
 
@@ -36,6 +37,9 @@ func (l *Loader) newModeler() {
 				l.err = zerror.With(err, "添加模型失败: "+safePath)
 				return
 			}
+
+			modelLog("Register: " + zlog.Log.ColorTextWrap(zlog.ColorLightGreen, name))
+
 			// 因为模型文件可能和内置模型重名，所以这里需要追加前缀
 			mv.Table.Name = "model_" + mv.Table.Name
 			mv.Path = path
@@ -48,6 +52,7 @@ func (l *Loader) newModeler() {
 				l.err = zerror.With(err, "模型迁移失败: "+path)
 				return
 			}
+
 		}
 	})
 
@@ -56,6 +61,4 @@ func (l *Loader) newModeler() {
 	}
 
 	l.Model = m
-
-	return
 }

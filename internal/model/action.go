@@ -18,3 +18,11 @@ func (m *Model) ActionUpdate(key interface{}, data ztype.Map) error {
 func (m *Model) ActionCreate(data ztype.Map) (lastId int64, err error) {
 	return m.Insert(data)
 }
+
+// ActionFindOne 查询一条数据
+// func (m *Model) ActionFindOne(id interface{}) (ztype.Map, error) {
+// 	return m.FindOne(func(b *builder.SelectBuilder) error {
+// 		b.Where(b.EQ(IDKey, id))
+// 		return nil
+// 	},false)
+// }

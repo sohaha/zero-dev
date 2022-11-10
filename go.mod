@@ -6,15 +6,12 @@ require (
 	github.com/arl/statsviz v0.5.1
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/sohaha/zlsgo v1.3.7
-	github.com/stretchr/testify v1.7.2
 	github.com/zlsgo/conf v0.0.0-20220614015108-b4ee9fc367b0
 	github.com/zlsgo/zdb v0.0.0-00010101000000-000000000000
 )
 
 require (
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
-	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 )
@@ -49,7 +46,7 @@ require (
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/ini.v1 v1.66.6 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 	modernc.org/libc v1.16.17 // indirect
 	modernc.org/mathutil v1.4.1 // indirect
 	modernc.org/memory v1.1.1 // indirect

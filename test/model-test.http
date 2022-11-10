@@ -1,0 +1,8 @@
+
+### 数据详情
+GET {{host}}/model/{{model}}/1
+Authorization: Basic {{token}}
+
+### 数据详情-关联查询
+GET {{host}}/model/{{model}}/1?with=category
+Authorization: Basic {{token}}

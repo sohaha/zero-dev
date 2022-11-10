@@ -381,10 +381,6 @@
             "additionalProperties": {
                 "type": "object",
                 "properties": {
-                    "name": {
-                        "type": "string",
-                        "title": "关联名称"
-                    },
                     "model": {
                         "type": "string",
                         "title": "关联数据模型名称"
@@ -396,23 +392,29 @@
                     "foreign": {
                         "type": "string",
                         "title": "当前数据模型字段的名称"
+                    },
+                    "fields": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "指定读取的字段"
                     }
                 },
-                "x-apifox-orders": [
-                    "name",
+                "required": [
                     "model",
                     "key",
                     "foreign"
                 ],
-                "required": [
-                    "name",
+                "x-apifox-orders": [
                     "model",
                     "key",
-                    "foreign"
+                    "foreign",
+                    "fields"
                 ]
             },
-            "x-apifox-orders": [],
-            "title": "关系映射"
+            "title": "关系映射",
+            "x-apifox-orders": []
         }
     },
     "required": [

@@ -1,5 +1,5 @@
 {
-    "$schema": "https://resources.73zls.com/zero/model-schema.json",
+    "$schema": "https://mock.apifox.cn/m1/1797702-0-default/_/schema-model#",
     "name": "新闻模型",
     "table": {
         "name": "news",
@@ -46,6 +46,16 @@
             "content": "新闻内容：防疫快快过去了，大家都可以出去玩了"
         }
     ],
+    "relations": {
+        "category": {
+            "model": "category",
+            "key": "category",
+            "foreign": "id",
+            "fields": [
+                "name"
+            ]
+        }
+    },
     "options": {
         "timestamps": true
     }

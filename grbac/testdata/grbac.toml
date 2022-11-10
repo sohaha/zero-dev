@@ -1,6 +1,6 @@
 
 [0]
-authorized_roles = ["admin2"]
+authorized_roles = ["admin"]
 host = "*"
 method = "*"
 path = "*"
