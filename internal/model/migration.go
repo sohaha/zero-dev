@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/sohaha/zlsgo/zarray"
+	"github.com/sohaha/zlsgo/zerror"
 	"github.com/sohaha/zlsgo/zlog"
 	"github.com/sohaha/zlsgo/zutil"
 	"github.com/zlsgo/zdb"
@@ -77,7 +78,7 @@ func (m *Migration) InitValue(all bool) error {
 
 		_, err := m.Model.Insert(data)
 		if err != nil {
-			return err
+			return zerror.With(err, "初始化数据失败")
 		}
 	}
 

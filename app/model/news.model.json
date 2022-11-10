@@ -6,13 +6,13 @@
     },
     "columns": [
         {
-            "label": "分类 ID",
+            "label": "分类",
             "name": "category",
             "type": "int"
         },
         {
-            "label": "title",
-            "name": "string",
+            "label": "标题",
+            "name": "title",
             "size": 25,
             "type": "string"
         },
@@ -32,7 +32,17 @@
             ]
         }
     ],
-    "values": [],
+    "values": [
+        {
+            "id": 1,
+            "category": 1,
+            "title": "这是一条新闻标题",
+            "content": "新闻内容：防疫快快过去了，大家都可以出去玩了"
+        },
+        {
+            "content": "新闻内容：防疫快快过去了，大家都可以出去玩了"
+        }
+    ],
     "options": {
         "timestamps": true
     }

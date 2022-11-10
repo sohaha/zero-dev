@@ -25,20 +25,21 @@ func (l *Loader) newModeler() {
 		conf := c.Core()
 		m.Files = Scan("./app/", Model)
 		for name, path := range m.Files {
+			safePath := zfile.SafePath(path)
 			json, err := zfile.ReadFile(path)
 			if err != nil {
-				l.err = zerror.With(err, "读取模型文件失败: "+path)
+				l.err = zerror.With(err, "读取模型文件失败: "+safePath)
 				return
 			}
 			mv, err := model.Add(db, name, json, false)
 			if err != nil {
-				l.err = zerror.With(err, "添加模型失败: "+path)
+				l.err = zerror.With(err, "添加模型失败: "+safePath)
 				return
 			}
 			// 因为模型文件可能和内置模型重名，所以这里需要追加前缀
 			mv.Table.Name = "model_" + mv.Table.Name
 			mv.Path = path
-			models[path] = mv
+			models[safePath] = mv
 		}
 
 		for path, v := range models {
