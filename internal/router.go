@@ -4,6 +4,7 @@ import (
 	"zlsapp/controller"
 	"zlsapp/internal/account"
 	"zlsapp/internal/model"
+	"zlsapp/internal/open"
 	"zlsapp/service"
 
 	"github.com/sohaha/zlsgo/znet"
@@ -13,6 +14,9 @@ import (
 func InitRouter(_ *service.Conf) []service.Router {
 	return []service.Router{
 		&controller.Home{},
+		&open.Open{
+			Path: "/_",
+		},
 		&account.Account{
 			Path: "/base",
 		},

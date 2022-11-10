@@ -6,6 +6,7 @@ import (
 	"zlsapp/internal/error_code"
 
 	"github.com/sohaha/zlsgo/zarray"
+	"github.com/sohaha/zlsgo/zerror"
 	"github.com/sohaha/zlsgo/znet"
 	"github.com/zlsgo/zdb"
 )
@@ -17,6 +18,11 @@ func Get(name string) (*Model, bool) {
 }
 
 func Add(db *zdb.DB, name string, json []byte, force bool) (m *Model, err error) {
+	err = ValidateModelSchema(json)
+	if err != nil {
+		err = zerror.With(err, "模型("+name+")验证失败")
+		return
+	}
 	m, err = ParseJSON(db, json)
 	if err == nil {
 		name = strings.TrimSuffix(name, ".model.json")

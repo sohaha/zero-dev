@@ -89,8 +89,8 @@ func CheckData(data ztype.Map, columns []*Column, active activeType) (ztype.Map,
 				if err != nil {
 					return d, err
 				}
+				d[name] = v
 			default:
-				// d[name] = v
 				var (
 					val interface{}
 					err error

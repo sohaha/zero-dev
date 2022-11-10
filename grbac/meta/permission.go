@@ -12,7 +12,6 @@ type Permission struct {
 	AllowAnyone     bool
 }
 
-// IsValid is used to test the validity of the Rule
 func (p *Permission) IsValid() error {
 	if !p.AllowAnyone && len(p.AuthorizedRoles) == 0 && len(p.ForbiddenRoles) == 0 {
 		return zerror.With(ErrEmptyStructure, "permission: ")
@@ -20,7 +19,6 @@ func (p *Permission) IsValid() error {
 	return nil
 }
 
-// IsGranted is used to determine whether the given role can pass the authentication of *Permission
 func (p *Permission) IsGranted(roles []string) (PermissionState, error) {
 	if p.AllowAnyone {
 		return PermissionGranted, nil

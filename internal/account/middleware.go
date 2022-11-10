@@ -16,6 +16,7 @@ import (
 )
 
 func NewMiddleware(app *service.App) znet.Handler {
+	// TODO 权限配置文件
 	loaderOptions := grbac.WithFile("grbac/testdata/grbac", time.Second*2)
 	options := grbac.WithMatchMode(meta.MatchPrioritySomeAllow)
 	rbac, err := grbac.New(loaderOptions, options)
@@ -42,6 +43,16 @@ func NewMiddleware(app *service.App) znet.Handler {
 			return nil
 		}
 
+		q, err := rbac.NewQueryByRequest(c.Request)
+		if err != nil {
+			return err
+		}
+
+		if q.IsAllowAnyone() {
+			c.Next()
+			return nil
+		}
+
 		j, err := h.ParsingManageToken(c, key)
 		if err != nil {
 			return err
@@ -62,7 +73,7 @@ func NewMiddleware(app *service.App) znet.Handler {
 		roles := user.Get("roles").Slice().String()
 		c.WithValue("uid", user.Get(model.IDKey).Value())
 
-		state, err := rbac.IsRequestGranted(c.Request, roles)
+		state, err := q.IsRolesGranted(roles)
 		if err != nil {
 			return error_code.ServerError.Error(err)
 		}

@@ -19,17 +19,14 @@ const (
 	MatchSomeAllow
 )
 
-// Rules is the list of Rule
 type Rules []*Rule
 
-// Rule is used to define the relationship between "resource" and "permission"
 type Rule struct {
 	*Resource   `mapstructure:",squash" yaml:",inline"`
 	*Permission `yaml:",inline"`
 	Sort        int `mapstructure:"sort" json:"sort" yaml:"sort"`
 }
 
-// IsValid is used to test the validity of the Rule
 func (rule *Rule) IsValid() error {
 	if rule.Resource == nil || rule.Permission == nil {
 		return ErrEmptyStructure
@@ -41,7 +38,6 @@ func (rule *Rule) IsValid() error {
 	return rule.Permission.IsValid()
 }
 
-// IsValid is used to test the validity of the Rule
 func (rules Rules) IsValid() error {
 	var errs error
 	for _, rule := range rules {
@@ -56,17 +52,67 @@ func (rules Rules) IsValid() error {
 	return nil
 }
 
-// IsRolesGranted is used to determine whether the current role is admitted by the current rule.
+func (rules Rules) IsAllowAnyone(mode MatchMode) bool {
+	l := len(rules)
+	if l == 0 {
+		return false
+	}
+
+	r := rules[0]
+
+	if l == 1 {
+		return r.AllowAnyone
+	}
+
+	switch mode {
+	case MatchAllAllow, MatchSomeAllow:
+		for i := range rules {
+			ok := rules[i].AllowAnyone
+			if ok && MatchSomeAllow == mode {
+				return true
+			}
+			if !ok {
+				return false
+			}
+		}
+
+		return true
+	default:
+		priorityRules := Rules{r}
+		for i := 1; i < l; i++ {
+			if r.Sort < rules[i].Sort {
+				r = rules[i]
+				priorityRules = Rules{r}
+			} else if r.Sort == rules[i].Sort {
+				priorityRules = append(priorityRules, rules[i])
+			}
+		}
+
+		for i := range priorityRules {
+			ok := priorityRules[i].AllowAnyone
+			if ok && MatchPrioritySomeAllow == mode {
+				return true
+			}
+
+			if !ok {
+				return false
+			}
+		}
+
+		return true
+	}
+}
+
 func (rules Rules) IsRolesGranted(roles []string, mode MatchMode) (PermissionState, error) {
 	l := len(rules)
 	if l == 0 {
 		return PermissionNeglected, nil
 	}
 
-	tail := rules[0]
+	r := rules[0]
 
 	if l == 1 {
-		return tail.IsGranted(roles)
+		return r.IsGranted(roles)
 	}
 
 	switch mode {
@@ -87,12 +133,12 @@ func (rules Rules) IsRolesGranted(roles []string, mode MatchMode) (PermissionSta
 
 		return PermissionGranted, nil
 	default:
-		priorityRules := Rules{tail}
+		priorityRules := Rules{r}
 		for i := 1; i < l; i++ {
-			if tail.Sort < rules[i].Sort {
-				tail = rules[i]
-				priorityRules = Rules{tail}
-			} else if tail.Sort == rules[i].Sort {
+			if r.Sort < rules[i].Sort {
+				r = rules[i]
+				priorityRules = Rules{r}
+			} else if r.Sort == rules[i].Sort {
 				priorityRules = append(priorityRules, rules[i])
 			}
 		}

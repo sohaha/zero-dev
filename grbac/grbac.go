@@ -205,17 +205,6 @@ func (c *Controller) runCronTab() {
 	}
 }
 
-func getQueryByRequest(r *http.Request) *Query {
-	if r.URL == nil {
-		return nil
-	}
-	return &Query{
-		Path:   r.URL.Path,
-		Host:   r.Host,
-		Method: r.Method,
-	}
-}
-
 func (c *Controller) find(query *Query) (Rules, error) {
 	c.treeLock.RLock()
 	defer c.treeLock.RUnlock()
@@ -234,21 +223,11 @@ func (c *Controller) find(query *Query) (Rules, error) {
 	return perms, nil
 }
 
-// IsRequestGranted is used to verify whether a request has permission
 func (c *Controller) IsRequestGranted(r *http.Request, roles []string) (PermissionState, error) {
-	query := getQueryByRequest(r)
-	if query == nil {
-		return meta.PermissionUnknown, ErrInvalidRequest
-	}
-	return c.IsQueryGranted(query, roles)
-}
-
-// IsQueryGranted allows query permissions with the given Query parameter
-func (c *Controller) IsQueryGranted(q *Query, roles []string) (PermissionState, error) {
-	rules, err := c.find(q)
-	if err != nil {
+	query, err := c.NewQueryByRequest(r)
+	if err == nil {
 		return meta.PermissionUnknown, err
 	}
 
-	return rules.IsRolesGranted(roles, c.matchMode)
+	return query.IsRolesGranted(roles)
 }

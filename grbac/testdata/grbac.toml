@@ -1,7 +1,13 @@
 
 [0]
-authorized_roles = ["admin"]
+authorized_roles = ["admin2"]
 host = "*"
 method = "*"
 path = "*"
-sort = 2
+
+[1]
+allow_anyone = true
+host = "*"
+method = "*"
+path = "/_/*"
+sort = 100
