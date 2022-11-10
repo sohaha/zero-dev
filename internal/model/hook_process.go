@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/sohaha/zlsgo/zjson"
-	"github.com/sohaha/zlsgo/zlog"
 	"github.com/sohaha/zlsgo/zstring"
 	"github.com/sohaha/zlsgo/ztype"
 )
@@ -37,8 +36,6 @@ func (m *Model) GetAfterProcess(p []string) (fn []afterProcess, err error) {
 		case "json":
 			fn = append(fn, func(s string) (interface{}, error) {
 				j := zjson.Parse(s)
-				zlog.Debug(s)
-
 				if !j.Exists() {
 					return nil, errors.New("json parse error")
 				}

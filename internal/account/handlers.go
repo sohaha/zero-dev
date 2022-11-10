@@ -12,7 +12,6 @@ import (
 
 	gjwt "github.com/golang-jwt/jwt"
 	"github.com/sohaha/zlsgo/zcache"
-	"github.com/sohaha/zlsgo/zlog"
 	"github.com/sohaha/zlsgo/znet"
 	"github.com/sohaha/zlsgo/zstring"
 	"github.com/sohaha/zlsgo/ztype"
@@ -62,11 +61,9 @@ func (h *AccountHandlers) CacheForID(uid interface{}) (row ztype.Map, err error)
 		lifeSpan time.Duration, interval ...bool)) (err error) {
 		row, err := h.Model.FindOne(func(b *builder.SelectBuilder) error {
 			b.EQ(model.IDKey, uid)
-			zlog.Debug(model.IDKey, uid)
 			return nil
 		}, false)
-		zlog.Debug(h.Model.Name)
-		zlog.Debug("CacheForID", row, uid)
+
 		if row.IsEmpty() {
 			return errors.New("账号不存在: " + idStr)
 		}

@@ -69,7 +69,7 @@ func (m *Model) restApiGetInfo(c *znet.Context) (interface{}, error) {
 				}
 
 				t := m.Table.Name
-				asName := "r_" + t
+				asName := "_r_" + t
 				b.JoinWithOption("", b.As(t, asName),
 					asName+"."+v.Foreign+" = "+table+"."+v.Key,
 				)
