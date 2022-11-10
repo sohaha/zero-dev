@@ -41,6 +41,13 @@
       ]
     }
   ],
+  "relations": {
+    "post": {
+      "model": "news",
+      "key": "id",
+      "foreign": "category"
+    }
+  },
   "values": [
     {
       "parent_id": 0,

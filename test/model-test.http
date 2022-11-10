@@ -3,6 +3,10 @@
 GET {{host}}/model/{{model}}?with=category&fields=title
 Authorization: Basic {{token}}
 
+### 数据列表-关联查询
+GET {{host}}/model/category?with=post
+Authorization: Basic {{token}}
+
 
 ### 数据列表
 GET {{host}}/model/{{model}}
