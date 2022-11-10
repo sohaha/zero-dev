@@ -1,9 +1,11 @@
 package model
 
 import (
+	"errors"
 	"zlsapp/internal/error_code"
 	"zlsapp/service"
 
+	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/zerror"
 	"github.com/sohaha/zlsgo/znet"
 	"github.com/sohaha/zlsgo/ztime"
@@ -32,10 +34,14 @@ func (h *RestApi) Init(g *znet.Engine) {
 	}
 }
 
-func (m *Model) restApiInfo(key string, fn ...func(b *builder.SelectBuilder) error) (ztype.Map, error) {
+func (m *Model) restApiInfo(key string, hasPrefix bool, fn ...func(b *builder.SelectBuilder) error) (ztype.Map, error) {
 	return m.FindOne(func(b *builder.SelectBuilder) error {
 		if key != "" && key != "0" {
-			b.Where(b.EQ(IDKey, key))
+			if hasPrefix {
+				b.Where(b.EQ(m.Table.Name+"."+IDKey, key))
+			} else {
+				b.Where(b.EQ(IDKey, key))
+			}
 		}
 
 		if len(fn) > 0 {
@@ -48,36 +54,40 @@ func (m *Model) restApiInfo(key string, fn ...func(b *builder.SelectBuilder) err
 
 func (m *Model) restApiGetInfo(c *znet.Context) (interface{}, error) {
 	key := c.GetParam("key")
-	fields := GetRequestFields(c, m)
-	info, err := m.restApiInfo(key, func(b *builder.SelectBuilder) error {
+	with := GetRequestWiths(c, m)
+	hasWith := len(with) > 0
+	fields := GetRequestFields(c, m, hasWith)
+
+	info, err := m.restApiInfo(key, hasWith, func(b *builder.SelectBuilder) error {
+		if hasWith {
+			table := m.Table.Name
+			for k, v := range with {
+				_ = k
+				m, ok := Get(v.Model)
+				if !ok {
+					return errors.New("关联模型(" + v.Model + ")不存在")
+				}
+
+				t := m.Table.Name
+				asName := "r_" + t
+				b.JoinWithOption("", b.As(t, asName),
+					asName+"."+v.Foreign+" = "+table+"."+v.Key,
+				)
+				if len(v.Fields) > 0 {
+					fields = append(fields, zarray.Map(v.Fields, func(_ int, v string) string {
+						return asName + "." + v
+					})...)
+				} else {
+					fields = append(fields, asName+".*")
+				}
+			}
+		}
+
 		b.Select(fields...)
 		return nil
 	})
 	if err != nil {
 		return nil, err
-	}
-
-	if !info.IsEmpty() {
-		withs := GetRequestWiths(c, m)
-		for k, v := range withs {
-			m, ok := Get(v.Model)
-			if !ok {
-				return nil, zerror.With(err, "关联模型("+v.Model+")不存在")
-			}
-
-			rinfo, err := m.FindOne(func(b *builder.SelectBuilder) error {
-				if len(v.Fields) > 0 {
-					b.Select(v.Fields...)
-				}
-				b.Where(b.EQ(v.Foreign, info.Get(v.Key).Value()))
-				return nil
-			}, false)
-			if err != nil {
-				return nil, zerror.With(err, "获取关联数据("+v.Model+")失败")
-			}
-
-			_ = info.Set(k, rinfo)
-		}
 	}
 
 	return info, nil
@@ -86,7 +96,7 @@ func (m *Model) restApiGetInfo(c *znet.Context) (interface{}, error) {
 
 func (m *Model) restApiDelete(c *znet.Context) (interface{}, error) {
 	key := c.GetParam("key")
-	_, err := m.restApiInfo(key)
+	_, err := m.restApiInfo(key, false)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +124,7 @@ func (m *Model) restApiGetPage(c *znet.Context) (interface{}, error) {
 		return nil, error_code.InvalidInput.Error(err)
 	}
 
-	fields := GetRequestFields(c, m)
+	fields := GetRequestFields(c, m, false)
 
 	rows, pages, err := m.DB.Pages(m.Table.Name, page, pagesize, func(b *builder.SelectBuilder) error {
 		b.Desc(IDKey)
@@ -152,7 +162,7 @@ func (m *Model) restApiCreate(c *znet.Context) (interface{}, error) {
 
 func (m *Model) restApiUpdate(c *znet.Context) (interface{}, error) {
 	key := c.GetParam("key")
-	_, err := m.restApiInfo(key)
+	_, err := m.restApiInfo(key, false)
 	if err != nil {
 		return nil, error_code.InvalidInput.Error(err)
 	}

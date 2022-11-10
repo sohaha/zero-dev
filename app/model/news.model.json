@@ -52,7 +52,7 @@
             "key": "category",
             "foreign": "id",
             "fields": [
-                "name"
+                "category_name"
             ]
         }
     },

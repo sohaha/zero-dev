@@ -14,9 +14,9 @@ type relation struct {
 	Fields  []string `json:"fields"`
 }
 
-func convertRelation(m *Model) {
+// func convertRelation(m *Model) {
 
-}
+// }
 
 func GetRequestWiths(c *znet.Context, m *Model) map[string]*relation {
 	with, ok := c.GetQuery("with")
@@ -26,6 +26,7 @@ func GetRequestWiths(c *znet.Context, m *Model) map[string]*relation {
 
 	w := strings.Split(with, ",")
 	rr := make(map[string]*relation, len(w))
+
 	for _, v := range w {
 		r, ok := m.Relations[v]
 		if !ok {
