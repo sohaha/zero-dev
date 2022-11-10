@@ -124,13 +124,45 @@ func (m *Model) restApiGetPage(c *znet.Context) (interface{}, error) {
 		return nil, error_code.InvalidInput.Error(err)
 	}
 
-	fields := GetRequestFields(c, m, false)
+	with := GetRequestWiths(c, m)
+	hasWith := len(with) > 0
+	fields := GetRequestFields(c, m, hasWith)
 
 	rows, pages, err := m.DB.Pages(m.Table.Name, page, pagesize, func(b *builder.SelectBuilder) error {
-		b.Desc(IDKey)
+		deletedAtKey := DeletedAtKey
+		idKey := IDKey
+		if hasWith {
+			table := m.Table.Name
+			for k, v := range with {
+				_ = k
+				m, ok := Get(v.Model)
+				if !ok {
+					return errors.New("关联模型(" + v.Model + ")不存在")
+				}
+
+				t := m.Table.Name
+				asName := "_r_" + t
+				b.JoinWithOption("", b.As(t, asName),
+					asName+"."+v.Foreign+" = "+table+"."+v.Key,
+				)
+				if len(v.Fields) > 0 {
+					fields = append(fields, zarray.Map(v.Fields, func(_ int, v string) string {
+						return asName + "." + v
+					})...)
+				} else {
+					fields = append(fields, asName+".*")
+				}
+			}
+			b.Desc(table + "." + IDKey)
+			deletedAtKey = m.Table.Name + "." + DeletedAtKey
+			idKey = m.Table.Name + "." + IDKey
+		}
+
 		b.Select(fields...)
+
+		b.Desc(idKey)
 		if m.Options.SoftDeletes {
-			b.Where(b.EQ(DeletedAtKey, 0))
+			b.Where(b.EQ(deletedAtKey, 0))
 		}
 		return nil
 	})
