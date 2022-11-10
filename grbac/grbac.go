@@ -12,14 +12,12 @@ import (
 	"github.com/sohaha/zlsgo/zlog"
 )
 
-// defines a set of errors
 var (
 	ErrInvalidRequest  = errors.New("invalid request")
 	ErrUndefinedLoader = errors.New("loader undefined")
 )
 
-// Controller defines the structure of the controller
-type Controller struct {
+type Engine struct {
 	cron         *time.Ticker
 	loader       func() (Rules, error)
 	tree         *tree.Tree
@@ -31,33 +29,17 @@ type Controller struct {
 	treeLock     sync.RWMutex
 }
 
-// ControllerOption provides an interface for user to define controller.
-type ControllerOption func(*Controller) error
+type Option func(*Engine) error
 
-// WithMatchMode is used to modify the default match mode
-func WithMatchMode(mode meta.MatchMode) ControllerOption {
-	return func(c *Controller) error {
+func WithMatchMode(mode meta.MatchMode) Option {
+	return func(c *Engine) error {
 		c.matchMode = mode
 		return nil
 	}
 }
 
-// WithJSON is used to load configuration via json file
-func WithJSON(name string, loadInterval time.Duration) ControllerOption {
-	return func(c *Controller) error {
-		fd, err := NewJSONLoader(name)
-		if err != nil {
-			return err
-		}
-		c.loader = fd.Load
-		c.loadInterval = loadInterval
-		return nil
-	}
-}
-
-// WithFile is used to load configuration via loacl file
-func WithFile(name string, loadInterval time.Duration) ControllerOption {
-	return func(c *Controller) error {
+func WithFile(name string, loadInterval time.Duration) Option {
+	return func(c *Engine) error {
 		fd, err := NewFileLoader(name)
 		if err != nil {
 			return err
@@ -68,22 +50,9 @@ func WithFile(name string, loadInterval time.Duration) ControllerOption {
 	}
 }
 
-// WithYAML is used to load configuration via yaml file
-func WithYAML(name string, loadInterval time.Duration) ControllerOption {
-	return func(c *Controller) error {
-		fd, err := NewYAMLLoader(name)
-		if err != nil {
-			return err
-		}
-		c.loader = fd.Load
-		c.loadInterval = loadInterval
-		return nil
-	}
-}
-
 // WithRules is used to load config via user defined rules
-func WithRules(rules Rules) ControllerOption {
-	return func(c *Controller) error {
+func WithRules(rules Rules) Option {
+	return func(c *Engine) error {
 		fd, err := NewRulesLoader(rules)
 		if err != nil {
 			return nil
@@ -95,8 +64,8 @@ func WithRules(rules Rules) ControllerOption {
 }
 
 // WithLoader provides a custom Loader entry that you can use to load arbitrary storage.
-func WithLoader(loader func() (Rules, error), loadInterval time.Duration) ControllerOption {
-	return func(c *Controller) error {
+func WithLoader(loader func() (Rules, error), loadInterval time.Duration) Option {
+	return func(c *Engine) error {
 		if loader == nil {
 			return ErrUndefinedLoader
 		}
@@ -107,15 +76,15 @@ func WithLoader(loader func() (Rules, error), loadInterval time.Duration) Contro
 }
 
 // New is used to initialize an RBAC instance
-func New(loaderOptions ControllerOption, options ...ControllerOption) (*Controller, error) {
+func New(loaderOptions Option, options ...Option) (*Engine, error) {
 	log := zlog.New("[RBAC]")
 	log.ResetFlags(zlog.BitLevel)
 	log.SetLogLevel(zlog.LogSuccess)
-	c := &Controller{
+	c := &Engine{
 		logger: log,
 	}
 
-	opts := append([]ControllerOption{loaderOptions}, options...)
+	opts := append([]Option{loaderOptions}, options...)
 	for _, opt := range opts {
 		err := opt(c)
 		if err != nil {
@@ -138,13 +107,13 @@ func New(loaderOptions ControllerOption, options ...ControllerOption) (*Controll
 }
 
 // SetLogger is used to modify the default logger
-func (c *Controller) SetLogger(logger *zlog.Logger) {
+func (c *Engine) SetLogger(logger *zlog.Logger) {
 	if logger != nil {
 		c.logger = logger
 	}
 }
 
-func (c *Controller) reload() error {
+func (c *Engine) reload() error {
 	if c.loader == nil {
 		return ErrUndefinedLoader
 	}
@@ -171,7 +140,7 @@ func (c *Controller) reload() error {
 	return nil
 }
 
-func (c *Controller) buildTree() error {
+func (c *Engine) buildTree() error {
 	t := tree.NewTree()
 	c.rulesLock.RLock()
 	defer c.rulesLock.RUnlock()
@@ -184,7 +153,7 @@ func (c *Controller) buildTree() error {
 	return nil
 }
 
-func (c *Controller) runCronTab() {
+func (c *Engine) runCronTab() {
 	if c.loadInterval < time.Second && c.loadInterval >= 0 {
 		c.loadInterval = 5 * time.Second
 	}
@@ -205,7 +174,7 @@ func (c *Controller) runCronTab() {
 	}
 }
 
-func (c *Controller) find(query *Query) (Rules, error) {
+func (c *Engine) find(query *Query) (Rules, error) {
 	c.treeLock.RLock()
 	defer c.treeLock.RUnlock()
 	records, err := c.tree.Query(query.GetArguments())
@@ -223,7 +192,7 @@ func (c *Controller) find(query *Query) (Rules, error) {
 	return perms, nil
 }
 
-func (c *Controller) IsRequestGranted(r *http.Request, roles []string) (PermissionState, error) {
+func (c *Engine) IsRequestGranted(r *http.Request, roles []string) (PermissionState, error) {
 	query, err := c.NewQueryByRequest(r)
 	if err == nil {
 		return meta.PermissionUnknown, err

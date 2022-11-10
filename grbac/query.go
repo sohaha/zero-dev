@@ -19,7 +19,7 @@ func (q *Query) IsRolesGranted(roles []string) (PermissionState, error) {
 	return q.rules.IsRolesGranted(roles, q.matchMode)
 }
 
-func (c *Controller) NewQueryByRequest(r *http.Request) (q *Query, err error) {
+func (c *Engine) NewQueryByRequest(r *http.Request) (q *Query, err error) {
 	if r.URL == nil {
 		return nil, ErrInvalidRequest
 	}
