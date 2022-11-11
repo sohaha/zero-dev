@@ -7,9 +7,9 @@ import (
 	"github.com/zlsgo/zdb/schema"
 )
 
-func parseRelation(m *Model, c *Column) {
+// func parseRelation(m *Model, c *Column) {
 
-}
+// }
 
 func parseColumn(m *Model, c *Column) {
 	if c.ReadOnly {
@@ -61,9 +61,10 @@ func ParseJSON(db *zdb.DB, json []byte) (m *Model, err error) {
 		m.afterProcess = make(map[string][]afterProcess, 0)
 		m.beforeProcess = make(map[string][]beforeProcess, 0)
 
+		// fillColumns(m)
 		m.columnsKeys = zarray.Map(m.Columns, func(_ int, c *Column) string {
 			parseColumn(m, c)
-			parseRelation(m, c)
+			// parseRelation(m, c)
 			return c.Name
 		})
 
@@ -71,4 +72,27 @@ func ParseJSON(db *zdb.DB, json []byte) (m *Model, err error) {
 		// convertRelation(m)
 	}
 	return
+}
+
+func fillColumns(m *Model) {
+	if m.Options.SoftDeletes {
+		m.Columns = append(m.Columns, &Column{
+			Name:     DeletedAtKey,
+			Type:     schema.Int,
+			Nullable: false,
+			Comment:  "软删除时间",
+		})
+	}
+
+	if m.Options.Timestamps {
+		m.Columns = append(m.Columns, &Column{
+			Name:    CreatedAtKey,
+			Type:    schema.Time,
+			Comment: "创建时间",
+		}, &Column{
+			Name:    UpdatedAtKey,
+			Type:    schema.Time,
+			Comment: "更新时间",
+		})
+	}
 }

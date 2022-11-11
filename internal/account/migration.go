@@ -27,9 +27,10 @@ func defaultAccount() ztype.Maps {
 	return ztype.Maps{
 		{
 			model.IDKey: 1,
-			"account":   "admin",
-			"password":  "admin",
+			"account":   "manage",
+			"password":  "123456",
 			"status":    1,
+			"nickname":  "管理员",
 			"roles":     []string{"admin"},
 			"avatar":    "",
 		},

@@ -1,21 +1,21 @@
 ### 用户登录
-POST {{host}}/base/login
+POST {{host}}/manage/base/login
 Content-Type: application/json
 
 {
-  "account": "admin",
-  "password": "admin"
+  "account": "manage",
+  "password": "123456"
 }
 
 > {% client.global.set("token", response.body.data.token); %}
 
 ### 用户信息
-GET {{host}}/base/me
+GET {{host}}/manage/base/me
 Authorization: Basic {{token}}
 
 
 ### 修改资料
-PATCH {{host}}/base/me
+PATCH {{host}}/manage/base/me
 Authorization: Basic {{token}}
 Content-Type: application/json
 

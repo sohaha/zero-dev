@@ -118,7 +118,7 @@ func Result(c *znet.Context, code ErrCode, data interface{}, err ...error) {
 
 	var status int32 = http.StatusBadRequest
 	switch true {
-	case code >= 20000 && code <= 29999:
+	case code >= 10000 && code <= 19999:
 		status = http.StatusInternalServerError
 	case code == 0:
 		status = http.StatusOK

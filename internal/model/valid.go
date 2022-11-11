@@ -72,10 +72,14 @@ func CheckData(data ztype.Map, columns []*Column, active activeType) (ztype.Map,
 				d[name] = ztype.ToBool(v)
 			case schema.Time:
 				switch t := v.(type) {
+				default:
+					return d, errors.New(label + ": 未知时间格式")
+				case DataTime:
+					d[name] = t
 				case time.Time:
 					d[name] = DataTime{Time: t}
 				case int:
-					// TODO 时间戳转换
+					d[name] = DataTime{Time: ztime.Unix(ztype.ToInt64(v))}
 				case string:
 					r, err := ztime.Parse(t)
 					if err != nil {
@@ -83,7 +87,6 @@ func CheckData(data ztype.Map, columns []*Column, active activeType) (ztype.Map,
 					}
 					d[name] = DataTime{Time: r}
 				}
-
 			case schema.JSON:
 				err := column.GetValidations().VerifiAny(v).Error()
 				if err != nil {

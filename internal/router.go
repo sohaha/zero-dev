@@ -18,7 +18,7 @@ func InitRouter(_ *service.Conf) []service.Router {
 			Path: "/_",
 		},
 		&account.Account{
-			Path: "/base",
+			Path: "/manage/base",
 		},
 		model.NewRestApi(),
 		model.NewManageRestApi(),

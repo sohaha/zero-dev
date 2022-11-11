@@ -1,8 +1,6 @@
 package model
 
 import (
-	"sync"
-
 	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/zvalid"
 	"github.com/zlsgo/zdb/schema"
@@ -24,9 +22,8 @@ type Column struct {
 	After       []string        `json:"after"`
 	validRules  zvalid.Engine   `json:"-"`
 	Size        uint64          `json:"size"`
-	once        sync.Once
-	ReadOnly    bool `json:"read_only"`
-	Nullable    bool `json:"nullable"`
+	ReadOnly    bool            `json:"read_only"`
+	Nullable    bool            `json:"nullable"`
 }
 
 func (c *Column) GetValidations() zvalid.Engine {

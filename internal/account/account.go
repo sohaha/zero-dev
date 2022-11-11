@@ -163,7 +163,9 @@ func (h *Account) GetMe(c *znet.Context) (interface{}, error) {
 		b.Select(h.Model.GetFields("password", "salt")...)
 		return nil
 	}, false)
-	return info, err
+	return ztype.Map{
+		"info": info,
+	}, err
 }
 
 // PatchMe 修改当前用户信息

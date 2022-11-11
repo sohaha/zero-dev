@@ -15,6 +15,7 @@ import (
 	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/zerror"
 	"github.com/sohaha/zlsgo/zfile"
+	"github.com/sohaha/zlsgo/zlog"
 	"github.com/sohaha/zlsgo/znet"
 	"github.com/speps/go-hashids/v2"
 )
@@ -41,7 +42,7 @@ func NewMiddleware(app *service.App) znet.Handler {
 	rbac, err := grbac.New(loaderOptions, options)
 	zerror.Panic(err)
 
-	pubPath := []string{"/base/login"}
+	pubPath := []string{"/manage/base/login"}
 
 	m, err := migration(app.Di)
 	zerror.Panic(err)
@@ -74,6 +75,7 @@ func NewMiddleware(app *service.App) znet.Handler {
 
 		j, err := h.ParsingManageToken(c, key)
 		if err != nil {
+			zlog.Debug(err)
 			return err
 		}
 

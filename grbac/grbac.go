@@ -158,7 +158,6 @@ func (c *Engine) runCronTab() {
 		c.loadInterval = 5 * time.Second
 	}
 	if c.loadInterval < 0 {
-		c.logger.Warn("grbac abandoned the periodic loader because loadInterval is less than 0")
 		return
 	}
 

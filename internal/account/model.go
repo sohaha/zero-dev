@@ -56,6 +56,12 @@ func userModel(db *zdb.DB) error {
 			},
 		},
 		{
+			"name":  "nickname",
+			"type":  "string",
+			"size":  20,
+			"label": "昵称",
+		},
+		{
 			"name":  "password",
 			"type":  "string",
 			"label": "密码",
