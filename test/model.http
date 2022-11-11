@@ -1,0 +1,7 @@
+### 模型列表
+GET {{host}}/manage/model
+Authorization: Basic {{token}}
+
+### 模型详情
+GET {{host}}/manage/model/news
+Authorization: Basic {{token}}

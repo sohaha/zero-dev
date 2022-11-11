@@ -54,6 +54,7 @@ func parseColumn(m *Model, c *Column) {
 func ParseJSON(db *zdb.DB, json []byte) (m *Model, err error) {
 	err = zjson.Unmarshal(json, &m)
 	if err == nil {
+		m.Raw = json
 		m.DB = db
 		m.readOnlyKeys = make([]string, 0)
 		m.cryptKeys = make(map[string]cryptProcess, 0)

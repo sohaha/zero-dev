@@ -12,6 +12,7 @@ import (
 
 type (
 	Model struct {
+		Raw           []byte
 		DB            *zdb.DB
 		Name          string               `json:"name"`
 		Path          string               `json:"-"`
