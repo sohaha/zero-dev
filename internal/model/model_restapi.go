@@ -69,7 +69,7 @@ func (m *Model) restApiGetInfo(c *znet.Context) (interface{}, error) {
 				}
 
 				t := m.Table.Name
-				asName := "_r_" + t
+				asName := k
 				b.JoinWithOption("", b.As(t, asName),
 					asName+"."+v.Foreign+" = "+table+"."+v.Key,
 				)
@@ -134,14 +134,13 @@ func (m *Model) restApiGetPage(c *znet.Context) (interface{}, error) {
 		if hasWith {
 			table := m.Table.Name
 			for k, v := range with {
-				_ = k
 				m, ok := Get(v.Model)
 				if !ok {
 					return errors.New("关联模型(" + v.Model + ")不存在")
 				}
 
 				t := m.Table.Name
-				asName := "_r_" + t
+				asName := k
 				b.JoinWithOption("", b.As(t, asName),
 					asName+"."+v.Foreign+" = "+table+"."+v.Key,
 				)
@@ -159,7 +158,6 @@ func (m *Model) restApiGetPage(c *znet.Context) (interface{}, error) {
 		}
 
 		b.Select(fields...)
-
 		b.Desc(idKey)
 		if m.Options.SoftDeletes {
 			b.Where(b.EQ(deletedAtKey, 0))
