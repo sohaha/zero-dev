@@ -9,15 +9,34 @@ import (
 	"zlsapp/internal/model"
 	"zlsapp/service"
 
+	_ "embed"
+
+	"github.com/pelletier/go-toml/v2"
 	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/zerror"
+	"github.com/sohaha/zlsgo/zfile"
 	"github.com/sohaha/zlsgo/znet"
 	"github.com/speps/go-hashids/v2"
 )
 
+//go:embed permission.toml
+var defPermission []byte
+
 func NewMiddleware(app *service.App) znet.Handler {
-	// TODO 权限配置文件
-	loaderOptions := grbac.WithFile("grbac/testdata/grbac", time.Second*2)
+	var loaderOptions grbac.Option
+	if zfile.FileExist("permission.toml") {
+		loaderOptions = grbac.WithFile("permission.toml", time.Second*2)
+	} else {
+		loaderOptions = grbac.WithLoader(func() (grbac.Rules, error) {
+			var m map[string]interface{}
+			err := toml.Unmarshal([]byte(defPermission), &m)
+			if err != nil {
+				return nil, err
+			}
+			return grbac.ParseMap(m), nil
+		}, -1)
+	}
+
 	options := grbac.WithMatchMode(meta.MatchPrioritySomeAllow)
 	rbac, err := grbac.New(loaderOptions, options)
 	zerror.Panic(err)

@@ -31,7 +31,14 @@ func (loader *FileLoader) Load() (rules meta.Rules, err error) {
 		return nil, err
 	}
 
-	for _, v := range c.GetAll() {
+	rules = ParseMap(c.GetAll())
+
+	return
+}
+
+func ParseMap(m map[string]interface{}) meta.Rules {
+	rules := make(meta.Rules, 0)
+	for _, v := range m {
 		m := ztype.ToMap(v)
 		rule := &meta.Rule{
 			Sort: m.Get("sort").Int(),
@@ -48,6 +55,5 @@ func (loader *FileLoader) Load() (rules meta.Rules, err error) {
 		}
 		rules = append(rules, rule)
 	}
-
-	return
+	return rules
 }
