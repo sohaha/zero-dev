@@ -49,13 +49,17 @@ func (h *ManageRestApi) lists(c *znet.Context) (interface{}, error) {
 }
 
 // info 获取模型详情
-func (h *ManageRestApi) info(c *znet.Context) (interface{}, error) {
+func (h *ManageRestApi) info(c *znet.Context) error {
 	modelName := c.GetParam("model")
 	m, ok := globalModels.Get(modelName)
 	if !ok {
-		return nil, error_code.NotFound.Text("模型不存在")
+		return error_code.InvalidInput.Text("模型不存在")
 	}
 
-	j := zjson.ParseBytes(m.Raw).MapString()
-	return j, nil
+	data, _ := zjson.SetRawBytes([]byte(`{"code":0}`), "data", m.Raw)
+	data = zjson.Ugly(data)
+
+	c.Byte(200, data)
+	c.SetContentType(znet.ContentTypeJSON)
+	return nil
 }
