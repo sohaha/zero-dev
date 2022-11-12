@@ -1,4 +1,5 @@
 {
+  "$schema": "https://mock.apifox.cn/m1/1797702-0-default/_/schema-model#",
   "name": "分类模型",
   "table": {
     "name": "category",

@@ -77,5 +77,15 @@
     },
     "options": {
         "timestamps": true
+    },
+    "views": {
+        "lists": {
+            "fields": [
+                "title",
+                "topic",
+                "category",
+                "created_at"
+            ]
+        }
     }
 }

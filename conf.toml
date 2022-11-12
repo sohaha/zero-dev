@@ -6,25 +6,24 @@ port = '8181'
 [db]
 driver = 'sqlite'
 [db.mysql]
+DBName = 'zls'
 Host = '127.0.0.1'
+Parameters = ''
+Password = '666666'
 Port = 3306
 User = 'root'
-Password = '666666'
-DBName = 'zls'
-Parameters = ''
 
 [db.postgres]
-Host = '127.0.0.1'
-Port = 5432
-User = 'root'
-Password = '666666'
 DBName = 'zls'
+Host = '127.0.0.1'
+Password = '666666'
+Port = 5432
 SSLMode = ''
+User = 'root'
 
 [db.sqlite]
 Path = 'db.db'
 
-
 [account]
-only = true
 key = "678777654a"
+only = false

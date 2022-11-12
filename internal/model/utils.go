@@ -7,20 +7,32 @@ import (
 	"github.com/sohaha/zlsgo/znet"
 )
 
-func getFinalFields(m *Model, c *znet.Context) (finalFields, tmpFields []string, quote bool, with, withMany map[string]*relation) {
+func getFinalFields(m *Model, c *znet.Context, fields []string) (finalFields, tmpFields []string, quote bool, with, withMany map[string]*relation) {
 	var mustFields []string
 	mustFields, with, withMany = GetRequestWiths(c, m)
 	hasWith := len(with) > 0
 	hasWithMany := len(withMany) > 0
 	quote = hasWith || hasWithMany
-	fields := GetRequestFields(c, m, quote)
+
+	if len(fields) == 0 {
+		fields = GetRequestFields(c, m, quote)
+	}
+
 	finalFields = zarray.Unique(append(fields, mustFields...))
 	_, tmpFields = zarray.Diff(fields, mustFields)
 	return
 }
 
+func GetViewFields(m *Model, view string) []string {
+	v, ok := m.Views[view]
+	if !ok {
+		return []string{}
+	}
+	return v.Fields
+}
+
 func GetRequestFields(c *znet.Context, m *Model, quote bool) []string {
-	tableFields := m.columnsKeys
+	tableFields := m.fields
 	tableFields = append(tableFields, IDKey)
 	if m.Options.Timestamps {
 		tableFields = append(tableFields, CreatedAtKey, UpdatedAtKey)

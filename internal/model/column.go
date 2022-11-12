@@ -40,10 +40,10 @@ func (c *Column) GetLabel() string {
 
 func (m *Model) GetFields(exclude ...string) []string {
 	if len(exclude) == 0 {
-		return m.columnsKeys
+		return m.fields
 	}
 
-	return zarray.Filter(m.columnsKeys, func(_ int, v string) bool {
+	return zarray.Filter(m.fields, func(_ int, v string) bool {
 		return !zarray.Contains(exclude, v)
 	})
 }

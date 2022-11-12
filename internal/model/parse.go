@@ -61,8 +61,9 @@ func ParseJSON(db *zdb.DB, json []byte) (m *Model, err error) {
 		m.afterProcess = make(map[string][]afterProcess, 0)
 		m.beforeProcess = make(map[string][]beforeProcess, 0)
 
+		fillView(m)
 		// fillColumns(m)
-		m.columnsKeys = zarray.Map(m.Columns, func(_ int, c *Column) string {
+		m.fields = zarray.Map(m.Columns, func(_ int, c *Column) string {
 			parseColumn(m, c)
 			// parseRelation(m, c)
 			return c.Name
@@ -74,25 +75,25 @@ func ParseJSON(db *zdb.DB, json []byte) (m *Model, err error) {
 	return
 }
 
-func fillColumns(m *Model) {
-	if m.Options.SoftDeletes {
-		m.Columns = append(m.Columns, &Column{
-			Name:     DeletedAtKey,
-			Type:     schema.Int,
-			Nullable: false,
-			Comment:  "软删除时间",
-		})
-	}
+// func fillColumns(m *Model) {
+// 	if m.Options.SoftDeletes {
+// 		m.Columns = append(m.Columns, &Column{
+// 			Name:     DeletedAtKey,
+// 			Type:     schema.Int,
+// 			Nullable: false,
+// 			Comment:  "软删除时间",
+// 		})
+// 	}
 
-	if m.Options.Timestamps {
-		m.Columns = append(m.Columns, &Column{
-			Name:    CreatedAtKey,
-			Type:    schema.Time,
-			Comment: "创建时间",
-		}, &Column{
-			Name:    UpdatedAtKey,
-			Type:    schema.Time,
-			Comment: "更新时间",
-		})
-	}
-}
+// 	if m.Options.Timestamps {
+// 		m.Columns = append(m.Columns, &Column{
+// 			Name:    CreatedAtKey,
+// 			Type:    schema.Time,
+// 			Comment: "创建时间",
+// 		}, &Column{
+// 			Name:    UpdatedAtKey,
+// 			Type:    schema.Time,
+// 			Comment: "更新时间",
+// 		})
+// 	}
+// }

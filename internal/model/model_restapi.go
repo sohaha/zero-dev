@@ -55,7 +55,8 @@ func (m *Model) restApiInfo(key string, hasPrefix bool, fn ...func(b *builder.Se
 func (m *Model) restApiGetInfo(c *znet.Context) (interface{}, error) {
 	key := c.GetParam("key")
 
-	finalFields, tmpFields, quote, with, withMany := getFinalFields(m, c)
+	fields := GetViewFields(m, "info")
+	finalFields, tmpFields, quote, with, withMany := getFinalFields(m, c, fields)
 
 	info, err := m.restApiInfo(key, quote, func(b *builder.SelectBuilder) error {
 		table := m.Table.Name
@@ -103,7 +104,7 @@ func (m *Model) restApiGetInfo(c *znet.Context) (interface{}, error) {
 			default:
 				b.Where(b.EQ(v.Foreign, val))
 			}
-			b.Select(m.columnsKeys...)
+			b.Select(m.fields...)
 			return nil
 		}, false)
 		_ = info.Set(k, row)
@@ -147,7 +148,8 @@ func (m *Model) restApiGetPage(c *znet.Context) (interface{}, error) {
 		return nil, error_code.InvalidInput.Error(err)
 	}
 
-	finalFields, tmpFields, quote, with, withMany := getFinalFields(m, c)
+	fields := GetViewFields(m, "lists")
+	finalFields, tmpFields, quote, with, withMany := getFinalFields(m, c, fields)
 
 	rows, pages, err := m.DB.Pages(m.Table.Name, page, pagesize, func(b *builder.SelectBuilder) error {
 		deletedAtKey := DeletedAtKey
@@ -206,7 +208,7 @@ func (m *Model) restApiCreate(c *znet.Context) (interface{}, error) {
 		return nil, error_code.InvalidInput.Error(err)
 	}
 
-	json = json.MatchKeys(m.columnsKeys)
+	json = json.MatchKeys(m.fields)
 	data := json.MapString()
 
 	id, err := m.ActionCreate(data)
@@ -228,7 +230,7 @@ func (m *Model) restApiUpdate(c *znet.Context) (interface{}, error) {
 	if err != nil {
 		return nil, error_code.InvalidInput.Error(err)
 	}
-	json = json.MatchKeys(m.columnsKeys)
+	json = json.MatchKeys(m.fields)
 
 	data := json.MapString()
 	if len(data) == 0 {

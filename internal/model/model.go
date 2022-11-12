@@ -19,9 +19,10 @@ type (
 		Path          string               `json:"-"`
 		Table         Table                `json:"table"`
 		Columns       []*Column            `json:"columns"`
+		Views         map[string]*View     `json:"views"`
 		Relations     map[string]*relation `json:"relations"`
 		Values        []interface{}        `json:"values"`
-		columnsKeys   []string
+		fields        []string
 		readOnlyKeys  []string
 		cryptKeys     map[string]cryptProcess
 		beforeProcess map[string][]beforeProcess

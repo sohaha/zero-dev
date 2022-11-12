@@ -5,3 +5,8 @@ Authorization: Basic {{token}}
 ### 模型详情
 GET {{host}}/manage/model/news
 Authorization: Basic {{token}}
+
+
+### 模型页面
+GET {{host}}/manage/model/news?key=views
+Authorization: Basic {{token}}
