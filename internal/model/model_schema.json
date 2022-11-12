@@ -399,6 +399,14 @@
                             "type": "string"
                         },
                         "title": "指定读取的字段"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "hasOne",
+                            "hasMany"
+                        ],
+                        "title": "关联类型"
                     }
                 },
                 "required": [
@@ -410,7 +418,8 @@
                     "model",
                     "key",
                     "foreign",
-                    "fields"
+                    "fields",
+                    "type"
                 ]
             },
             "title": "关系映射",
