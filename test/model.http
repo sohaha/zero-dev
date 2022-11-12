@@ -8,5 +8,5 @@ Authorization: Basic {{token}}
 
 
 ### 模型页面
-GET {{host}}/manage/model/news?key=views
+GET {{host}}/manage/model/news/lists
 Authorization: Basic {{token}}
