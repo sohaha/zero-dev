@@ -54,40 +54,63 @@ func (m *Model) restApiInfo(key string, hasPrefix bool, fn ...func(b *builder.Se
 
 func (m *Model) restApiGetInfo(c *znet.Context) (interface{}, error) {
 	key := c.GetParam("key")
-	with := GetRequestWiths(c, m)
-	hasWith := len(with) > 0
-	fields := GetRequestFields(c, m, hasWith)
 
-	info, err := m.restApiInfo(key, hasWith, func(b *builder.SelectBuilder) error {
-		if hasWith {
-			table := m.Table.Name
-			for k, v := range with {
-				_ = k
-				m, ok := Get(v.Model)
-				if !ok {
-					return errors.New("关联模型(" + v.Model + ")不存在")
-				}
+	finalFields, tmpFields, quote, with, withMany := getFinalFields(m, c)
 
-				t := m.Table.Name
-				asName := k
-				b.JoinWithOption("", b.As(t, asName),
-					asName+"."+v.Foreign+" = "+table+"."+v.Key,
-				)
-				if len(v.Fields) > 0 {
-					fields = append(fields, zarray.Map(v.Fields, func(_ int, v string) string {
-						return asName + "." + v
-					})...)
-				} else {
-					fields = append(fields, asName+".*")
-				}
+	info, err := m.restApiInfo(key, quote, func(b *builder.SelectBuilder) error {
+		table := m.Table.Name
+		for k, v := range with {
+			m, ok := Get(v.Model)
+			if !ok {
+				return errors.New("关联模型(" + v.Model + ")不存在")
+			}
+
+			t := m.Table.Name
+			asName := k
+			b.JoinWithOption("", b.As(t, asName),
+				asName+"."+v.Foreign+" = "+table+"."+v.Key,
+			)
+			if len(v.Fields) > 0 {
+				finalFields = append(finalFields, zarray.Map(v.Fields, func(_ int, v string) string {
+					return asName + "." + v
+				})...)
+			} else {
+				finalFields = append(finalFields, asName+".*")
 			}
 		}
-
-		b.Select(fields...)
+		b.Select(finalFields...)
 		return nil
 	})
 	if err != nil {
 		return nil, err
+	}
+
+	for k, v := range withMany {
+		m, ok := Get(v.Model)
+		if !ok {
+			return nil, errors.New("关联模型(" + v.Model + ")不存在")
+		}
+		key := info.Get(v.Key)
+		if !key.Exists() {
+			return nil, errors.New("字段(" + v.Key + ")不存在，无法关联模型(" + v.Model + ")")
+		}
+
+		row, _ := m.Find(func(b *builder.SelectBuilder) error {
+			k := key.Value()
+			switch val := k.(type) {
+			case []interface{}:
+				b.Where(b.In(v.Foreign, val...))
+			default:
+				b.Where(b.EQ(v.Foreign, val))
+			}
+			b.Select(m.columnsKeys...)
+			return nil
+		}, false)
+		_ = info.Set(k, row)
+	}
+
+	for _, v := range tmpFields {
+		_ = info.Delete(v)
 	}
 
 	return info, nil
@@ -124,14 +147,12 @@ func (m *Model) restApiGetPage(c *znet.Context) (interface{}, error) {
 		return nil, error_code.InvalidInput.Error(err)
 	}
 
-	with := GetRequestWiths(c, m)
-	hasWith := len(with) > 0
-	fields := GetRequestFields(c, m, hasWith)
+	finalFields, tmpFields, quote, with, withMany := getFinalFields(m, c)
 
 	rows, pages, err := m.DB.Pages(m.Table.Name, page, pagesize, func(b *builder.SelectBuilder) error {
 		deletedAtKey := DeletedAtKey
 		idKey := IDKey
-		if hasWith {
+		if quote {
 			table := m.Table.Name
 			for k, v := range with {
 				m, ok := Get(v.Model)
@@ -145,11 +166,11 @@ func (m *Model) restApiGetPage(c *znet.Context) (interface{}, error) {
 					asName+"."+v.Foreign+" = "+table+"."+v.Key,
 				)
 				if len(v.Fields) > 0 {
-					fields = append(fields, zarray.Map(v.Fields, func(_ int, v string) string {
+					finalFields = append(finalFields, zarray.Map(v.Fields, func(_ int, v string) string {
 						return asName + "." + v
 					})...)
 				} else {
-					fields = append(fields, asName+".*")
+					finalFields = append(finalFields, asName+".*")
 				}
 			}
 			b.Desc(table + "." + IDKey)
@@ -157,7 +178,7 @@ func (m *Model) restApiGetPage(c *znet.Context) (interface{}, error) {
 			idKey = m.Table.Name + "." + IDKey
 		}
 
-		b.Select(fields...)
+		b.Select(finalFields...)
 		b.Desc(idKey)
 		if m.Options.SoftDeletes {
 			b.Where(b.EQ(deletedAtKey, 0))
@@ -169,6 +190,12 @@ func (m *Model) restApiGetPage(c *znet.Context) (interface{}, error) {
 		return nil, err
 	}
 
+	_ = withMany
+	for _, info := range rows {
+		for _, v := range tmpFields {
+			_ = info.Delete(v)
+		}
+	}
 	return ResultPages(rows, pages), nil
 
 }

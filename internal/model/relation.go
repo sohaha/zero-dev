@@ -8,6 +8,7 @@ import (
 
 type relation struct {
 	Name    string   `json:"name"`
+	Type    string   `json:"type"`
 	Model   string   `json:"model"`
 	Foreign string   `json:"foreign"`
 	Key     string   `json:"key"`
@@ -18,22 +19,29 @@ type relation struct {
 
 // }
 
-func GetRequestWiths(c *znet.Context, m *Model) map[string]*relation {
+func GetRequestWiths(c *znet.Context, m *Model) (mustFields []string, hasOne map[string]*relation, hasMany map[string]*relation) {
 	with, ok := c.GetQuery("with")
 	if !ok || with == "" {
-		return map[string]*relation{}
+		return []string{}, map[string]*relation{}, map[string]*relation{}
 	}
 
 	w := strings.Split(with, ",")
-	rr := make(map[string]*relation, len(w))
+	mustFields = make([]string, 0, len(w))
+	hasOne = make(map[string]*relation, len(w))
+	hasMany = make(map[string]*relation, len(w))
 
 	for _, v := range w {
 		r, ok := m.Relations[v]
 		if !ok {
 			continue
 		}
-		rr[v] = r
+		mustFields = append(mustFields, r.Key)
+		if r.Type == "hasMany" {
+			hasMany[v] = r
+		} else {
+			hasOne[v] = r
+		}
 	}
 
-	return rr
+	return
 }

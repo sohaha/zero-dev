@@ -12,6 +12,7 @@ import (
 
 type (
 	Model struct {
+		Schema        string `json:"$schema"`
 		Raw           []byte
 		DB            *zdb.DB
 		Name          string               `json:"name"`

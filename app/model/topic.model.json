@@ -1,0 +1,40 @@
+{
+    "$schema": "https://mock.apifox.cn/m1/1797702-0-default/_/schema-model#",
+    "name": "专题模型",
+    "table": {
+        "name": "topic",
+        "comment": "专题表"
+    },
+    "columns": [
+        {
+            "label": "专题标题",
+            "name": "title",
+            "size": 25,
+            "type": "string"
+        }
+    ],
+    "values": [
+        {
+            "id": 1,
+            "title": "热血动漫"
+        },
+        {
+            "id": 2,
+            "title": "少女动漫"
+        },
+        {
+            "id": 3,
+            "title": "最新推荐"
+        }
+    ],
+    "relations22": {
+        "topic": {
+            "type": "hasMany",
+            "model": "topic",
+            "foreignKey": "topic_id"
+        }
+    },
+    "options": {
+        "timestamps": true
+    }
+}

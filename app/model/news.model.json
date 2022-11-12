@@ -31,6 +31,11 @@
                     "args": 9999
                 }
             ]
+        },
+        {
+            "name": "topic",
+            "type": "json",
+            "label": "话题"
         }
     ],
     "values": [
@@ -38,10 +43,18 @@
             "id": 1,
             "category": 1,
             "title": "这是一条新闻标题",
+            "topic": [
+                1,
+                2,
+                3
+            ],
             "content": "新闻内容：防疫快快过去了，大家都可以出去玩了"
         },
         {
             "category": 1,
+            "topic": [
+                3
+            ],
             "title": "新闻标题",
             "content": "新闻内容：这是一条每次启动都会自动创建的新闻"
         }
@@ -54,6 +67,12 @@
             "fields": [
                 "category_name"
             ]
+        },
+        "belong_topic": {
+            "type": "hasMany",
+            "model": "topic",
+            "key": "topic",
+            "foreign": "id"
         }
     },
     "options": {
