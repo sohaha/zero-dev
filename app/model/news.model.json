@@ -80,6 +80,7 @@
     },
     "views": {
         "lists": {
+            "title": "新闻列表",
             "fields": [
                 "title",
                 "topic",

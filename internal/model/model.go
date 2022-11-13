@@ -12,14 +12,15 @@ import (
 
 type (
 	Model struct {
-		Schema        string `json:"$schema"`
-		Raw           []byte
-		DB            *zdb.DB
-		Name          string               `json:"name"`
-		Path          string               `json:"-"`
-		Table         Table                `json:"table"`
-		Columns       []*Column            `json:"columns"`
-		Views         map[string]*View     `json:"views"`
+		Schema  string `json:"$schema"`
+		Raw     []byte
+		DB      *zdb.DB
+		Name    string           `json:"name"`
+		Path    string           `json:"-"`
+		Table   Table            `json:"table"`
+		Columns []*Column        `json:"columns"`
+		Views   map[string]*View `json:"views"`
+		// views         ztype.Map
 		Relations     map[string]*relation `json:"relations"`
 		Values        []interface{}        `json:"values"`
 		fields        []string

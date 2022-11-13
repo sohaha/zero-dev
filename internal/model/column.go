@@ -48,6 +48,32 @@ func (m *Model) GetFields(exclude ...string) []string {
 	})
 }
 
+func (m *Model) getColumn(name string) (*Column, bool) {
+	column, ok := zarray.Find(m.Columns, func(_ int, c *Column) bool {
+		return c.Name == name
+	})
+	if ok {
+		return column, true
+	}
+
+	if m.Options.Timestamps {
+		switch name {
+		case CreatedAtKey:
+			return &Column{
+				Name:  name,
+				Type:  schema.Time,
+				Label: "创建时间"}, true
+		case UpdatedAtKey:
+			return &Column{
+				Name:  name,
+				Type:  schema.Time,
+				Label: "更新时间"}, true
+		}
+	}
+
+	return nil, false
+}
+
 type ColumnEnum struct {
 	Value string `json:"value"`
 	Label string `json:"label"`

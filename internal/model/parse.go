@@ -61,14 +61,13 @@ func ParseJSON(db *zdb.DB, json []byte) (m *Model, err error) {
 		m.afterProcess = make(map[string][]afterProcess, 0)
 		m.beforeProcess = make(map[string][]beforeProcess, 0)
 
-		fillView(m)
 		// fillColumns(m)
 		m.fields = zarray.Map(m.Columns, func(_ int, c *Column) string {
 			parseColumn(m, c)
 			// parseRelation(m, c)
 			return c.Name
 		})
-
+		fillView(m)
 		// m.relationKeys =
 		// convertRelation(m)
 	}

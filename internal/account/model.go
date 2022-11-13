@@ -34,9 +34,11 @@ func userModel(db *zdb.DB) error {
 			"name":     "avatar",
 			"nullable": true,
 			"type":     "string",
+			"size":     1024 * 2,
 			"validations": ztype.Maps{
 				{
-					"method": "url",
+					"method": "regex",
+					"args":   "^([https|[http]]?://|data:image/)",
 				},
 			},
 		},
