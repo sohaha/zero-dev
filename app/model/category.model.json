@@ -57,5 +57,8 @@
       "status": 1
     }
   ],
+  "views": {
+    "lists": {}
+  },
   "options": {}
 }

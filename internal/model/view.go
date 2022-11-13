@@ -19,7 +19,11 @@ func resolverViewLists(m *Model) ztype.Map {
 	if !ok {
 		return ztype.Map{"k": 3}
 	}
-	for _, v := range data.Fields {
+	fields := data.Fields
+	if len(fields) == 0 {
+		fields = m.fields
+	}
+	for _, v := range fields {
 		column, ok := m.getColumn(v)
 		if !ok {
 			continue
@@ -27,12 +31,13 @@ func resolverViewLists(m *Model) ztype.Map {
 		columns = append(columns, ztype.Map{
 			"title": column.Label,
 			"key":   column.Name,
+			"type":  column.Type,
 		})
 	}
 	info := ztype.Map{
 		"title":   zutil.IfVal(data.Title != "", data.Title, m.Name+"数据"),
 		"columns": columns,
-		"fields":  data.Fields,
+		"fields":  fields,
 	}
 	return info
 }

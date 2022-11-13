@@ -198,6 +198,7 @@ func (m *Model) restApiGetPage(c *znet.Context) (interface{}, error) {
 			_ = info.Delete(v)
 		}
 	}
+
 	return ResultPages(rows, pages), nil
 
 }

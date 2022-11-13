@@ -45,7 +45,6 @@ func (h *Account) loginFailed(c *znet.Context) {
 func (h *Account) logout(user ztype.Map) error {
 	salt := zstring.Rand(8)
 	_ = user.Set("salt", salt)
-
 	return h.Handlers.Update(user.Get(model.IDKey).Value(), map[string]interface{}{
 		"salt": salt,
 		// "updated_at": time.Now(),

@@ -1,7 +1,6 @@
 package model
 
 import (
-	"time"
 	"zlsapp/internal/error_code"
 	"zlsapp/service"
 
@@ -63,7 +62,6 @@ func (h *ManageRestApi) info(c *znet.Context) error {
 		return error_code.InvalidInput.Text("模型不存在")
 	}
 
-	time.Sleep(time.Second * 1)
 	data := m.Raw
 	if key != "" {
 		// json := zjson.ParseBytes(data).Get(key)
