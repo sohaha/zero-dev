@@ -38,12 +38,24 @@ func (c *Column) GetLabel() string {
 	return label
 }
 
-func (m *Model) GetFields(exclude ...string) []string {
-	if len(exclude) == 0 {
-		return m.fields
+func (m *Model) isInlayField(field string) bool {
+	if !m.Options.Timestamps {
+		return false
 	}
 
-	return zarray.Filter(m.fields, func(_ int, v string) bool {
+	return field == CreatedAtKey || field == UpdatedAtKey
+}
+
+func (m *Model) GetFields(exclude ...string) []string {
+	f := m.fields
+	if m.Options.Timestamps {
+		f = append(f, CreatedAtKey, UpdatedAtKey)
+	}
+	if len(exclude) == 0 {
+		return f
+	}
+
+	return zarray.Filter(f, func(_ int, v string) bool {
 		return !zarray.Contains(exclude, v)
 	})
 }

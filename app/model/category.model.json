@@ -1,6 +1,6 @@
 {
   "$schema": "https://mock.apifox.cn/m1/1797702-0-default/_/schema-model#",
-  "name": "分类模型",
+  "name": "新闻分类",
   "table": {
     "name": "category",
     "comment": "分类表"

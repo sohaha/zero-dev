@@ -1,6 +1,7 @@
 package model
 
 import (
+	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/ztype"
 	"github.com/sohaha/zlsgo/zutil"
 )
@@ -13,29 +14,32 @@ type View struct {
 }
 
 func resolverViewLists(m *Model) ztype.Map {
-	columns := make([]ztype.Map, 0)
+	columns := make(map[string]ztype.Map, 0)
 	data, ok := m.Views["lists"]
 
-	if !ok {
-		return ztype.Map{"k": 3}
+	fields := []string{}
+	if ok {
+		fields = data.Fields
+		// return ztype.Map{}
 	}
-	fields := data.Fields
+
 	if len(fields) == 0 {
-		fields = m.fields
+		fields = m.GetFields()
 	}
+
 	for _, v := range fields {
 		column, ok := m.getColumn(v)
 		if !ok {
 			continue
 		}
-		columns = append(columns, ztype.Map{
+		columns[column.Name] = ztype.Map{
 			"title": column.Label,
-			"key":   column.Name,
 			"type":  column.Type,
-		})
+		}
 	}
+
 	info := ztype.Map{
-		"title":   zutil.IfVal(data.Title != "", data.Title, m.Name+"数据"),
+		"title":   zutil.IfVal(data.Title != "", data.Title, m.Name+""),
 		"columns": columns,
 		"fields":  fields,
 	}
@@ -43,6 +47,40 @@ func resolverViewLists(m *Model) ztype.Map {
 }
 func resolverViewInfo(m *Model) ztype.Map {
 	info := ztype.Map{}
+
+	data, ok := m.Views["detail"]
+	columns := make(map[string]ztype.Map, 0)
+
+	fields := []string{}
+	if ok {
+		fields = data.Fields
+		// return ztype.Map{}
+	}
+
+	if len(fields) == 0 {
+		fields = m.GetFields()
+	}
+
+	for _, v := range fields {
+		column, ok := m.getColumn(v)
+		if !ok {
+			continue
+		}
+
+		r := zarray.Contains(m.readOnlyKeys, v)
+		if !r {
+			r = m.isInlayField(v)
+		}
+		columns[column.Name] = ztype.Map{
+			"label":    column.Label,
+			"type":     column.Type,
+			"readonly": r,
+			// "component": "NInput",
+		}
+	}
+
+	info["columns"] = columns
+	info["fields"] = fields
 	return info
 }
 
@@ -53,7 +91,7 @@ func resolverView(m *Model) ztype.Map {
 
 	views["lists"] = resolverViewLists(m)
 
-	views["info"] = resolverViewInfo(m)
+	views["detail"] = resolverViewInfo(m)
 	// for k, v := range vs {
 	// 	zlog.Debug(k, v)
 	// }
