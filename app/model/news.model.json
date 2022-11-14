@@ -1,5 +1,4 @@
 {
-    "$schema": "https://mock.apifox.cn/m1/1797702-0-default/_/schema-model#",
     "name": "新闻",
     "table": {
         "name": "news",

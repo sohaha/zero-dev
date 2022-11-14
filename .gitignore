@@ -3,3 +3,10 @@ zzz-watch.yaml
 zlsapp_*_[386|amd]*
 .vscode/settings.json
 db.db
+tmp/conf.toml
+tmp/tmp.zip
+tmp/app/api/news.http.json
+tmp/app/model/category.model.json
+tmp/app/model/news.model.json
+tmp/app/model/topic.model.json
+tmp/app/module/.gitkeep

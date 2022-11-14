@@ -12,11 +12,11 @@ import (
 	_ "embed"
 
 	"github.com/pelletier/go-toml/v2"
-	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/zerror"
 	"github.com/sohaha/zlsgo/zfile"
 	"github.com/sohaha/zlsgo/zlog"
 	"github.com/sohaha/zlsgo/znet"
+	"github.com/sohaha/zlsgo/zstring"
 	"github.com/speps/go-hashids/v2"
 )
 
@@ -42,7 +42,7 @@ func NewMiddleware(app *service.App) znet.Handler {
 	rbac, err := grbac.New(loaderOptions, options)
 	zerror.Panic(err)
 
-	pubPath := []string{"/manage/base/login"}
+	pubPath := []string{"/manage/base/login", "/admin*"}
 
 	m, err := migration(app.Di)
 	zerror.Panic(err)
@@ -58,10 +58,15 @@ func NewMiddleware(app *service.App) znet.Handler {
 
 	return func(c *znet.Context) error {
 		path := c.Request.URL.Path
-		if zarray.Contains(pubPath, path) {
-			c.Next()
-			return nil
+		for _, v := range pubPath {
+			if zstring.Match(path, v) {
+				c.Next()
+				return nil
+			}
 		}
+		// if zarray.Contains(pubPath, path) {
+
+		// }
 
 		q, err := rbac.NewQueryByRequest(c.Request)
 		if err != nil {

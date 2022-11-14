@@ -1,5 +1,4 @@
 {
-    "$schema": "https://mock.apifox.cn/m1/1797702-0-default/_/schema-model#",
     "name": "专题模型",
     "table": {
         "name": "topic",
