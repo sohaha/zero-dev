@@ -157,7 +157,7 @@
                             ],
                             "description": "默认值"
                         },
-                        "read_only": {
+                        "readonly": {
                             "type": "boolean",
                             "description": "是否创建之后不允许更改",
                             "title": "只读"
@@ -178,7 +178,7 @@
                         "comment",
                         "size",
                         "enum",
-                        "read_only"
+                        "readonly"
                     ],
                     "title": "字段具体配置"
                 }

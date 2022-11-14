@@ -67,6 +67,7 @@ func ParseJSON(db *zdb.DB, json []byte) (m *Model, err error) {
 			// parseRelation(m, c)
 			return c.Name
 		})
+		// m.fields = append(m.fields, IDKey)
 		fillView(m)
 		// m.relationKeys =
 		// convertRelation(m)

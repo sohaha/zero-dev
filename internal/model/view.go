@@ -17,15 +17,17 @@ func resolverViewLists(m *Model) ztype.Map {
 	columns := make(map[string]ztype.Map, 0)
 	data, ok := m.Views["lists"]
 
-	fields := []string{}
+	fields := []string{IDKey}
 	if ok {
-		fields = data.Fields
+		fields = append(fields, data.Fields...)
 		// return ztype.Map{}
 	}
 
-	if len(fields) == 0 {
-		fields = m.GetFields()
+	if len(fields) == 1 {
+		fields = append(fields, m.GetFields()...)
 	}
+
+	fields = zarray.Unique(fields)
 
 	for _, v := range fields {
 		column, ok := m.getColumn(v)
@@ -45,36 +47,37 @@ func resolverViewLists(m *Model) ztype.Map {
 	}
 	return info
 }
+
 func resolverViewInfo(m *Model) ztype.Map {
 	info := ztype.Map{}
 
 	data, ok := m.Views["detail"]
 	columns := make(map[string]ztype.Map, 0)
 
-	fields := []string{}
+	fields := []string{IDKey}
 	if ok {
-		fields = data.Fields
+		fields = append(fields, data.Fields...)
 		// return ztype.Map{}
 	}
 
-	if len(fields) == 0 {
-		fields = m.GetFields()
+	if len(fields) == 1 {
+		fields = append(fields, m.GetFields()...)
 	}
 
+	fields = zarray.Unique(fields)
 	for _, v := range fields {
 		column, ok := m.getColumn(v)
 		if !ok {
 			continue
 		}
 
-		r := zarray.Contains(m.readOnlyKeys, v)
-		if !r {
-			r = m.isInlayField(v)
-		}
+		// r := zarray.Contains(m.readOnlyKeys, v)
+
 		columns[column.Name] = ztype.Map{
 			"label":    column.Label,
 			"type":     column.Type,
-			"readonly": r,
+			"readonly": column.ReadOnly,
+			"disabled": m.isInlayField(v),
 			// "component": "NInput",
 		}
 	}

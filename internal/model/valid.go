@@ -137,10 +137,13 @@ func parseValidRule(c *Column) {
 	label := c.GetLabel()
 	rule := zvalid.New().SetAlias(label)
 
+	if c.Type == schema.JSON {
+		rule = rule.Required().IsJSON(c.Name + "必须是JSON格式")
+	}
+
 	if c.Size > 0 {
 		switch c.Type {
 		case schema.JSON:
-			rule = rule.IsJSON()
 		case schema.String:
 			rule = rule.MaxUTF8Length(int(c.Size))
 		case schema.Int, schema.Int8, schema.Int16, schema.Int32, schema.Int64, schema.Uint, schema.Uint8, schema.Uint16, schema.Uint32, schema.Uint64:

@@ -22,7 +22,7 @@ type Column struct {
 	After       []string        `json:"after"`
 	validRules  zvalid.Engine   `json:"-"`
 	Size        uint64          `json:"size"`
-	ReadOnly    bool            `json:"read_only"`
+	ReadOnly    bool            `json:"readonly"`
 	Nullable    bool            `json:"nullable"`
 }
 
@@ -39,6 +39,9 @@ func (c *Column) GetLabel() string {
 }
 
 func (m *Model) isInlayField(field string) bool {
+	if field == IDKey {
+		return true
+	}
 	if !m.Options.Timestamps {
 		return false
 	}
@@ -47,10 +50,13 @@ func (m *Model) isInlayField(field string) bool {
 }
 
 func (m *Model) GetFields(exclude ...string) []string {
-	f := m.fields
+	f := make([]string, 0, len(m.fields)+1)
+	f = append(f, m.fields...)
+	f = append(f, IDKey)
 	if m.Options.Timestamps {
 		f = append(f, CreatedAtKey, UpdatedAtKey)
 	}
+
 	if len(exclude) == 0 {
 		return f
 	}
@@ -68,6 +74,16 @@ func (m *Model) getColumn(name string) (*Column, bool) {
 		return column, true
 	}
 
+	if name == IDKey {
+		return &Column{
+			Name:     IDKey,
+			Type:     schema.Int,
+			Nullable: false,
+			Label:    "ID",
+			ReadOnly: true,
+		}, true
+
+	}
 	if m.Options.Timestamps {
 		switch name {
 		case CreatedAtKey:

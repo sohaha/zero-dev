@@ -104,7 +104,7 @@ func (m *Model) restApiGetInfo(c *znet.Context) (interface{}, error) {
 			default:
 				b.Where(b.EQ(v.Foreign, val))
 			}
-			b.Select(m.fields...)
+			b.Select(m.GetFields()...)
 			return nil
 		}, false)
 		_ = info.Set(k, row)

@@ -7,20 +7,28 @@
     },
     "columns": [
         {
-            "label": "标题",
+            "label": "新闻标题",
             "name": "title",
             "size": 25,
             "type": "string"
         },
         {
-            "label": "分类",
+            "label": "新闻分类ID",
             "name": "category",
-            "type": "int"
+            "type": "uint",
+            "readonly": true
+        },
+        {
+            "label": "阅读量",
+            "name": "reading",
+            "type": "uint",
+            "default": 0,
+            "nullable": true
         },
         {
             "name": "content",
             "type": "string",
-            "label": "内容",
+            "label": "新闻正文",
             "validations": [
                 {
                     "method": "minLength",
@@ -35,7 +43,7 @@
         {
             "name": "topic",
             "type": "json",
-            "label": "话题"
+            "label": "话题IDs"
         }
     ],
     "values": [

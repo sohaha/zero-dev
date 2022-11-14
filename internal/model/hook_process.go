@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/sohaha/zlsgo/zjson"
+	"github.com/sohaha/zlsgo/zlog"
 	"github.com/sohaha/zlsgo/zstring"
 	"github.com/sohaha/zlsgo/ztype"
 )
@@ -18,6 +19,18 @@ func (m *Model) GetBeforeProcess(p []string) (fn []beforeProcess, err error) {
 			return nil, errors.New("before name not found")
 		case "json":
 			fn = append(fn, func(s interface{}) (string, error) {
+				zlog.Debug(s, ztype.GetType(s))
+				switch v := s.(type) {
+				case string:
+					if zjson.Valid(v) {
+						return v, nil
+					}
+					return " ", nil
+				case []interface{}:
+				case map[string]interface{}:
+				default:
+					return " ", nil
+				}
 				j, err := zjson.Marshal(s)
 				return zstring.Bytes2String(j), err
 			})

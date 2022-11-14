@@ -20,7 +20,7 @@
             "label": "email",
             "name": "email",
             "size": 25,
-            "read_only": true,
+            "readonly": true,
             "type": "string",
             "validations": [
                 {
