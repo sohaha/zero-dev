@@ -6,18 +6,27 @@ require (
 	github.com/arl/statsviz v0.5.1
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/sohaha/zlsgo v1.3.7
+	github.com/wapc/wapc-go v0.5.5
 	github.com/zlsgo/conf v0.0.0-20220614015108-b4ee9fc367b0
 	github.com/zlsgo/zdb v0.0.0-00010101000000-000000000000
 )
 
 require (
+	github.com/Workiva/go-datastructures v1.0.53 // indirect
+	github.com/dlclark/regexp2 v1.7.0 // indirect
+	github.com/dop251/goja v0.0.0-20221106173738-3b8a68ca89b4 // indirect
+	github.com/dop251/goja_nodejs v0.0.0-20220905124449-678b33ca5009 // indirect
+	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/tetratelabs/wazero v1.0.0-pre.3 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
+	golang.org/x/exp v0.0.0-20221031165847-c99f073a8326 // indirect
 )
 
 require (
+	github.com/alphadose/haxmap v1.2.0
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/glebarez/go-sqlite v1.17.3 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
@@ -41,10 +50,11 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.14.0
 	github.com/subosito/gotenv v1.4.1 // indirect
+	github.com/tx7do/go-js v0.0.0-20220909234857-52d3d46d719c
 	github.com/xeipuuv/gojsonschema v1.2.0
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d
 	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.0.0-20220908164124-27713097b956 // indirect
+	golang.org/x/sys v0.1.0 // indirect
 	golang.org/x/text v0.4.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
@@ -58,3 +68,5 @@ require (
 replace github.com/zlsgo/zdb => ../zdb_dev
 
 replace github.com/sohaha/zlsgo => ../zlsgo-dev
+
+replace github.com/sohaha/zstatic => ../zstatic

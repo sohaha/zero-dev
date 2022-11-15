@@ -10,3 +10,6 @@ tmp/app/model/category.model.json
 tmp/app/model/news.model.json
 tmp/app/model/topic.model.json
 tmp/app/module/.gitkeep
+vm/go/add.wasm
+vm/go/main.wasm
+zlsapp

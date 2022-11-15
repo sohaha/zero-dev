@@ -29,7 +29,7 @@ _____
 	err := zutil.TryCatch(func() error {
 		di, err := app.Init()
 		if err == nil {
-			di.Resolve(&c)
+			_ = di.Resolve(&c)
 
 			var router *znet.Engine
 			_, _ = di.Invoke(func(r *znet.Engine, l *loader.Loader) {
