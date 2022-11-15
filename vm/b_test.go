@@ -46,7 +46,7 @@ func Wa() error {
 
 	addWasm, err := zfile.ReadFile("./go/add.wasm")
 	// fmt.Println(err, len(addWasm))
-
+	_ = err
 	mod, err := r.InstantiateModuleFromBinary(ctx, addWasm)
 	if err != nil {
 		// fmt.Println(err)

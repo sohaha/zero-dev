@@ -27,7 +27,7 @@ func getSchema(schema []byte) []byte {
 				}
 				m, ok := v.(map[string]interface{})
 				if ok {
-					j.Set(k, removeKey(m))
+					_ = j.Set(k, removeKey(m))
 				}
 			}
 			return j

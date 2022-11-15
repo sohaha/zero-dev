@@ -4,8 +4,10 @@ go 1.18
 
 require (
 	github.com/arl/statsviz v0.5.1
+	github.com/dop251/goja v0.0.0-20221106173738-3b8a68ca89b4
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/sohaha/zlsgo v1.3.7
+	github.com/tetratelabs/wazero v1.0.0-pre.3
 	github.com/wapc/wapc-go v0.5.5
 	github.com/zlsgo/conf v0.0.0-20220614015108-b4ee9fc367b0
 	github.com/zlsgo/zdb v0.0.0-00010101000000-000000000000
@@ -14,12 +16,10 @@ require (
 require (
 	github.com/Workiva/go-datastructures v1.0.53 // indirect
 	github.com/dlclark/regexp2 v1.7.0 // indirect
-	github.com/dop251/goja v0.0.0-20221106173738-3b8a68ca89b4 // indirect
 	github.com/dop251/goja_nodejs v0.0.0-20220905124449-678b33ca5009 // indirect
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/tetratelabs/wazero v1.0.0-pre.3 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	golang.org/x/exp v0.0.0-20221031165847-c99f073a8326 // indirect

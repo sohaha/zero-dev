@@ -140,7 +140,7 @@ func (m *Migration) UpdateTable() error {
 		}
 		nf := schema.NewField(n.Name, schema.DataType(n.Type))
 		t := d.DataTypeOf(nf, true)
-		return strings.ToUpper(t) != strings.ToUpper(c.Get("type").String())
+		return !strings.EqualFold(t, c.Get("type").String())
 	}), func(i int, v *Column) string { return v.Name })
 
 	addColumns := zarray.Filter(newColumns, func(_ int, n string) bool {

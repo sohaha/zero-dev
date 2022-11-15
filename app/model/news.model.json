@@ -98,7 +98,7 @@
         "detail": {
             "title": "新闻详情",
             "columns": {},
-            "fields2": [
+            "fields": [
                 "title",
                 "topic",
                 "category",
