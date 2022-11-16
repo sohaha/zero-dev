@@ -62,7 +62,7 @@ func TestLua2(t *testing.T) {
 			// var fn func(int) int
 			var count int
 			t.Log(m.To(&count, "count"))
-			// ok := m.Method("fib", &fn)
+			// ok := m.Met			zhod("f						ib", &fn)
 			// t.Log(ok)
 			// t.Log(fn)
 		}()
