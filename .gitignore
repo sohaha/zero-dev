@@ -13,3 +13,4 @@ tmp/app/module/.gitkeep
 vm/go/add.wasm
 vm/go/main.wasm
 zlsapp
+common/vm/yaegi/main/main_linux_amd64
