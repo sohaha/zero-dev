@@ -1,14 +1,10 @@
-package model
+package parse
 
 import (
 	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/zjson"
 	"github.com/zlsgo/zdb/schema"
 )
-
-// func parseRelation(m *Model, c *Column) {
-
-// }
 
 func parseColumn(m *Model, c *Column) {
 	if c.ReadOnly {
@@ -44,55 +40,42 @@ func parseColumn(m *Model, c *Column) {
 			m.afterProcess[c.Name] = ps
 		}
 	}
-
-	parseValidRule(c)
-	parseOptions(c)
 }
 
-// ParseJSON 解析模型
-func ParseJSON(json []byte) (m *Model, err error) {
+// ParseModel 解析模型
+func ParseModel(json []byte) (m *Model, err error) {
+	err = ValidateModelSchema(json)
+	if err != nil {
+		return
+	}
 	err = zjson.Unmarshal(json, &m)
 	if err == nil {
 		m.Raw = json
-		// m.DB = db
 		m.readOnlyKeys = make([]string, 0)
 		m.cryptKeys = make(map[string]cryptProcess, 0)
 		m.afterProcess = make(map[string][]afterProcess, 0)
 		m.beforeProcess = make(map[string][]beforeProcess, 0)
 
-		// fillColumns(m)
 		m.fields = zarray.Map(m.Columns, func(_ int, c *Column) string {
 			parseColumn(m, c)
-			// parseRelation(m, c)
+
+			parseValidRule(c)
+
+			parseColumnOptions(c)
 			return c.Name
 		})
-		// m.fields = append(m.fields, IDKey)
-		fillView(m)
-		// m.relationKeys =
-		// convertRelation(m)
+
+		m.inlayFields = []string{IDKey}
+		if m.Options.Timestamps {
+			m.inlayFields = append(m.inlayFields, CreatedAtKey, UpdatedAtKey)
+		}
+
+		if m.Options.SoftDeletes {
+			m.inlayFields = append(m.inlayFields, DeletedAtKey)
+		}
+
+		m.fullFields = append([]string{IDKey}, m.fields...)
+		m.fullFields = zarray.Unique(append(m.fullFields, m.inlayFields...))
 	}
 	return
 }
-
-// func fillColumns(m *Model) {
-// 	if m.Options.SoftDeletes {
-// 		m.Columns = append(m.Columns, &Column{
-// 			Name:     DeletedAtKey,
-// 			Type:     schema.Int,
-// 			Nullable: false,
-// 			Comment:  "软删除时间",
-// 		})
-// 	}
-
-// 	if m.Options.Timestamps {
-// 		m.Columns = append(m.Columns, &Column{
-// 			Name:    CreatedAtKey,
-// 			Type:    schema.Time,
-// 			Comment: "创建时间",
-// 		}, &Column{
-// 			Name:    UpdatedAtKey,
-// 			Type:    schema.Time,
-// 			Comment: "更新时间",
-// 		})
-// 	}
-// }

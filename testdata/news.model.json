@@ -1,0 +1,100 @@
+{
+    "name": "新闻",
+    "table": {
+        "name": "news",
+        "comment": "新闻表"
+    },
+    "columns": [
+        {
+            "label": "新闻标题",
+            "name": "title",
+            "size": 25,
+            "type": "string"
+        },
+        {
+            "label": "新闻分类ID",
+            "name": "category",
+            "type": "uint",
+            "readonly": true
+        },
+        {
+            "label": "阅读量",
+            "name": "reading",
+            "type": "uint",
+            "default": 0,
+            "nullable": true
+        },
+        {
+            "name": "content",
+            "type": "string",
+            "label": "新闻正文",
+            "validations": [
+                {
+                    "method": "minLength",
+                    "args": 3
+                },
+                {
+                    "method": "maxLength",
+                    "args": 9999
+                }
+            ]
+        }
+    ],
+    "values": [
+        {
+            "id": 1,
+            "category": 1,
+            "title": "这是一条新闻标题",
+            "topic": [
+                1,
+                2,
+                3
+            ],
+            "content": "新闻内容：防疫快快过去了，大家都可以出去玩了"
+        },
+        {
+            "category": 1,
+            "topic": [
+                3
+            ],
+            "title": "新闻标题",
+            "content": "新闻内容：这是一条每次启动都会自动创建的新闻"
+        }
+    ],
+    "relations": {
+        "category": {
+            "model": "category",
+            "key": "category",
+            "foreign": "id",
+            "fields": [
+                "category_name"
+            ]
+        }
+    },
+    "options": {
+        "timestamps": true,
+        "soft_deletes": true
+    },
+    "views": {
+        "lists": {
+            "title": "新闻列表",
+            "fields": [
+                "title",
+                "topic",
+                "category",
+                "created_at"
+            ]
+        },
+        "detail": {
+            "title": "新闻详情",
+            "columns": {},
+            "fields": [
+                "title",
+                "topic",
+                "category",
+                "content",
+                "created_at"
+            ]
+        }
+    }
+}

@@ -1,7 +1,9 @@
 package loader
 
 import (
-	"zlsapp/internal/model"
+	"zlsapp/internal/mm"
+	"zlsapp/internal/model/storage"
+	"zlsapp/internal/model/storage/sql"
 	"zlsapp/service"
 
 	"github.com/sohaha/zlsgo/zerror"
@@ -20,11 +22,13 @@ func (l *Loader) newModeler() {
 	}
 
 	m := &Modeler{}
-	models := make(map[string]*model.Model, 0)
+	models := make(map[string]*mm.Model, 0)
 
 	_, err := l.Di.Invoke(func(db *zdb.DB, c *service.Conf) {
-		conf := c.Core()
-		m.Files = Scan("./app/", Model)
+		// conf := c.Core()
+		var dir string
+		m.Files, dir = Scan("./app/", Model)
+		l.Watch(dir)
 		for name, path := range m.Files {
 			safePath := zfile.SafePath(path)
 			json, err := zfile.ReadFile(path)
@@ -32,7 +36,9 @@ func (l *Loader) newModeler() {
 				l.err = zerror.With(err, "读取模型文件失败: "+safePath)
 				return
 			}
-			mv, err := model.Add(db, name, json, false)
+			mv, err := mm.Add(name, json, func(m *mm.Model) (storage.Storageer, error) {
+				return sql.New(db, m.Table.Name), nil
+			}, false)
 			if err != nil {
 				l.err = zerror.With(err, "添加模型失败: "+safePath)
 				return
@@ -47,11 +53,12 @@ func (l *Loader) newModeler() {
 		}
 
 		for path, v := range models {
-			err := v.Migration(conf.GetBool("migration.delete_column")).Auto()
-			if err != nil {
-				l.err = zerror.With(err, "模型迁移失败: "+path)
-				return
-			}
+			zlog.Error(path, v, "需要迁移")
+			// err := v.Migration(conf.GetBool("migration.delete_column")).Auto()
+			// if err != nil {
+			// 	l.err = zerror.With(err, "模型迁移失败: "+path)
+			// 	return
+			// }
 
 		}
 	})

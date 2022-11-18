@@ -2,6 +2,7 @@ package model
 
 import (
 	"zlsapp/internal/error_code"
+	"zlsapp/internal/model/storage"
 
 	"github.com/sohaha/zlsgo/zerror"
 	"github.com/sohaha/zlsgo/ztime"
@@ -15,6 +16,7 @@ type (
 		Schema  string `json:"$schema"`
 		Raw     []byte
 		DB      *zdb.DB
+		Storage storage.Storageer
 		Name    string           `json:"name"`
 		Path    string           `json:"-"`
 		Table   Table            `json:"table"`
@@ -44,14 +46,15 @@ type (
 	}
 )
 
-func (m *Model) Migration(deleteColumn bool) *Migration {
-	return &Migration{
-		Model:  *m,
-		Delete: deleteColumn,
-	}
+func (m *Model) Migration(deleteColumn bool) (*Migration, error) {
+	// s, ok := m.Storage.(*sql.SQL)
+	// if !ok {
+	return nil, ErrNotMigration
+	// }
+	// return s.NewMigration(), nil
 }
 
-func (m *Model) Insert(data ztype.Map) (lastId int64, err error) {
+func (m *Model) Insert(data ztype.Map) (lastId interface{}, err error) {
 	data, err = m.valuesBeforeProcess(data)
 	if err != nil {
 		return 0, err
@@ -71,7 +74,8 @@ func (m *Model) Insert(data ztype.Map) (lastId int64, err error) {
 		data[DeletedAtKey] = 0
 	}
 
-	return m.DB.InsertMaps(m.Table.Name, data)
+	return m.Storage.Insert(data)
+	// return m.DB.InsertMaps(m.Table.Name, data)
 }
 
 func (m *Model) Find(fn func(b *builder.SelectBuilder) error, force bool) (ztype.Maps, error) {

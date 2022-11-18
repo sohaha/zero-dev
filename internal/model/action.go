@@ -8,14 +8,16 @@ import (
 // ActionUpdate 更新数据
 func (m *Model) ActionUpdate(key interface{}, data ztype.Map) error {
 	_, err := m.Update(data, func(b *builder.UpdateBuilder) error {
-		b.Where(b.EQ(IDKey, key))
+		if key != nil {
+			b.Where(b.EQ(IDKey, key))
+		}
 		return nil
 	})
 	return err
 }
 
 // ActionCreate 创建数据
-func (m *Model) ActionCreate(data ztype.Map) (lastId int64, err error) {
+func (m *Model) ActionCreate(data ztype.Map) (lastId interface{}, err error) {
 	return m.Insert(data)
 }
 

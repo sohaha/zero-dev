@@ -13,21 +13,24 @@ type FileType uint8
 func (t FileType) String() string {
 	switch t {
 	case Model:
-		return "model"
+		return "models"
+	case Flow:
+		return "flows"
 	}
 	return ""
 }
 
 const (
 	Model FileType = iota + 1
+	Flow
 )
 
-func Scan(root string, filetype FileType) map[string]string {
-	files := make(map[string]string)
+func Scan(root string, filetype FileType) (files map[string]string, dir string) {
+	files = make(map[string]string)
 	root = zfile.RealPath(root, true)
 	suffix := "." + filetype.String() + ".json"
 
-	dir := zfile.RealPath(root + filetype.String())
+	dir = zfile.RealPath(root + filetype.String())
 	_ = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() && (zfile.RealPath(path) != dir) {
 			return filepath.SkipDir
@@ -57,5 +60,5 @@ func Scan(root string, filetype FileType) map[string]string {
 		return err
 	})
 
-	return files
+	return
 }

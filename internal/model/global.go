@@ -1,14 +1,13 @@
 package model
 
 import (
-	"errors"
 	"strings"
 	"zlsapp/internal/error_code"
+	"zlsapp/internal/model/storage"
 
 	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/zerror"
 	"github.com/sohaha/zlsgo/znet"
-	"github.com/zlsgo/zdb"
 )
 
 var globalModels = zarray.NewHashMap[string, *Model]()
@@ -17,18 +16,22 @@ func Get(name string) (*Model, bool) {
 	return globalModels.Get(name)
 }
 
-func Add(db *zdb.DB, name string, json []byte, force bool) (m *Model, err error) {
+func Add(name string, json []byte, bindStorage func(*Model) (storage.Storageer, error), force ...bool) (m *Model, err error) {
 	err = ValidateModelSchema(json)
 	if err != nil {
 		err = zerror.With(err, "模型("+name+")验证失败")
 		return
 	}
-	m, err = ParseJSON(db, json)
+	m, err = ParseJSON(json)
 	if err == nil {
+		m.Storage, err = bindStorage(m)
+		if err != nil {
+			return
+		}
 		name = strings.TrimSuffix(name, ".model.json")
 		name = strings.Replace(name, "/", "-", -1)
-		if _, ok := globalModels.Get(name); ok && !force {
-			return nil, errors.New("model(" + name + ") already exists")
+		if _, ok := globalModels.Get(name); ok && !(len(force) > 0 && force[0]) {
+			return nil, ErrModuleAlreadyExists
 		}
 		globalModels.Set(name, m)
 	}

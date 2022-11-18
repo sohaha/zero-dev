@@ -7,6 +7,6 @@ import (
 )
 
 func TestScan(t *testing.T) {
-	files := loader.Scan("../../app", loader.Model)
-	t.Log(files)
+	files, dir := loader.Scan("../../app", loader.Model)
+	t.Log(dir, files)
 }
