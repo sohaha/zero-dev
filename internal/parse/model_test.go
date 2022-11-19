@@ -114,7 +114,9 @@ func TestModelAction(t *testing.T) {
 	tt.NoError(err)
 	tt.Equal(int64(1), total)
 
-	row2, err := parse.FindOne(m, 2)
+	row2, err := parse.FindOne(m, ztype.Map{
+		"": "title = '第 2 篇'",
+	})
 	t.Log(row2)
 	tt.NoError(err)
 
