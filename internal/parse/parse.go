@@ -1,6 +1,8 @@
 package parse
 
 import (
+	"zlsapp/internal/parse/jsonschema"
+
 	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/zjson"
 	"github.com/zlsgo/zdb/schema"
@@ -44,7 +46,7 @@ func parseColumn(m *Model, c *Column) {
 
 // ParseModel 解析模型
 func ParseModel(json []byte) (m *Model, err error) {
-	err = ValidateModelSchema(json)
+	err = jsonschema.ValidateModelSchema(json)
 	if err != nil {
 		return
 	}

@@ -4,7 +4,6 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"time"
-	"zlsapp/internal/model/storage"
 
 	"github.com/sohaha/zlsgo/zstring"
 	"github.com/sohaha/zlsgo/ztime"
@@ -17,7 +16,7 @@ type (
 	Model struct {
 		Schema        string `json:"$schema"`
 		Raw           []byte
-		Storage       storage.Storageer
+		Storage       Storageer
 		Name          string               `json:"name"`
 		Path          string               `json:"-"`
 		Table         Table                `json:"table"`

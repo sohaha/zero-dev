@@ -2,7 +2,6 @@ package mm
 
 import (
 	"strings"
-	"zlsapp/internal/model/storage"
 	"zlsapp/internal/parse"
 
 	"github.com/sohaha/zlsgo/zarray"
@@ -18,7 +17,7 @@ func Get(name string) (*Model, bool) {
 	return globalModels.Get(name)
 }
 
-func Add(name string, json []byte, bindStorage func(*Model) (storage.Storageer, error), force ...bool) (*Model, error) {
+func Add(name string, json []byte, bindStorage func(*Model) (parse.Storageer, error), force ...bool) (*Model, error) {
 	p, err := parse.ParseModel(json)
 	if err != nil {
 		return nil, err

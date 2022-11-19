@@ -2,8 +2,8 @@ package loader
 
 import (
 	"zlsapp/internal/mm"
-	"zlsapp/internal/model/storage"
-	"zlsapp/internal/model/storage/sql"
+	"zlsapp/internal/parse/storage"
+	"zlsapp/internal/parse/storage/sql"
 	"zlsapp/service"
 
 	"github.com/sohaha/zlsgo/zerror"
