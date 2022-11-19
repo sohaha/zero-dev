@@ -7,7 +7,7 @@ import (
 	"github.com/zlsgo/zdb/schema"
 )
 
-func parseColumn(m *Model, c *Column) {
+func resolverColumn(m *Model, c *Column) {
 	if c.ReadOnly {
 		m.readOnlyKeys = append(m.readOnlyKeys, c.Name)
 	}

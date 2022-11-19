@@ -123,7 +123,7 @@ func VerifiData(data ztype.Map, columns []*Column, active activeType) (ztype.Map
 	return d, nil
 }
 
-func parseColumnOptions(c *Column) {
+func resolverColumnOptions(c *Column) {
 	if len(c.Options) > 0 {
 		c.validRules = c.validRules.EnumString(zarray.Map(c.Options, func(_ int, v ColumnEnum) string {
 			return v.Value
@@ -131,7 +131,7 @@ func parseColumnOptions(c *Column) {
 	}
 }
 
-func parseValidRule(c *Column) {
+func resolverValidRule(c *Column) {
 	label := c.GetLabel()
 	rule := zvalid.New().SetAlias(label)
 

@@ -7,6 +7,7 @@ import (
 
 	"github.com/sohaha/zlsgo/zstring"
 	"github.com/sohaha/zlsgo/ztime"
+	"github.com/sohaha/zlsgo/ztype"
 	"github.com/zlsgo/zdb"
 )
 
@@ -15,11 +16,12 @@ type (
 		Schema        string `json:"$schema"`
 		Raw           []byte
 		Storage       Storageer
-		Name          string               `json:"name"`
-		Path          string               `json:"-"`
-		Table         Table                `json:"table"`
-		Columns       []*Column            `json:"columns"`
-		Views         map[string]*View     `json:"views"`
+		Name          string           `json:"name"`
+		Path          string           `json:"-"`
+		Table         Table            `json:"table"`
+		Columns       []*Column        `json:"columns"`
+		Views         map[string]*View `json:"views"`
+		views         ztype.Map
 		Relations     map[string]*relation `json:"relations"`
 		Values        []interface{}        `json:"values"`
 		fields        []string

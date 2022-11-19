@@ -12,11 +12,13 @@ func InitModel(m *Model) {
 	m.afterProcess = make(map[string][]afterProcess, 0)
 	m.beforeProcess = make(map[string][]beforeProcess, 0)
 	m.fields = zarray.Map(m.Columns, func(_ int, c *Column) string {
-		parseColumn(m, c)
+		resolverColumn(m, c)
 
-		parseValidRule(c)
+		resolverValidRule(c)
 
-		parseColumnOptions(c)
+		resolverColumnOptions(c)
+
+		resolverView(m)
 		return c.Name
 	})
 

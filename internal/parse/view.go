@@ -1,86 +1,96 @@
 package parse
 
+import (
+	"github.com/sohaha/zlsgo/zarray"
+	"github.com/sohaha/zlsgo/ztype"
+	"github.com/sohaha/zlsgo/zutil"
+)
+
 type View struct {
 	Title   string        `json:"title"`
 	Fields  []string      `json:"fields"`
 	Filters []interface{} `json:"filters"`
 }
 
-// func resolverViewLists(m *Model) ztype.Map {
-// 	columns := make(map[string]ztype.Map, 0)
-// 	data, ok := m.Views["lists"]
+func resolverViewLists(m *Model) ztype.Map {
+	columns := make(map[string]ztype.Map, 0)
+	data, ok := m.Views["lists"]
+	if !ok {
+		data = &View{}
+	}
 
-// 	fields := []string{IDKey}
-// 	if ok {
-// 		fields = append(fields, data.Fields...)
-// 	}
+	fields := []string{IDKey}
+	if ok {
+		fields = append(fields, data.Fields...)
+	}
 
-// 	if len(fields) == 1 {
-// 		fields = append(fields, m.GetFields()...)
-// 	}
+	if len(fields) == 1 {
+		fields = append(fields, m.GetFields()...)
+	}
 
-// 	fields = zarray.Unique(fields)
+	fields = zarray.Unique(fields)
 
-// 	for _, v := range fields {
-// 		column, ok := m.getColumn(v)
-// 		if !ok {
-// 			continue
-// 		}
-// 		columns[column.Name] = ztype.Map{
-// 			"title": column.Label,
-// 			"type":  column.Type,
-// 		}
-// 	}
+	for _, v := range fields {
+		column, ok := m.GetColumn(v)
+		if !ok {
+			continue
+		}
+		columns[column.Name] = ztype.Map{
+			"title": column.Label,
+			"type":  column.Type,
+		}
+	}
 
-// 	info := ztype.Map{
-// 		"title":   zutil.IfVal(data.Title != "", data.Title, m.Name+""),
-// 		"columns": columns,
-// 		"fields":  fields,
-// 	}
-// 	return info
-// }
+	info := ztype.Map{
+		"title":   zutil.IfVal(data.Title != "", data.Title, m.Name+""),
+		"columns": columns,
+		"fields":  fields,
+	}
+	return info
+}
 
-// func resolverViewInfo(m *Model) ztype.Map {
-// 	info := ztype.Map{}
+func resolverViewInfo(m *Model) ztype.Map {
+	info := ztype.Map{}
 
-// 	data, ok := m.Views["detail"]
-// 	columns := make(map[string]ztype.Map, 0)
+	data, ok := m.Views["detail"]
+	if !ok {
+		data = &View{}
+	}
 
-// 	fields := []string{IDKey}
-// 	if ok {
-// 		fields = append(fields, data.Fields...)
-// 	}
+	columns := make(map[string]ztype.Map, 0)
 
-// 	if len(fields) == 1 {
-// 		fields = append(fields, m.GetFields()...)
-// 	}
+	fields := []string{IDKey}
+	if ok {
+		fields = append(fields, data.Fields...)
+	}
 
-// 	fields = zarray.Unique(fields)
-// 	for _, v := range fields {
-// 		column, ok := m.getColumn(v)
-// 		if !ok {
-// 			continue
-// 		}
-// 		columns[column.Name] = ztype.Map{
-// 			"label":    column.Label,
-// 			"type":     column.Type,
-// 			"readonly": column.ReadOnly,
-// 			"disabled": m.isInlayField(v),
-// 		}
-// 	}
+	if len(fields) == 1 {
+		fields = append(fields, m.GetFields()...)
+	}
 
-// 	info["columns"] = columns
-// 	info["fields"] = fields
-// 	return info
-// }
+	fields = zarray.Unique(fields)
+	for _, v := range fields {
+		column, ok := m.GetColumn(v)
+		if !ok {
+			continue
+		}
+		columns[column.Name] = ztype.Map{
+			"label":    column.Label,
+			"type":     column.Type,
+			"readonly": column.ReadOnly,
+			"disabled": m.isInlayField(v),
+		}
+	}
 
-// func resolverView(m *Model) ztype.Map {
-// 	views := ztype.Map{
-// 		"model": m.Name,
-// 	}
+	info["columns"] = columns
+	info["fields"] = fields
+	return info
+}
 
-// 	views["lists"] = resolverViewLists(m)
+func resolverView(m *Model) {
+	m.views = ztype.Map{}
 
-// 	views["detail"] = resolverViewInfo(m)
-// 	return views
-// }
+	m.views["lists"] = resolverViewLists(m)
+
+	m.views["detail"] = resolverViewInfo(m)
+}
