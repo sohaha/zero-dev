@@ -41,9 +41,16 @@ func TestModel(t *testing.T) {
 	tt.Equal(parse.ErrModuleAlreadyExists, err)
 	t.Log(err)
 
-	m, err := initModel(true)
+	_, err = initModel(true)
 	tt.NoError(err)
 	t.Log(err)
+}
+
+func TestModelAction(t *testing.T) {
+	tt := zlsgo.NewTest(t)
+
+	m, err := initModel(true)
+	tt.NoError(err)
 
 	id, err := parse.Insert(m, map[string]interface{}{
 		"title":    "test",
@@ -92,7 +99,39 @@ func TestModel(t *testing.T) {
 		v = rows[i].Get(parse.IDKey).Int()
 	}
 
-	// _, err = m.Delete()
+	row, err = parse.FindOne(m, 2)
+	t.Log(row)
+	tt.NoError(err)
+
+	update := ztype.Map{
+		"title":    "第 2 篇",
+		"category": 2,
+		"content":  "替换新闻",
+		"key":      "new",
+	}
+
+	total, err := parse.Update(m, "2", update)
+	tt.NoError(err)
+	tt.Equal(int64(1), total)
+
+	row2, err := parse.FindOne(m, 2)
+	t.Log(row2)
+	tt.NoError(err)
+
+	tt.EqualTrue(row2.Get("title").String() != row.Get("title").String())
+	tt.EqualTrue(row2.Get("category").String() == row.Get("category").String())
+	tt.EqualTrue(row2.Get("content").String() != row.Get("content").String())
+	tt.EqualTrue(row2.Get("key").String() == row.Get("key").String())
+
+	total, err = parse.Delete(m, 2)
+	tt.NoError(err)
+	tt.Equal(int64(1), total)
+
+	row, err = parse.FindOne(m, 2)
+	t.Log(row)
+
+	tt.Equal(zdb.ErrNotFound, err)
+
 }
 
 func initDB() (*zdb.DB, error) {

@@ -35,12 +35,15 @@ func filterDate(data ztype.Map, fields []string) ztype.Map {
 	return n
 }
 
-// CheckData 验证数据
-func CheckData(data ztype.Map, columns []*Column, active activeType) (ztype.Map, error) {
+// VerifiData 验证数据
+func VerifiData(data ztype.Map, columns []*Column, active activeType) (ztype.Map, error) {
 	d := make(ztype.Map, len(columns))
 	for _, column := range columns {
-		name := column.Name
-		label := column.Label
+		if active == activeUpdate && column.ReadOnly {
+			continue
+		}
+
+		name, label := column.Name, column.Label
 		if label == "" {
 			label = name
 		}
@@ -48,13 +51,13 @@ func CheckData(data ztype.Map, columns []*Column, active activeType) (ztype.Map,
 		v, ok := data[name]
 
 		{
-			if !ok {
+			if !ok && active != activeUpdate {
 				if column.Default != nil {
 					v = column.Default
 					ok = true
 				}
 			}
-			if !ok && active != activeUpdate && !column.Nullable {
+			if !ok && !column.Nullable {
 				return d, errors.New(label + "不能为空")
 			}
 		}
@@ -116,6 +119,7 @@ func CheckData(data ztype.Map, columns []*Column, active activeType) (ztype.Map,
 			}
 		}
 	}
+
 	return d, nil
 }
 

@@ -272,7 +272,7 @@ func TestCheckData(t *testing.T) {
 		wg.Add(1)
 		t.Run(tt.name, func(t *testing.T) {
 			defer wg.Done()
-			got, err := CheckData(tt.args.data, tt.args.columns, tt.args.active)
+			got, err := VerifiData(tt.args.data, tt.args.columns, tt.args.active)
 			if err != nil {
 				if !tt.wantErr {
 					t.Errorf("error = %v", err)

@@ -3,12 +3,9 @@ package parse
 import (
 	"errors"
 	"strings"
-	"zlsapp/internal/error_code"
 
-	"github.com/sohaha/zlsgo/zerror"
 	"github.com/sohaha/zlsgo/zstring"
 	"github.com/sohaha/zlsgo/ztype"
-	"github.com/zlsgo/zdb"
 	"github.com/zlsgo/zdb/builder"
 )
 
@@ -107,9 +104,6 @@ func (s *SQL) FindOne(filter ztype.Map, fn ...StorageOptionFn) (ztype.Map, error
 		return rows[0], nil
 	}
 
-	if err == zdb.ErrRecordNotFound {
-		return ztype.Map{}, zerror.Wrap(err, zerror.ErrCode(error_code.NotFound), "")
-	}
 	return ztype.Map{}, err
 }
 
@@ -121,7 +115,7 @@ func (s *SQL) Find(filter ztype.Map, fn ...StorageOptionFn) (ztype.Maps, error) 
 		}
 	}
 	fields := o.Fields
-	rows, err := s.db.Find(s.table, func(b *builder.SelectBuilder) error {
+	return s.db.Find(s.table, func(b *builder.SelectBuilder) error {
 		if len(fields) > 0 {
 			b.Select(fields...)
 		}
@@ -148,11 +142,6 @@ func (s *SQL) Find(filter ztype.Map, fn ...StorageOptionFn) (ztype.Maps, error) 
 		}
 		return nil
 	})
-
-	if err == zdb.ErrRecordNotFound {
-		return ztype.Maps{}, zerror.Wrap(err, zerror.ErrCode(error_code.NotFound), "")
-	}
-	return rows, nil
 }
 
 func (s *SQL) Update(data ztype.Map, filter ztype.Map, fn ...StorageOptionFn) (int64, error) {
@@ -183,6 +172,7 @@ func (s *SQL) Update(data ztype.Map, filter ztype.Map, fn ...StorageOptionFn) (i
 				}
 			}
 		}
+
 		return nil
 	})
 }

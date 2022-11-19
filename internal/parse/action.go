@@ -7,7 +7,7 @@ import (
 )
 
 type Filter interface {
-	ztype.Map | constraints.Integer
+	ztype.Map | constraints.Integer | string
 }
 
 func getFilter[T Filter](filter T) ztype.Map {
@@ -34,7 +34,7 @@ func Insert(m *Model, data ztype.Map) (lastId interface{}, err error) {
 		return 0, err
 	}
 
-	data, err = CheckData(data, m.Columns, activeCreate)
+	data, err = VerifiData(data, m.Columns, activeCreate)
 	if err != nil {
 		return 0, err
 	}
@@ -55,6 +55,19 @@ func Delete[T Filter](m *Model, filter T, fn ...StorageOptionFn) (int64, error) 
 	return m.Storage.Delete(getFilter(filter), fn...)
 }
 
-func Update[T Filter](m *Model, filter T, data ztype.Map, fn ...StorageOptionFn) (int64, error) {
-	return m.Storage.Update(getFilter(filter), data, fn...)
+func Update[T Filter](m *Model, filter T, data ztype.Map, fn ...StorageOptionFn) (total int64, err error) {
+	data = filterDate(data, m.readOnlyKeys)
+
+	data, err = m.valuesBeforeProcess(data)
+
+	if err != nil {
+		return 0, err
+	}
+
+	data, err = VerifiData(data, m.Columns, activeUpdate)
+	if err != nil {
+		return 0, err
+	}
+
+	return m.Storage.Update(data, getFilter(filter), fn...)
 }
