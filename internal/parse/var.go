@@ -7,9 +7,7 @@ import (
 
 	"github.com/sohaha/zlsgo/zstring"
 	"github.com/sohaha/zlsgo/ztime"
-	"github.com/sohaha/zlsgo/zvalid"
 	"github.com/zlsgo/zdb"
-	"github.com/zlsgo/zdb/schema"
 )
 
 type (
@@ -55,25 +53,6 @@ type (
 		Fields  []string `json:"fields"`
 	}
 
-	Column struct {
-		Default     interface{}     `json:"default"`
-		Unique      interface{}     `json:"unique"`
-		Index       interface{}     `json:"index"`
-		Crypt       string          `json:"crypt"`
-		Name        string          `json:"name"`
-		Comment     string          `json:"comment"`
-		Label       string          `json:"label"`
-		Type        schema.DataType `json:"type"`
-		Validations []validations   `json:"validations"`
-		Options     []ColumnEnum    `json:"options"`
-		Before      []string        `json:"before"`
-		After       []string        `json:"after"`
-		validRules  zvalid.Engine   `json:"-"`
-		Size        uint64          `json:"size"`
-		ReadOnly    bool            `json:"readonly"`
-		Nullable    bool            `json:"nullable"`
-	}
-
 	validations struct {
 		Args    interface{} `json:"args"`
 		Method  string      `json:"method"`
@@ -87,7 +66,7 @@ type (
 )
 
 const (
-	IDKey        = "id"
+	IDKey        = "_id"
 	CreatedAtKey = "created_at"
 	UpdatedAtKey = "updated_at"
 	DeletedAtKey = "deleted_at"
@@ -138,7 +117,6 @@ func (t DataTime) String() string {
 	return ztime.FormatTime(t.Time)
 }
 
-// Scan value of time.Time
 func (t *DataTime) Scan(v interface{}) error {
 	value, ok := v.(time.Time)
 	if ok {

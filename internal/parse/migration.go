@@ -1,5 +1,5 @@
 package parse
 
-func (m *Model) Migration(deleteColumn bool) Migrationer {
-	return m.Storage.Migration(m, deleteColumn)
+func (m *Model) Migration() Migrationer {
+	return m.Storage.Migration(m)
 }

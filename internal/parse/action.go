@@ -3,13 +3,32 @@ package parse
 import (
 	"github.com/sohaha/zlsgo/ztime"
 	"github.com/sohaha/zlsgo/ztype"
+	"golang.org/x/exp/constraints"
 )
 
-func (m *Model) FindAll(filter ztype.Map, options StorageOptions) (ztype.Maps, error) {
-	return m.Storage.FindAll(filter, options)
+type Filter interface {
+	ztype.Map | constraints.Integer
 }
 
-func (m *Model) Insert(data ztype.Map) (lastId interface{}, err error) {
+func getFilter[T Filter](filter T) ztype.Map {
+	var v interface{} = filter
+	if val, ok := v.(ztype.Map); ok {
+		return val
+	}
+	return ztype.Map{
+		IDKey: filter,
+	}
+}
+
+func Find[T Filter](m *Model, filter T, fn ...StorageOptionFn) (ztype.Maps, error) {
+	return m.Storage.Find(getFilter(filter), fn...)
+}
+
+func FindOne[T Filter](m *Model, filter T, fn ...StorageOptionFn) (ztype.Map, error) {
+	return m.Storage.FindOne(getFilter(filter), fn...)
+}
+
+func Insert(m *Model, data ztype.Map) (lastId interface{}, err error) {
 	data, err = m.valuesBeforeProcess(data)
 	if err != nil {
 		return 0, err
@@ -30,4 +49,12 @@ func (m *Model) Insert(data ztype.Map) (lastId interface{}, err error) {
 	}
 
 	return m.Storage.Insert(data)
+}
+
+func Delete[T Filter](m *Model, filter T, fn ...StorageOptionFn) (int64, error) {
+	return m.Storage.Delete(getFilter(filter), fn...)
+}
+
+func Update[T Filter](m *Model, filter T, data ztype.Map, fn ...StorageOptionFn) (int64, error) {
+	return m.Storage.Update(getFilter(filter), data, fn...)
 }

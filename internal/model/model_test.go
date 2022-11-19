@@ -60,7 +60,7 @@ func getModel(force bool) (*model.Model, error) {
 		return s, nil
 	}, force)
 	if err == nil {
-		err = m.Migration(false).Auto()
+		// err = m.Migration().Auto(false)
 	}
 	return m, err
 }

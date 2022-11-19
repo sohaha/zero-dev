@@ -7,7 +7,6 @@ require (
 	github.com/d5/tengo/v2 v2.13.0
 	github.com/dop251/goja v0.0.0-20221106173738-3b8a68ca89b4
 	github.com/golang-jwt/jwt v3.2.2+incompatible
-	github.com/rjeczalik/notify v0.9.2
 	github.com/sohaha/zlsgo v1.3.7
 	github.com/tetratelabs/wazero v1.0.0-pre.3
 	github.com/traefik/yaegi v0.14.3
@@ -57,7 +56,7 @@ require (
 
 require (
 	github.com/alphadose/haxmap v1.2.0
-	github.com/fsnotify/fsnotify v1.6.0 // indirect
+	github.com/fsnotify/fsnotify v1.6.0
 	github.com/glebarez/go-sqlite v1.17.3 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect

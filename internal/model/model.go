@@ -46,7 +46,7 @@ type (
 	}
 )
 
-func (m *Model) Migration(deleteColumn bool) (*Migration, error) {
+func (m *Model) Migration() (*Migration, error) {
 	// s, ok := m.Storage.(*sql.SQL)
 	// if !ok {
 	return nil, ErrNotMigration
@@ -79,7 +79,7 @@ func (m *Model) Insert(data ztype.Map) (lastId interface{}, err error) {
 }
 
 func (m *Model) Find(fn func(b *builder.SelectBuilder) error, force bool) (ztype.Maps, error) {
-	rows, err := m.DB.FindAll(m.Table.Name, func(b *builder.SelectBuilder) error {
+	rows, err := m.DB.Find(m.Table.Name, func(b *builder.SelectBuilder) error {
 		if !force && m.Options.SoftDeletes {
 			b.Where(b.EQ(DeletedAtKey, 0))
 		}

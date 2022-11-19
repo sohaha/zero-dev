@@ -14,12 +14,11 @@ import (
 )
 
 type Migration struct {
-	Model  *Model
-	DB     *zdb.DB
-	Delete bool
+	Model *Model
+	DB    *zdb.DB
 }
 
-func (m *Migration) Auto() (err error) {
+func (m *Migration) Auto(deleteColumn bool) (err error) {
 	if m.Model.Table.Name == "" {
 		return errors.New("表名不能为空")
 	}
@@ -35,7 +34,7 @@ func (m *Migration) Auto() (err error) {
 		return
 	}
 
-	err = m.UpdateTable()
+	err = m.UpdateTable(deleteColumn)
 	if err != nil {
 		return
 	}
@@ -46,7 +45,10 @@ func (m *Migration) Auto() (err error) {
 
 func (m *Migration) InitValue(all bool) error {
 	if !all {
-		row, _ := m.Model.Storage.FindOne(nil, []string{"COUNT(*) AS count"})
+		row, _ := m.Model.Storage.FindOne(nil, func(o *StorageOptions) error {
+			o.Fields = []string{"COUNT(*) AS count"}
+			return nil
+		})
 		all = row.Get("count").Int() == 0
 	}
 	for _, v := range m.Model.Values {
@@ -60,7 +62,7 @@ func (m *Migration) InitValue(all bool) error {
 			}
 		}
 
-		_, err := m.Model.Insert(data)
+		_, err := Insert(m.Model, data)
 		if err != nil {
 			return zerror.With(err, "初始化数据失败")
 		}
@@ -74,6 +76,7 @@ func (m *Migration) HasTable() bool {
 
 	sql, values, process := table.Has()
 	res, err := m.DB.QueryToMaps(sql, values...)
+
 	if err != nil {
 		return false
 	}
@@ -81,7 +84,7 @@ func (m *Migration) HasTable() bool {
 	return process(res)
 }
 
-func (m *Migration) UpdateTable() error {
+func (m *Migration) UpdateTable(deleteColumn bool) error {
 	table := builder.NewTable(m.Model.Table.Name)
 	d := table.GetDriver()
 
@@ -136,7 +139,7 @@ func (m *Migration) UpdateTable() error {
 	})
 
 	for _, v := range deleteColumns {
-		if m.Delete {
+		if deleteColumn {
 			sql, values = table.DropColumn(v)
 		} else {
 			sql, values = table.RenameColumn(v, deleteFieldPrefix+v)
@@ -184,7 +187,7 @@ func (m *Migration) UpdateTable() error {
 			f.Size = c.Size
 		})
 
-		if !m.Delete {
+		if !deleteColumn {
 			recovery := deleteFieldPrefix + v
 			_, ok := zarray.Find(oldColumns, func(i int, n string) bool {
 				return n == recovery

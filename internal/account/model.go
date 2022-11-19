@@ -2,6 +2,7 @@ package account
 
 import (
 	"zlsapp/internal/model"
+	"zlsapp/internal/parse"
 
 	"github.com/sohaha/zlsgo/zerror"
 	"github.com/sohaha/zlsgo/zjson"
@@ -120,20 +121,22 @@ func userModel(db *zdb.DB) error {
 		},
 	})
 
-	m, err := model.Add(db, UserModel, json, false)
+	m, err := parse.AddModel(UserModel, json, func(m *parse.Model) (parse.Storageer, error) {
+		return parse.NewSQL(db, m.Table.Name), nil
+	}, false)
 
 	if err != nil {
 		return err
 	}
 
-	if !m.HasTable() {
+	if !m.Migration().HasTable() {
 		zlog.Success("初始化管理账号：")
 		for _, v := range defAccount {
 			zlog.Printf("        账号：%s 密码：%s\n", v["account"], v["password"])
 		}
 	}
 
-	err = m.Migration(true).Auto()
+	err = m.Migration().Auto(true)
 	if err != nil {
 		return zerror.With(err, "用户模型初始化失败")
 	}
@@ -222,10 +225,12 @@ func logsModel(db *zdb.DB) error {
 		},
 	})
 
-	m, err := model.Add(db, LogsModel, json, false)
+	m, err := parse.AddModel(LogsModel, json, func(m *parse.Model) (parse.Storageer, error) {
+		return parse.NewSQL(db, m.Table.Name), nil
+	}, false)
 	if err != nil {
 		return err
 	}
 
-	return m.Migration(true).Auto()
+	return m.Migration().Auto(true)
 }

@@ -11,7 +11,7 @@ type SQL struct {
 
 // var _ storage.Storageer = (*SQL)(nil)
 
-func New(db *zdb.DB, table string) Storageer {
+func NewSQL(db *zdb.DB, table string) Storageer {
 	return &SQL{
 		db:    db,
 		table: table,
@@ -20,10 +20,9 @@ func New(db *zdb.DB, table string) Storageer {
 
 // var _ storage.Migrationer = (*Migration)(nil)
 
-func (s *SQL) Migration(model *Model, deleteColumn bool) Migrationer {
+func (s *SQL) Migration(model *Model) Migrationer {
 	return &Migration{
-		Model:  model,
-		DB:     s.db,
-		Delete: deleteColumn,
+		Model: model,
+		DB:    s.db,
 	}
 }

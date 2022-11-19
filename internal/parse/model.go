@@ -2,20 +2,38 @@ package parse
 
 import (
 	"github.com/sohaha/zlsgo/zarray"
-	"github.com/sohaha/zlsgo/zvalid"
+	"github.com/sohaha/zlsgo/zjson"
 	"github.com/zlsgo/zdb/schema"
 )
 
-func (c *Column) GetValidations() zvalid.Engine {
-	return c.validRules
-}
+func InitModel(m *Model) {
+	m.readOnlyKeys = make([]string, 0)
+	m.cryptKeys = make(map[string]cryptProcess, 0)
+	m.afterProcess = make(map[string][]afterProcess, 0)
+	m.beforeProcess = make(map[string][]beforeProcess, 0)
+	m.fields = zarray.Map(m.Columns, func(_ int, c *Column) string {
+		parseColumn(m, c)
 
-func (c *Column) GetLabel() string {
-	label := c.Label
-	if label == "" {
-		label = c.Name
+		parseValidRule(c)
+
+		parseColumnOptions(c)
+		return c.Name
+	})
+
+	m.inlayFields = []string{IDKey}
+	if m.Options.Timestamps {
+		m.inlayFields = append(m.inlayFields, CreatedAtKey, UpdatedAtKey)
 	}
-	return label
+
+	if m.Options.SoftDeletes {
+		m.inlayFields = append(m.inlayFields, DeletedAtKey)
+	}
+
+	m.fullFields = append([]string{IDKey}, m.fields...)
+	m.fullFields = zarray.Unique(append(m.fullFields, m.inlayFields...))
+	if m.Raw == nil {
+		m.Raw, _ = zjson.Marshal(m)
+	}
 }
 
 func (m *Model) isInlayField(field string) bool {

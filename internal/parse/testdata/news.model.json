@@ -18,6 +18,14 @@
             "readonly": true
         },
         {
+            "label": "标识",
+            "name": "key",
+            "crypt": "md5",
+            "nullable": true,
+            "readonly": true,
+            "type": "string"
+        },
+        {
             "label": "阅读量",
             "name": "reading",
             "type": "uint",
@@ -44,6 +52,7 @@
         {
             "id": 1,
             "category": 1,
+            "key": "123456",
             "title": "这是一条新闻标题",
             "content": "新闻内容：防疫快快过去了，大家都可以出去玩了"
         },

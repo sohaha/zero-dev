@@ -3,7 +3,6 @@ package parse
 import (
 	"zlsapp/internal/parse/jsonschema"
 
-	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/zjson"
 	"github.com/zlsgo/zdb/schema"
 )
@@ -53,31 +52,7 @@ func ParseModel(json []byte) (m *Model, err error) {
 	err = zjson.Unmarshal(json, &m)
 	if err == nil {
 		m.Raw = json
-		m.readOnlyKeys = make([]string, 0)
-		m.cryptKeys = make(map[string]cryptProcess, 0)
-		m.afterProcess = make(map[string][]afterProcess, 0)
-		m.beforeProcess = make(map[string][]beforeProcess, 0)
-
-		m.fields = zarray.Map(m.Columns, func(_ int, c *Column) string {
-			parseColumn(m, c)
-
-			parseValidRule(c)
-
-			parseColumnOptions(c)
-			return c.Name
-		})
-
-		m.inlayFields = []string{IDKey}
-		if m.Options.Timestamps {
-			m.inlayFields = append(m.inlayFields, CreatedAtKey, UpdatedAtKey)
-		}
-
-		if m.Options.SoftDeletes {
-			m.inlayFields = append(m.inlayFields, DeletedAtKey)
-		}
-
-		m.fullFields = append([]string{IDKey}, m.fields...)
-		m.fullFields = zarray.Unique(append(m.fullFields, m.inlayFields...))
+		InitModel(m)
 	}
 	return
 }

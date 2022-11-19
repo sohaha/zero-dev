@@ -9,6 +9,7 @@ import (
 	"github.com/sohaha/zlsgo"
 	"github.com/sohaha/zlsgo/zfile"
 	"github.com/sohaha/zlsgo/zlog"
+	"github.com/sohaha/zlsgo/ztype"
 	"github.com/zlsgo/zdb"
 	"github.com/zlsgo/zdb/driver/sqlite3"
 )
@@ -37,7 +38,7 @@ func TestMain(m *testing.M) {
 func TestModel(t *testing.T) {
 	tt := zlsgo.NewTest(t)
 
-	m2, err := initModel(false)
+	_, err := initModel(false)
 	tt.Equal(mm.ErrModuleAlreadyExists, err)
 	zlog.Debug(err)
 
@@ -45,8 +46,14 @@ func TestModel(t *testing.T) {
 	tt.NoError(err)
 	zlog.Debug(err)
 
-	_ = m2
-	_ = m3
+	row, err := m3.FindOne(ztype.Map{
+		"id >": 1,
+		"id":   3,
+		"":     "reading != 11",
+	})
+	tt.NoError(err)
+	tt.Equal(3, row.Get(parse.IDKey).Int())
+	t.Log(row)
 
 	rows, err := m3.FindAll(nil, parse.StorageOptions{
 		Fields:  []string{"id"},
@@ -56,7 +63,6 @@ func TestModel(t *testing.T) {
 
 	l := len(rows)
 	tt.EqualTrue(l > 0)
-
 	t.Log(l)
 	v := rows[0].Get("id").Int()
 	for i := 1; i < l-1; i++ {
