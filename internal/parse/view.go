@@ -94,3 +94,7 @@ func resolverView(m *Modeler) {
 
 	m.views["detail"] = resolverViewInfo(m)
 }
+
+func (m *Modeler) GetView() ztype.Map {
+	return m.views
+}

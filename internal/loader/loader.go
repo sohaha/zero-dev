@@ -31,7 +31,7 @@ func Init(di zdi.Injector) *Loader {
 		watcher: watcher,
 	}
 
-	// l.newModeler()
+	l.newModeler()
 	zerror.Panic(l.err)
 
 	go pollEvents(watcher)

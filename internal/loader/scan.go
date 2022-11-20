@@ -10,12 +10,22 @@ import (
 
 type FileType uint8
 
-func (t FileType) String() string {
+func (t FileType) Dir() string {
 	switch t {
 	case Model:
 		return "models"
 	case Flow:
 		return "flows"
+	}
+	return ""
+}
+
+func (t FileType) Suffix() string {
+	switch t {
+	case Model:
+		return ".model.json"
+	case Flow:
+		return ".flow.json"
 	}
 	return ""
 }
@@ -28,9 +38,9 @@ const (
 func Scan(root string, filetype FileType) (files map[string]string, dir string) {
 	files = make(map[string]string)
 	root = zfile.RealPath(root, true)
-	suffix := "." + filetype.String() + ".json"
+	suffix := filetype.Suffix()
 
-	dir = zfile.RealPath(root + filetype.String())
+	dir = zfile.RealPath(root + filetype.Dir())
 	_ = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() && (zfile.RealPath(path) != dir) {
 			return filepath.SkipDir

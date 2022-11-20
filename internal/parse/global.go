@@ -10,6 +10,10 @@ func GetModel(name string) (*Modeler, bool) {
 	return globalModels.Get(name)
 }
 
+func ModelsForEach(fn func(key string, m *Modeler) bool) {
+	globalModels.ForEach(fn)
+}
+
 func AddModel(name string, json []byte, bindStorage func(*Modeler) (Storageer, error), force ...bool) (*Modeler, error) {
 	m, err := ParseModel(json)
 	if err != nil {

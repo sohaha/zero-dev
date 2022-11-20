@@ -1,9 +1,9 @@
 package app
 
 import (
+	"zlsapp/common/restapi"
 	"zlsapp/controller"
 	"zlsapp/internal/account"
-	"zlsapp/internal/model"
 	"zlsapp/internal/open"
 	"zlsapp/service"
 
@@ -20,8 +20,11 @@ func InitRouter(_ *service.Conf) []service.Router {
 		&account.Account{
 			Path: "/manage/base",
 		},
-		model.NewRestApi(),
-		model.NewManageRestApi(),
+		&restapi.ManageRestApi{
+			Path: "/manage/model",
+		},
+		// model.NewRestApi(),
+		// model.NewManageRestApi(),
 	}
 }
 
