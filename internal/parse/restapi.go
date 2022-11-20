@@ -9,6 +9,7 @@ import (
 	"github.com/sohaha/zlsgo/znet"
 	"github.com/sohaha/zlsgo/ztype"
 	"github.com/sohaha/zlsgo/zvalid"
+	"github.com/zlsgo/zdb"
 )
 
 func GetPages(c *znet.Context) (page, pagesize int, err error) {
@@ -40,7 +41,11 @@ func restApiInfo(m *Modeler, key string, hasPrefix bool, fn ...StorageOptionFn) 
 		}
 	}
 
-	return FindOne(m, filter, fn...)
+	row, err := FindOne(m, filter, fn...)
+	if err != nil && err == zdb.ErrNotFound {
+		err = errors.New("记录不存在")
+	}
+	return row, err
 }
 
 func RestapiGetInfo(c *znet.Context, m *Modeler) (interface{}, error) {
@@ -202,10 +207,7 @@ func RestapiDelete(c *znet.Context, m *Modeler) (interface{}, error) {
 		return nil, err
 	}
 
-	_, err = Delete(m, key, func(so *StorageOptions) error {
-		so.Limit = 1
-		return nil
-	})
+	_, err = Delete(m, key)
 
 	return nil, err
 }
