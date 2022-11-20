@@ -114,10 +114,10 @@ func (s *SQL) Find(filter ztype.Map, fn ...StorageOptionFn) (ztype.Maps, error) 
 			return nil, err
 		}
 	}
-	fields := o.Fields
+
 	return s.db.Find(s.table, func(b *builder.SelectBuilder) error {
-		if len(fields) > 0 {
-			b.Select(fields...)
+		if len(o.Fields) > 0 {
+			b.Select(o.Fields...)
 		}
 
 		exprs, err := s.parseExprs(&b.Cond, filter)
@@ -142,6 +142,50 @@ func (s *SQL) Find(filter ztype.Map, fn ...StorageOptionFn) (ztype.Maps, error) 
 		}
 		return nil
 	})
+}
+
+func (s *SQL) Pages(page, pagesize int, filter ztype.Map, fn ...StorageOptionFn) (ztype.Maps, Page, error) {
+	o := StorageOptions{}
+	for _, f := range fn {
+		if err := f(&o); err != nil {
+			return nil, Page{}, err
+		}
+	}
+
+	rows, p, err := s.db.Pages(s.table, page, pagesize, func(b *builder.SelectBuilder) error {
+		if len(o.Fields) > 0 {
+			b.Select(o.Fields...)
+		}
+
+		exprs, err := s.parseExprs(&b.Cond, filter)
+		if err != nil {
+			return err
+		}
+
+		if len(exprs) > 0 {
+			b.Where(exprs...)
+		}
+
+		if len(o.OrderBy) > 0 {
+			for k, v := range o.OrderBy {
+				if v == -1 {
+					b.OrderBy(k + " DESC")
+				}
+			}
+		}
+
+		if o.Limit > 0 {
+			b.Limit(o.Limit)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, Page{}, err
+	}
+
+	return rows, Page{
+		p,
+	}, nil
 }
 
 func (s *SQL) Update(data ztype.Map, filter ztype.Map, fn ...StorageOptionFn) (int64, error) {

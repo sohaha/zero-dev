@@ -28,6 +28,23 @@ func getFilter[T Filter](m *Modeler, filter T) ztype.Map {
 	return val
 }
 
+func Pages[T Filter](m *Modeler, page, pagesize int, filter T, fn ...StorageOptionFn) (ztype.Maps, Page, error) {
+	return m.Storage.Pages(page, pagesize, getFilter(m, filter), func(so *StorageOptions) error {
+		if len(fn) > 0 {
+			if err := fn[0](so); err != nil {
+				return err
+			}
+		}
+		if len(so.Fields) > 0 {
+			so.Fields = zarray.Filter(so.Fields, func(_ int, f string) bool {
+				return zarray.Contains(m.fullFields, f)
+			})
+		}
+
+		return nil
+	})
+}
+
 func Find[T Filter](m *Modeler, filter T, fn ...StorageOptionFn) (ztype.Maps, error) {
 	return m.Storage.Find(getFilter(m, filter), func(so *StorageOptions) error {
 		if len(fn) > 0 {

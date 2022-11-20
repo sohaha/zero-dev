@@ -126,6 +126,14 @@ func TestModelAction(t *testing.T) {
 	tt.EqualTrue(row2.Get("content").String() != row.Get("content").String())
 	tt.EqualTrue(row2.Get("key").String() == row.Get("key").String())
 
+	items, pages, err := parse.Pages(m, 2, 2, ztype.Map{}, func(so *parse.StorageOptions) error {
+		so.Fields = []string{parse.IDKey}
+		return nil
+	})
+	tt.NoError(err)
+	t.Log(items)
+	t.Log(pages)
+
 	total, err = parse.Delete(m, 2)
 	tt.NoError(err)
 	tt.Equal(int64(1), total)
