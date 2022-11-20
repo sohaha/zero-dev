@@ -57,7 +57,7 @@ func VerifiData(data ztype.Map, columns []*Column, active activeType) (ztype.Map
 					ok = true
 				}
 			}
-			if !ok && !column.Nullable {
+			if !ok && !column.Nullable && active != activeUpdate {
 				return d, errors.New(label + "不能为空")
 			}
 		}

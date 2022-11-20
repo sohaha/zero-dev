@@ -1,7 +1,6 @@
 package account
 
 import (
-	"zlsapp/internal/model"
 	"zlsapp/internal/parse"
 
 	"github.com/sohaha/zlsgo/zerror"
@@ -85,7 +84,7 @@ func userModel(db *zdb.DB) error {
 			"type":  "int8",
 			"size":  9,
 			"label": "状态",
-			"enum": []model.ColumnEnum{
+			"enum": []parse.ColumnEnum{
 				{Value: "0", Label: "待激活"},
 				{Value: "1", Label: "正常"},
 				{Value: "2", Label: "禁用"},
@@ -210,7 +209,7 @@ func logsModel(db *zdb.DB) error {
 			"size":    9,
 			"label":   "状态",
 			"default": 2,
-			"enum": []model.ColumnEnum{
+			"enum": []parse.ColumnEnum{
 				{Value: "1", Label: "未读"},
 				{Value: "2", Label: "已读"},
 			},

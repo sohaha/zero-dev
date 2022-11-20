@@ -29,7 +29,7 @@ func getFilter[T Filter](m *Modeler, filter T) ztype.Map {
 }
 
 func Pages[T Filter](m *Modeler, page, pagesize int, filter T, fn ...StorageOptionFn) (ztype.Maps, Page, error) {
-	return m.Storage.Pages(page, pagesize, getFilter(m, filter), func(so *StorageOptions) error {
+	rows, pages, err := m.Storage.Pages(page, pagesize, getFilter(m, filter), func(so *StorageOptions) error {
 		if len(fn) > 0 {
 			if err := fn[0](so); err != nil {
 				return err
@@ -43,10 +43,28 @@ func Pages[T Filter](m *Modeler, page, pagesize int, filter T, fn ...StorageOpti
 
 		return nil
 	})
+	if err != nil {
+		return rows, pages, err
+	}
+
+	if len(m.afterProcess) > 0 {
+		for i := range rows {
+			row := rows[i]
+			for k, v := range m.afterProcess {
+				if _, ok := row[k]; ok {
+					row[k], err = v[0](row.Get(k).String())
+					if err != nil {
+						return rows, pages, err
+					}
+				}
+			}
+		}
+	}
+	return rows, pages, nil
 }
 
 func Find[T Filter](m *Modeler, filter T, fn ...StorageOptionFn) (ztype.Maps, error) {
-	return m.Storage.Find(getFilter(m, filter), func(so *StorageOptions) error {
+	rows, err := m.Storage.Find(getFilter(m, filter), func(so *StorageOptions) error {
 		if len(fn) > 0 {
 			if err := fn[0](so); err != nil {
 				return err
@@ -60,6 +78,24 @@ func Find[T Filter](m *Modeler, filter T, fn ...StorageOptionFn) (ztype.Maps, er
 
 		return nil
 	})
+	if err != nil {
+		return rows, err
+	}
+
+	if len(m.afterProcess) > 0 {
+		for i := range rows {
+			row := rows[i]
+			for k, v := range m.afterProcess {
+				if _, ok := row[k]; ok {
+					row[k], err = v[0](row.Get(k).String())
+					if err != nil {
+						return nil, err
+					}
+				}
+			}
+		}
+	}
+	return rows, nil
 }
 
 func FindOne[T Filter](m *Modeler, filter T, fn ...StorageOptionFn) (ztype.Map, error) {

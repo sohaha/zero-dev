@@ -8,7 +8,7 @@ import (
 	"zlsapp/common/hashid"
 	"zlsapp/common/jwt"
 	"zlsapp/internal/error_code"
-	"zlsapp/internal/model"
+	"zlsapp/internal/parse"
 
 	gjwt "github.com/golang-jwt/jwt"
 	"github.com/sohaha/zlsgo/zcache"
@@ -17,37 +17,29 @@ import (
 	"github.com/sohaha/zlsgo/zstring"
 	"github.com/sohaha/zlsgo/ztype"
 	"github.com/speps/go-hashids/v2"
-	"github.com/zlsgo/zdb/builder"
 )
 
 type AccountHandlers struct {
-	Model  *model.Model
+	Model  *parse.Modeler
 	hashid *hashids.HashID
 }
 
 func (h *AccountHandlers) Update(id interface{}, update ztype.Map) error {
-	row, err := h.Model.FindOne(func(b *builder.SelectBuilder) error {
-		b.Where(b.EQ(model.IDKey, id))
-		return nil
-	}, true)
-
+	filter := ztype.Map{
+		parse.IDKey: id,
+	}
+	row, err := parse.FindOne(h.Model, filter)
 	if row.IsEmpty() || err != nil {
 		return errors.New("账号不存在")
 	}
-	update, err = model.CheckData(update, h.Model.Columns, 2)
-	if err != nil {
-		return error_code.InvalidInput.Error(err)
-	}
 
-	_, err = h.Model.Update(update, func(b *builder.UpdateBuilder) error {
-		b.Where(b.EQ(model.IDKey, id))
-		return nil
-	})
+	_, err = parse.Update(h.Model, filter, update)
+	zlog.Debug(update, filter, err)
 	if err != nil {
 		return err
 	}
 
-	_, _ = h.Cache().Delete(row.Get(model.IDKey).String())
+	_, _ = h.Cache().Delete(row.Get(parse.IDKey).String())
 
 	return nil
 }
@@ -60,10 +52,7 @@ func (h *AccountHandlers) CacheForID(uid interface{}) (row ztype.Map, err error)
 	idStr := ztype.ToString(uid)
 	data, err := h.Cache().MustGet(idStr, func(set func(data interface{},
 		lifeSpan time.Duration, interval ...bool)) (err error) {
-		row, err := h.Model.FindOne(func(b *builder.SelectBuilder) error {
-			b.EQ(model.IDKey, uid)
-			return nil
-		}, false)
+		row, err := parse.FindOne(h.Model, ztype.Map{parse.IDKey: uid})
 
 		if row.IsEmpty() {
 			return errors.New("账号不存在: " + idStr)
@@ -93,9 +82,9 @@ func (h *AccountHandlers) CreateManageToken(user ztype.Map, key string, expire i
 	var err error
 
 	if h.Model.Options.CryptID {
-		i := user.Get(model.IDKey).Int64()
+		i := user.Get(parse.IDKey).Int64()
 		if i == 0 {
-			id = user.Get(model.IDKey).String()
+			id = user.Get(parse.IDKey).String()
 		} else {
 			id, err = hashid.EncryptID(h.hashid, i)
 			if err != nil {
@@ -103,7 +92,7 @@ func (h *AccountHandlers) CreateManageToken(user ztype.Map, key string, expire i
 			}
 		}
 	} else {
-		id = user.Get(model.IDKey).String()
+		id = user.Get(parse.IDKey).String()
 	}
 
 	if id == "" {

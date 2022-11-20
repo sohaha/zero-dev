@@ -6,7 +6,7 @@ import (
 	"zlsapp/internal/error_code"
 	"zlsapp/service"
 
-	"zlsapp/internal/model"
+	"zlsapp/internal/parse"
 
 	"github.com/sohaha/zlsgo/zcache"
 	"github.com/sohaha/zlsgo/zerror"
@@ -16,14 +16,13 @@ import (
 	"github.com/sohaha/zlsgo/ztype"
 	"github.com/sohaha/zlsgo/zvalid"
 	"github.com/speps/go-hashids/v2"
-	"github.com/zlsgo/zdb/builder"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type Account struct {
 	service.App
 	failedCache *zcache.Table
-	Model       *model.Model
+	Model       *parse.Modeler
 	Handlers    *AccountHandlers
 	Path        string
 }
@@ -45,7 +44,7 @@ func (h *Account) loginFailed(c *znet.Context) {
 func (h *Account) logout(user ztype.Map) error {
 	salt := zstring.Rand(8)
 	_ = user.Set("salt", salt)
-	return h.Handlers.Update(user.Get(model.IDKey).Value(), map[string]interface{}{
+	return h.Handlers.Update(user.Get(parse.IDKey).Value(), map[string]interface{}{
 		"salt": salt,
 		// "updated_at": time.Now(),
 		"login_time": ztime.Time(),
@@ -54,7 +53,7 @@ func (h *Account) logout(user ztype.Map) error {
 
 func (h *Account) Init(r *znet.Engine) {
 	var ok bool
-	h.Model, ok = model.Get(UserModel)
+	h.Model, ok = parse.GetModel(UserModel)
 	if !ok {
 		zerror.Panic(errors.New("model account not found"))
 	}
@@ -92,10 +91,9 @@ func (h *Account) PostLogin(c *znet.Context) error {
 		return error_code.InvalidInput.Text("请输入密码")
 	}
 
-	user, err := h.Model.FindOne(func(b *builder.SelectBuilder) error {
-		b.Where(b.EQ("account", account))
-		return nil
-	}, false)
+	user, err := parse.FindOne(h.Model, ztype.Map{
+		"account": account,
+	})
 	if user.IsEmpty() {
 		return error_code.InvalidInput.Text("账号或密码错误")
 	}
@@ -103,9 +101,6 @@ func (h *Account) PostLogin(c *znet.Context) error {
 		return err
 	}
 
-	if user.IsEmpty() {
-		return error_code.InvalidInput.Text("账号或密码错误")
-	}
 	userPassword := user.Get("password").String()
 
 	err = bcrypt.CompareHashAndPassword(zstring.String2Bytes(userPassword), zstring.String2Bytes(password))
@@ -131,7 +126,7 @@ func (h *Account) PostLogin(c *znet.Context) error {
 		// 	// 新登录之后清除该用户的其他端登录状态
 		err = h.logout(user)
 	} else {
-		err = h.Handlers.Update(user.Get(model.IDKey).Value(), map[string]interface{}{
+		err = h.Handlers.Update(user.Get(parse.IDKey).Value(), map[string]interface{}{
 			"login_time": ztime.Time(),
 		})
 	}
@@ -156,12 +151,12 @@ func (h *Account) GetMessage(c *znet.Context) (interface{}, error) {
 
 // GetMe 获取当前用户信息
 func (h *Account) GetMe(c *znet.Context) (interface{}, error) {
-	uid := common.GetUID(c)
-	info, err := h.Model.FindOne(func(b *builder.SelectBuilder) error {
-		b.Where(b.EQ(model.IDKey, uid))
-		b.Select(h.Model.GetFields("password", "salt")...)
+	info, err := parse.FindOne(h.Model, ztype.Map{
+		parse.IDKey: common.GetUID(c),
+	}, func(so *parse.StorageOptions) error {
+		so.Fields = h.Model.GetFields("password", "salt")
 		return nil
-	}, false)
+	})
 	return ztype.Map{
 		"info": info,
 	}, err

@@ -1,7 +1,7 @@
 package account
 
 import (
-	"zlsapp/internal/model"
+	"zlsapp/internal/parse"
 
 	"github.com/sohaha/zlsgo/zdi"
 	"github.com/sohaha/zlsgo/zerror"
@@ -10,7 +10,7 @@ import (
 	"github.com/zlsgo/zdb"
 )
 
-func migration(di zdi.Invoker) (m *model.Model, err error) {
+func migration(di zdi.Invoker) (m *parse.Modeler, err error) {
 	_, diErr := di.Invoke(func(db *zdb.DB) {
 		zerror.Panic(userModel(db))
 		zerror.Panic(logsModel(db))
@@ -20,14 +20,14 @@ func migration(di zdi.Invoker) (m *model.Model, err error) {
 		return nil, diErr
 	}
 
-	m, _ = model.Get(UserModel)
+	m, _ = parse.GetModel(UserModel)
 	return
 }
 
 func defaultAccount() ztype.Maps {
 	return ztype.Maps{
 		{
-			model.IDKey: 1,
+			parse.IDKey: 1,
 			"account":   "manage",
 			"password":  "123456",
 			"status":    1,

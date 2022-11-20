@@ -39,29 +39,6 @@ func (m *Modeler) GetBeforeProcess(p []string) (fn []beforeProcess, err error) {
 	return
 }
 
-type afterProcess func(string) (interface{}, error)
-
-func (m *Modeler) GetAfterProcess(p []string) (fn []afterProcess, err error) {
-	for _, v := range p {
-		switch strings.ToLower(v) {
-		default:
-			return nil, errors.New("after name not found")
-		case "json":
-			fn = append(fn, func(s string) (interface{}, error) {
-				j := zjson.Parse(s)
-				if !j.Exists() {
-					return nil, errors.New("json parse error")
-				}
-				if j.IsArray() {
-					return j.Slice().Value(), nil
-				}
-				return j.MapString(), nil
-			})
-		}
-	}
-	return
-}
-
 func (m *Modeler) valuesBeforeProcess(data ztype.Map) (newData ztype.Map, err error) {
 	for k := range m.cryptKeys {
 		if _, ok := data[k]; ok {
@@ -88,5 +65,28 @@ func (m *Modeler) valuesBeforeProcess(data ztype.Map) (newData ztype.Map, err er
 		_ = data.Set(name, v)
 	}
 	newData = data
+	return
+}
+
+type afterProcess func(string) (interface{}, error)
+
+func (m *Modeler) GetAfterProcess(p []string) (fn []afterProcess, err error) {
+	for _, v := range p {
+		switch strings.ToLower(v) {
+		default:
+			return nil, errors.New("after name not found")
+		case "json":
+			fn = append(fn, func(s string) (interface{}, error) {
+				j := zjson.Parse(s)
+				if !j.Exists() {
+					return nil, errors.New("json parse error")
+				}
+				if j.IsArray() {
+					return j.Slice().Value(), nil
+				}
+				return j.MapString(), nil
+			})
+		}
+	}
 	return
 }

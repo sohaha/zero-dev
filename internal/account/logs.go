@@ -3,7 +3,7 @@ package account
 import (
 	"errors"
 	"zlsapp/common"
-	"zlsapp/internal/model"
+	"zlsapp/internal/parse"
 
 	"github.com/sohaha/zlsgo/znet"
 	"github.com/sohaha/zlsgo/ztype"
@@ -19,7 +19,7 @@ func WrapLogs(c *znet.Context, action, remark string, hint ...bool) error {
 }
 
 func CreateLogs(uid, action, remark, ip, userAgent string, status int) error {
-	m, ok := model.Get(LogsModel)
+	m, ok := parse.GetModel(LogsModel)
 	if !ok {
 		return errors.New("model(" + LogsModel + ") not found")
 	}
@@ -32,6 +32,6 @@ func CreateLogs(uid, action, remark, ip, userAgent string, status int) error {
 		"user_agent": userAgent,
 		"status":     status,
 	}
-	_, err := m.Insert(data)
+	_, err := parse.Insert(m, data)
 	return err
 }

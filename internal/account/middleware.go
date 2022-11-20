@@ -6,7 +6,7 @@ import (
 	"zlsapp/grbac"
 	"zlsapp/grbac/meta"
 	"zlsapp/internal/error_code"
-	"zlsapp/internal/model"
+	"zlsapp/internal/parse"
 	"zlsapp/service"
 
 	_ "embed"
@@ -42,6 +42,7 @@ func NewMiddleware(app *service.App) znet.Handler {
 	rbac, err := grbac.New(loaderOptions, options)
 	zerror.Panic(err)
 
+	// todo 后台前端界面不需要权限
 	pubPath := []string{"/manage/base/login", "/admin*"}
 
 	m, err := migration(app.Di)
@@ -64,9 +65,6 @@ func NewMiddleware(app *service.App) znet.Handler {
 				return nil
 			}
 		}
-		// if zarray.Contains(pubPath, path) {
-
-		// }
 
 		q, err := rbac.NewQueryByRequest(c.Request)
 		if err != nil {
@@ -97,7 +95,6 @@ func NewMiddleware(app *service.App) znet.Handler {
 		}
 
 		roles := user.Get("roles").Slice().String()
-		c.WithValue("uid", user.Get(model.IDKey).Value())
 
 		state, err := q.IsRolesGranted(roles)
 		if err != nil {
@@ -108,6 +105,7 @@ func NewMiddleware(app *service.App) znet.Handler {
 			return error_code.PermissionDenied.Text("权限不足")
 		}
 
+		c.WithValue("uid", user.Get(parse.IDKey).Value())
 		c.Next()
 		return nil
 	}
