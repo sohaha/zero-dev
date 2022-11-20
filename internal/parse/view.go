@@ -36,8 +36,9 @@ func resolverViewLists(m *Modeler) ztype.Map {
 			continue
 		}
 		columns[column.Name] = ztype.Map{
-			"title": column.Label,
-			"type":  column.Type,
+			"title":   column.Label,
+			"type":    column.Type,
+			"options": column.Options,
 		}
 	}
 
@@ -78,6 +79,7 @@ func resolverViewInfo(m *Modeler) ztype.Map {
 			"label":    column.Label,
 			"type":     column.Type,
 			"readonly": column.ReadOnly,
+			"options":  column.Options,
 			"disabled": m.isInlayField(v),
 		}
 	}
