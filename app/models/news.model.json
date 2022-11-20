@@ -101,14 +101,7 @@
         },
         "detail": {
             "title": "新闻详情",
-            "columns": {},
-            "fields": [
-                "title",
-                "topic",
-                "category",
-                "content",
-                "created_at"
-            ]
+            "columns": {}
         }
     }
 }

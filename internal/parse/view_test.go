@@ -12,5 +12,6 @@ func TestModelView(t *testing.T) {
 	m, err := initModel(true)
 	tt.NoError(err)
 
-	t.Log(m.GetView().Get("lists"))
+	t.Log(m.GetView().Get("detail"))
+
 }
