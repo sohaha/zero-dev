@@ -190,6 +190,7 @@ func (s *SQL) Pages(page, pagesize int, filter ztype.Map, fn ...StorageOptionFn)
 		if o.Limit > 0 {
 			b.Limit(o.Limit)
 		}
+
 		return nil
 	})
 	if err != nil {
