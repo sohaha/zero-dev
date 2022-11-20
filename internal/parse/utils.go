@@ -28,7 +28,7 @@ func GetViewFields(m *Modeler, view string) []string {
 	if !ok {
 		return []string{}
 	}
-	return v.Fields
+	return zarray.Unique(append(v.Fields, IDKey))
 }
 
 func GetRequestFields(c *znet.Context, m *Modeler, quote bool) []string {

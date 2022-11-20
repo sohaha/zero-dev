@@ -1,9 +1,9 @@
 package parse
 
 import (
+	"encoding/json"
 	"zlsapp/internal/parse/jsonschema"
 
-	"github.com/sohaha/zlsgo/zjson"
 	"github.com/zlsgo/zdb/schema"
 )
 
@@ -44,14 +44,15 @@ func resolverColumn(m *Modeler, c *Column) {
 }
 
 // ParseModel 解析模型
-func ParseModel(json []byte) (m *Modeler, err error) {
-	err = jsonschema.ValidateModelSchema(json)
+func ParseModel(j []byte) (m *Modeler, err error) {
+	err = jsonschema.ValidateModelSchema(j)
 	if err != nil {
 		return
 	}
-	err = zjson.Unmarshal(json, &m)
+	err = json.Unmarshal(j, &m)
+
 	if err == nil {
-		m.Raw = json
+		m.Raw = j
 		InitModel(m)
 	}
 	return

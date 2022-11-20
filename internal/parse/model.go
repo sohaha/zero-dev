@@ -18,7 +18,6 @@ func InitModel(m *Modeler) {
 
 		resolverColumnOptions(c)
 
-		resolverView(m)
 		return c.Name
 	})
 
@@ -27,9 +26,9 @@ func InitModel(m *Modeler) {
 		m.inlayFields = append(m.inlayFields, CreatedAtKey, UpdatedAtKey)
 	}
 
-	if m.Options.SoftDeletes {
-		m.inlayFields = append(m.inlayFields, DeletedAtKey)
-	}
+	// if m.Options.SoftDeletes {
+	// 	m.inlayFields = append(m.inlayFields, DeletedAtKey)
+	// }
 
 	m.fullFields = append([]string{IDKey}, m.fields...)
 	m.fullFields = zarray.Unique(append(m.fullFields, m.inlayFields...))
@@ -44,6 +43,8 @@ func InitModel(m *Modeler) {
 			}
 		}
 	}
+
+	resolverView(m)
 }
 
 func (m *Modeler) isInlayField(field string) bool {
@@ -105,8 +106,9 @@ func (m *Modeler) GetColumn(name string) (*Column, bool) {
 		if name == DeletedAtKey {
 			return &Column{
 				Name:  name,
-				Type:  schema.Time,
-				Label: "删除时间"}, true
+				Type:  schema.Int,
+				Size:  11,
+				Label: "删除时间戳"}, true
 		}
 	}
 

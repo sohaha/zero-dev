@@ -128,6 +128,7 @@ func RestapiGetPage(c *znet.Context, m *Modeler) (interface{}, error) {
 	}
 
 	fields := GetViewFields(m, "lists")
+
 	finalFields, tmpFields, quote, with, withMany := getFinalFields(m, c, fields)
 
 	filter := ztype.Map{}
