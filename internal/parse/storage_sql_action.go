@@ -155,11 +155,11 @@ func (s *SQL) Find(filter ztype.Map, fn ...StorageOptionFn) (ztype.Maps, error) 
 	})
 }
 
-func (s *SQL) Pages(page, pagesize int, filter ztype.Map, fn ...StorageOptionFn) (ztype.Maps, Page, error) {
+func (s *SQL) Pages(page, pagesize int, filter ztype.Map, fn ...StorageOptionFn) (ztype.Maps, PageInfo, error) {
 	o := StorageOptions{}
 	for _, f := range fn {
 		if err := f(&o); err != nil {
-			return nil, Page{}, err
+			return nil, PageInfo{}, err
 		}
 	}
 
@@ -185,16 +185,22 @@ func (s *SQL) Pages(page, pagesize int, filter ztype.Map, fn ...StorageOptionFn)
 			}
 		}
 
+		if len(o.Join) > 0 {
+			for _, v := range o.Join {
+				b.JoinWithOption("", b.As(v.Table, v.As), v.Expr)
+			}
+		}
+
 		if o.Limit > 0 {
 			b.Limit(o.Limit)
 		}
 		return nil
 	})
 	if err != nil {
-		return nil, Page{}, err
+		return nil, PageInfo{}, err
 	}
 
-	return rows, Page{
+	return rows, PageInfo{
 		p,
 	}, nil
 }

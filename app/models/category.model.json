@@ -44,15 +44,27 @@
   "relations": {
     "post": {
       "model": "news",
-      "key": "id",
-      "foreign": "category"
+      "key": "_id",
+      "foreign": "category",
+      "fields": [
+        "title",
+        "topic"
+      ]
     }
   },
   "values": [
     {
+      "_id": 1,
       "parent_id": 0,
       "category_name": "二次元",
       "description": "动漫相关",
+      "status": 1
+    },
+    {
+      "_id": 2,
+      "parent_id": 0,
+      "category_name": "三次元",
+      "description": "生活相关",
       "status": 1
     }
   ],

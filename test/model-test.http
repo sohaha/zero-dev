@@ -4,7 +4,7 @@ GET {{host}}/model/news
 Authorization: Basic {{token}}
 
 ### 新闻列表-关联分类
-GET {{host}}/model/news?with=category&fields=title,content,created_at
+GET {{host}}/model/news?with=category&fields=title,content,created_at,topic
 Authorization: Basic {{token}}
 
 ### 分类列表-关联新闻

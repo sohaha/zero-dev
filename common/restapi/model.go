@@ -26,12 +26,11 @@ func (h *RestApi) Init(g *znet.Engine) {
 		return nil
 	})
 
-	// g.GET(":model", func(c *znet.Context) (interface{}, error) {
-	// 	m := c.MustValue("model").(*parse.Modeler)
-	// 	parse.Pages()
-	// 	return nil, nil
-	// 	// return c.MustValue("model").(*Model).restApiGetPage(c)
-	// })
+	g.GET(":model", func(c *znet.Context) (interface{}, error) {
+		m := c.MustValue("model").(*parse.Modeler)
+
+		return parse.RestapiGetPage(c, m)
+	})
 
 	g.GET(":model/:key", func(c *znet.Context) (interface{}, error) {
 		m := c.MustValue("model").(*parse.Modeler)

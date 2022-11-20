@@ -3,11 +3,32 @@ package parse
 import (
 	"errors"
 	"strings"
+	"zlsapp/internal/error_code"
 
 	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/znet"
 	"github.com/sohaha/zlsgo/ztype"
+	"github.com/sohaha/zlsgo/zvalid"
 )
+
+func GetPages(c *znet.Context) (page, pagesize int, err error) {
+	rule := c.ValidRule().IsNumber().MinInt(1)
+	err = zvalid.Batch(
+		zvalid.BatchVar(&page, c.Valid(rule, "page", "页码").Customize(func(rawValue string, err error) (string, error) {
+			if err != nil || rawValue == "" {
+				return "1", err
+			}
+			return rawValue, nil
+		})),
+		zvalid.BatchVar(&pagesize, c.Valid(rule, "pagesize", "数量").MaxInt(1000).Customize(func(rawValue string, err error) (string, error) {
+			if err != nil || rawValue == "" {
+				return "10", err
+			}
+			return rawValue, nil
+		})),
+	)
+	return
+}
 
 func restApiInfo(m *Modeler, key string, hasPrefix bool, fn ...StorageOptionFn) (ztype.Map, error) {
 	filter := ztype.Map{}
@@ -95,6 +116,68 @@ func RestapiGetInfo(c *znet.Context, m *Modeler) (interface{}, error) {
 
 }
 
+func RestapiGetPage(c *znet.Context, m *Modeler) (interface{}, error) {
+	page, pagesize, err := GetPages(c)
+	if err != nil {
+		return nil, error_code.InvalidInput.Error(err)
+	}
+
+	fields := GetViewFields(m, "lists")
+	finalFields, tmpFields, quote, with, withMany := getFinalFields(m, c, fields)
+
+	filter := ztype.Map{}
+
+	rows, pageInfo, err := Pages(m, page, pagesize, filter, func(so *StorageOptions) error {
+		idKey := IDKey
+		if quote {
+			table := m.Table.Name
+			for k, v := range with {
+				m, ok := GetModel(v.Model)
+				if !ok {
+					return errors.New("关联模型(" + v.Model + ")不存在")
+				}
+
+				t := m.Table.Name
+				asName := k
+				so.Join = append(so.Join, StorageJoin{
+					Table: t,
+					As:    k,
+					Expr:  asName + "." + v.Foreign + " = " + table + "." + v.Key,
+				})
+
+				if len(v.Fields) > 0 {
+					finalFields = append(finalFields, zarray.Map(v.Fields, func(_ int, v string) string {
+						return asName + "." + v
+					})...)
+				} else {
+					finalFields = append(finalFields, asName+".*")
+				}
+			}
+			so.OrderBy = map[string]int8{table + "." + idKey: -1}
+		}
+
+		so.Fields = finalFields
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	_ = withMany
+	for _, info := range rows {
+		for _, v := range tmpFields {
+			_ = info.Delete(v)
+		}
+	}
+
+	return ztype.Map{
+		"items": rows,
+		"page":  pageInfo,
+	}, nil
+
+}
+
 // func restApiDelete(m *Modeler,c *znet.Context) (interface{}, error) {
 // 	key := c.GetParam("key")
 // 	_, err := m.restApiInfo(key, false)
@@ -117,67 +200,6 @@ func RestapiGetInfo(c *znet.Context, m *Modeler) (interface{}, error) {
 // 	}
 
 // 	return nil, err
-// }
-
-// func restApiGetPage(m *Modeler,c *znet.Context) (interface{}, error) {
-// 	page, pagesize, err := GetPages(c)
-// 	if err != nil {
-// 		return nil, error_code.InvalidInput.Error(err)
-// 	}
-
-// 	fields := GetViewFields(m, "lists")
-// 	finalFields, tmpFields, quote, with, withMany := getFinalFields(m, c, fields)
-
-// 	rows, pages, err := m.DB.Pages(m.Table.Name, page, pagesize, func(b *builder.SelectBuilder) error {
-// 		deletedAtKey := DeletedAtKey
-// 		idKey := IDKey
-// 		if quote {
-// 			table := m.Table.Name
-// 			for k, v := range with {
-// 				m, ok := Get(v.Model)
-// 				if !ok {
-// 					return errors.New("关联模型(" + v.Model + ")不存在")
-// 				}
-
-// 				t := m.Table.Name
-// 				asName := k
-// 				b.JoinWithOption("", b.As(t, asName),
-// 					asName+"."+v.Foreign+" = "+table+"."+v.Key,
-// 				)
-// 				if len(v.Fields) > 0 {
-// 					finalFields = append(finalFields, zarray.Map(v.Fields, func(_ int, v string) string {
-// 						return asName + "." + v
-// 					})...)
-// 				} else {
-// 					finalFields = append(finalFields, asName+".*")
-// 				}
-// 			}
-// 			b.Desc(table + "." + IDKey)
-// 			deletedAtKey = m.Table.Name + "." + DeletedAtKey
-// 			idKey = m.Table.Name + "." + IDKey
-// 		}
-
-// 		b.Select(finalFields...)
-// 		b.Desc(idKey)
-// 		if m.Options.SoftDeletes {
-// 			b.Where(b.EQ(deletedAtKey, 0))
-// 		}
-// 		return nil
-// 	})
-
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	_ = withMany
-// 	for _, info := range rows {
-// 		for _, v := range tmpFields {
-// 			_ = info.Delete(v)
-// 		}
-// 	}
-
-// 	return ResultPages(rows, pages), nil
-
 // }
 
 // func restApiCreate(c *znet.Context,m *Modeler) (interface{}, error) {

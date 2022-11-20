@@ -17,25 +17,26 @@ func getFilter[T Filter](m *Modeler, filter T) ztype.Map {
 	val, ok := v.(ztype.Map)
 	if !ok {
 		val = ztype.Map{
-			IDKey: filter,
+			m.Table.Name + "." + IDKey: filter,
 		}
 	}
 
 	if m.Options.SoftDeletes {
-		val[DeletedAtKey] = 0
+		val[m.Table.Name+"."+DeletedAtKey] = 0
 	}
 
 	return val
 }
 
-func Pages[T Filter](m *Modeler, page, pagesize int, filter T, fn ...StorageOptionFn) (ztype.Maps, Page, error) {
+func Pages[T Filter](m *Modeler, page, pagesize int, filter T, fn ...StorageOptionFn) (ztype.Maps, PageInfo, error) {
 	rows, pages, err := m.Storage.Pages(page, pagesize, getFilter(m, filter), func(so *StorageOptions) error {
 		if len(fn) > 0 {
 			if err := fn[0](so); err != nil {
 				return err
 			}
 		}
-		if len(so.Fields) > 0 {
+
+		if len(so.Fields) > 0 && len(so.Join) == 0 {
 			so.Fields = zarray.Filter(so.Fields, func(_ int, f string) bool {
 				return zarray.Contains(m.fullFields, f)
 			})

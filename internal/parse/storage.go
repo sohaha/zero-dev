@@ -28,14 +28,14 @@ type StorageOptions struct {
 
 type Storageer interface {
 	Find(filter ztype.Map, fn ...StorageOptionFn) (ztype.Maps, error)
-	Pages(page, pagesize int, filter ztype.Map, fn ...StorageOptionFn) (ztype.Maps, Page, error)
+	Pages(page, pagesize int, filter ztype.Map, fn ...StorageOptionFn) (ztype.Maps, PageInfo, error)
 	Migration(model *Modeler) Migrationer
 	Insert(data ztype.Map) (lastId interface{}, err error)
 	Delete(filter ztype.Map, fn ...StorageOptionFn) (int64, error)
 	Update(data ztype.Map, filter ztype.Map, fn ...StorageOptionFn) (int64, error)
 }
 
-type Page struct {
+type PageInfo struct {
 	zdb.Pages
 }
 
