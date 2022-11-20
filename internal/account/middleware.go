@@ -14,7 +14,6 @@ import (
 	"github.com/pelletier/go-toml/v2"
 	"github.com/sohaha/zlsgo/zerror"
 	"github.com/sohaha/zlsgo/zfile"
-	"github.com/sohaha/zlsgo/zlog"
 	"github.com/sohaha/zlsgo/znet"
 	"github.com/sohaha/zlsgo/zstring"
 	"github.com/speps/go-hashids/v2"
@@ -78,7 +77,6 @@ func NewMiddleware(app *service.App) znet.Handler {
 
 		j, err := h.ParsingManageToken(c, key)
 		if err != nil {
-			zlog.Debug(err)
 			return err
 		}
 

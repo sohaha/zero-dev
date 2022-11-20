@@ -12,7 +12,6 @@ import (
 
 	gjwt "github.com/golang-jwt/jwt"
 	"github.com/sohaha/zlsgo/zcache"
-	"github.com/sohaha/zlsgo/zlog"
 	"github.com/sohaha/zlsgo/znet"
 	"github.com/sohaha/zlsgo/zstring"
 	"github.com/sohaha/zlsgo/ztype"
@@ -34,7 +33,6 @@ func (h *AccountHandlers) Update(id interface{}, update ztype.Map) error {
 	}
 
 	_, err = parse.Update(h.Model, filter, update)
-	zlog.Debug(update, filter, err)
 	if err != nil {
 		return err
 	}
@@ -131,7 +129,6 @@ func (h *AccountHandlers) ParsingManageToken(c *znet.Context, key string) (*jwt.
 		return nil, error_code.AuthorizedExpires.Text("登录状态过期，请重新登录")
 	}
 
-	zlog.Debug(j.U)
 	if len(j.U) < 8 {
 		return nil, error_code.InvalidInput.Text("无效签名")
 	}
