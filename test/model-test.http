@@ -1,4 +1,21 @@
 
+### 新增新闻
+POST {{host}}/model/news
+Authorization: Basic {{token}}
+
+{"category":1,"title":"新闻标题","content":"新闻内容","topic":[3]}
+
+### 更新新闻
+PATCH {{host}}/model/news/1
+Authorization: Basic {{token}}
+
+{"title":"新标题"}
+
+### 删除新闻
+DELETE {{host}}/model/news/1
+Authorization: Basic {{token}}
+
+
 ### 新闻列表
 GET {{host}}/model/news
 Authorization: Basic {{token}}

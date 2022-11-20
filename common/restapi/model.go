@@ -38,16 +38,21 @@ func (h *RestApi) Init(g *znet.Engine) {
 		return parse.RestapiGetInfo(c, m)
 	})
 
-	// g.POST(":model", func(c *znet.Context) (interface{}, error) {
-	// 	return c.MustValue("model").(*Model).restApiCreate(c)
-	// })
+	g.POST(":model", func(c *znet.Context) (interface{}, error) {
+		m := c.MustValue("model").(*parse.Modeler)
 
-	// g.PATCH(":model/:key", func(c *znet.Context) (interface{}, error) {
-	// 	return c.MustValue("model").(*Model).restApiUpdate(c)
-	// })
+		return parse.RestapiCreate(c, m)
+	})
 
-	// g.DELETE(":model/:key", func(c *znet.Context) (interface{}, error) {
-	// 	return c.MustValue("model").(*Model).restApiDelete(c)
-	// })
+	g.PATCH(":model/:key", func(c *znet.Context) (interface{}, error) {
+		m := c.MustValue("model").(*parse.Modeler)
 
+		return parse.RestapiUpdate(c, m)
+	})
+
+	g.DELETE(":model/:key", func(c *znet.Context) (interface{}, error) {
+		m := c.MustValue("model").(*parse.Modeler)
+
+		return parse.RestapiDelete(c, m)
+	})
 }

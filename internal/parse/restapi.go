@@ -128,7 +128,7 @@ func RestapiGetPage(c *znet.Context, m *Modeler) (interface{}, error) {
 	filter := ztype.Map{}
 
 	rows, pageInfo, err := Pages(m, page, pagesize, filter, func(so *StorageOptions) error {
-		idKey := IDKey
+		so.OrderBy = map[string]int8{m.Table.Name + "." + IDKey: -1}
 		if quote {
 			table := m.Table.Name
 			for k, v := range with {
@@ -153,7 +153,6 @@ func RestapiGetPage(c *znet.Context, m *Modeler) (interface{}, error) {
 					finalFields = append(finalFields, asName+".*")
 				}
 			}
-			so.OrderBy = map[string]int8{table + "." + idKey: -1}
 		}
 
 		so.Fields = finalFields
@@ -178,69 +177,61 @@ func RestapiGetPage(c *znet.Context, m *Modeler) (interface{}, error) {
 
 }
 
-// func restApiDelete(m *Modeler,c *znet.Context) (interface{}, error) {
-// 	key := c.GetParam("key")
-// 	_, err := m.restApiInfo(key, false)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+func RestapiCreate(c *znet.Context, m *Modeler) (interface{}, error) {
+	json, err := c.GetJSONs()
+	if err != nil {
+		return nil, error_code.InvalidInput.Error(err)
+	}
 
-// 	if m.Options.SoftDeletes {
-// 		_, err = m.DB.Update(m.Table.Name, map[string]interface{}{
-// 			DeletedAtKey: ztime.Time().Unix(),
-// 		}, func(b *builder.UpdateBuilder) error {
-// 			b.Where(b.EQ(IDKey, key))
-// 			return nil
-// 		})
-// 	} else {
-// 		_, err = m.DB.Delete(m.Table.Name, func(b *builder.DeleteBuilder) error {
-// 			b.Where(b.EQ(IDKey, key))
-// 			return nil
-// 		})
-// 	}
+	json = json.MatchKeys(m.fields)
+	data := json.MapString()
 
-// 	return nil, err
-// }
+	id, err := Insert(m, data)
 
-// func restApiCreate(c *znet.Context,m *Modeler) (interface{}, error) {
-// 	json, err := c.GetJSONs()
-// 	if err != nil {
-// 		return nil, error_code.InvalidInput.Error(err)
-// 	}
+	if err != nil {
+		return nil, error_code.InvalidInput.Error(err)
+	}
 
-// 	json = json.MatchKeys(m.fields)
-// 	data := json.MapString()
+	return ztype.Map{"id": id}, nil
+}
 
-// 	id, err := m.ActionCreate(data)
-// 	if err != nil {
-// 		return nil, error_code.InvalidInput.Error(err)
-// 	}
+func RestapiDelete(c *znet.Context, m *Modeler) (interface{}, error) {
+	key := c.GetParam("key")
+	_, err := restApiInfo(m, key, false)
+	if err != nil {
+		return nil, err
+	}
 
-// 	return ztype.Map{"id": id}, nil
-// }
+	_, err = Delete(m, key, func(so *StorageOptions) error {
+		so.Limit = 1
+		return nil
+	})
 
-// func restApiUpdate(c *znet.Context,m *Modeler) (interface{}, error) {
-// 	key := c.GetParam("key")
-// 	_, err := m.restApiInfo(key, false)
-// 	if err != nil {
-// 		return nil, error_code.InvalidInput.Error(err)
-// 	}
+	return nil, err
+}
 
-// 	json, err := c.GetJSONs()
-// 	if err != nil {
-// 		return nil, error_code.InvalidInput.Error(err)
-// 	}
-// 	json = json.MatchKeys(m.fields)
+func RestapiUpdate(c *znet.Context, m *Modeler) (interface{}, error) {
+	key := c.GetParam("key")
+	_, err := restApiInfo(m, key, false)
+	if err != nil {
+		return nil, error_code.InvalidInput.Error(err)
+	}
 
-// 	data := json.MapString()
-// 	if len(data) == 0 {
-// 		return nil, error_code.InvalidInput.Text("没有可更新数据")
-// 	}
+	json, err := c.GetJSONs()
+	if err != nil {
+		return nil, error_code.InvalidInput.Error(err)
+	}
+	json = json.MatchKeys(m.fields)
 
-// 	err = m.ActionUpdate(key, data)
-// 	if err != nil {
-// 		return nil, error_code.InvalidInput.Error(err)
-// 	}
+	data := json.MapString()
+	if len(data) == 0 {
+		return nil, error_code.InvalidInput.Text("没有可更新数据")
+	}
 
-// 	return nil, nil
-// }
+	_, err = Update(m, key, data)
+	if err != nil {
+		return nil, error_code.InvalidInput.Error(err)
+	}
+
+	return nil, nil
+}

@@ -80,10 +80,6 @@ func (s *SQL) Delete(filter ztype.Map, fn ...StorageOptionFn) (int64, error) {
 			b.Where(exprs...)
 		}
 
-		if o.Limit > 0 {
-			b.Limit(o.Limit)
-		}
-
 		if len(o.OrderBy) > 0 {
 			for k, v := range o.OrderBy {
 				if v == -1 {
