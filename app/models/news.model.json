@@ -70,7 +70,6 @@
         "category": {
             "model": "category",
             "key": "category",
-            "foreign": "id",
             "fields": [
                 "category_name"
             ]
@@ -79,7 +78,11 @@
             "type": "hasMany",
             "model": "topic",
             "key": "topic",
-            "foreign": "id"
+            "foreign": "_id",
+            "fields": [
+                "title",
+                "updated_at"
+            ]
         }
     },
     "options": {

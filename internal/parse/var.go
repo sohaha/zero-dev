@@ -46,15 +46,6 @@ type (
 		Comment string `json:"comment"`
 	}
 
-	relation struct {
-		Name    string   `json:"name"`
-		Type    string   `json:"type"`
-		Model   string   `json:"model"`
-		Foreign string   `json:"foreign"`
-		Key     string   `json:"key"`
-		Fields  []string `json:"fields"`
-	}
-
 	validations struct {
 		Args    interface{} `json:"args"`
 		Method  string      `json:"method"`

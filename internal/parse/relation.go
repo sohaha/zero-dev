@@ -1,4 +1,4 @@
-package model
+package parse
 
 import (
 	"strings"
@@ -15,7 +15,7 @@ type relation struct {
 	Fields  []string `json:"fields"`
 }
 
-func GetRequestWiths(c *znet.Context, m *Model) (mustFields []string, hasOne map[string]*relation, hasMany map[string]*relation) {
+func GetRequestWiths(c *znet.Context, m *Modeler) (mustFields []string, hasOne map[string]*relation, hasMany map[string]*relation) {
 	with, ok := c.GetQuery("with")
 	if !ok || with == "" {
 		return []string{}, map[string]*relation{}, map[string]*relation{}
@@ -31,7 +31,7 @@ func GetRequestWiths(c *znet.Context, m *Model) (mustFields []string, hasOne map
 		if !ok {
 			continue
 		}
-		mustFields = append(mustFields, r.Key)
+		mustFields = append(mustFields, m.Table.Name+"."+r.Key)
 		if r.Type == "hasMany" {
 			hasMany[v] = r
 		} else {

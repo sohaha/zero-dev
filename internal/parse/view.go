@@ -98,3 +98,11 @@ func resolverView(m *Modeler) {
 func (m *Modeler) GetView() ztype.Map {
 	return m.views
 }
+
+// func (m *Modeler) GetViewFields(view string) []string {
+// 	v, ok := m.Views[view]
+// 	if !ok {
+// 		return []string{}
+// 	}
+// 	return v.Fields
+// }

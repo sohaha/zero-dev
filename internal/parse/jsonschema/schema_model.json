@@ -411,8 +411,7 @@
                 },
                 "required": [
                     "model",
-                    "key",
-                    "foreign"
+                    "key"
                 ],
                 "x-apifox-orders": [
                     "model",

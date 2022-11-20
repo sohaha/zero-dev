@@ -36,6 +36,14 @@ func InitModel(m *Modeler) {
 	if m.Raw == nil {
 		m.Raw, _ = zjson.Marshal(m)
 	}
+	if len(m.Relations) > 0 {
+		for k := range m.Relations {
+			v := m.Relations[k]
+			if v.Foreign == "" {
+				m.Relations[k].Foreign = IDKey
+			}
+		}
+	}
 }
 
 func (m *Modeler) isInlayField(field string) bool {

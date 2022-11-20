@@ -13,7 +13,7 @@ Authorization: Basic {{token}}
 
 
 ### 新闻详情
-GET {{host}}/model/news/154
+GET {{host}}/model/news/1
 Authorization: Basic {{token}}
 
 ### 新闻详情-关联查询

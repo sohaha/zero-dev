@@ -23,6 +23,9 @@ func InitRouter(_ *service.Conf) []service.Router {
 		&restapi.ManageRestApi{
 			Path: "/manage/model",
 		},
+		&restapi.RestApi{
+			Path: "/model",
+		},
 		// model.NewRestApi(),
 		// model.NewManageRestApi(),
 	}

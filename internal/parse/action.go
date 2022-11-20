@@ -63,14 +63,15 @@ func Pages[T Filter](m *Modeler, page, pagesize int, filter T, fn ...StorageOpti
 	return rows, pages, nil
 }
 
-func Find[T Filter](m *Modeler, filter T, fn ...StorageOptionFn) (ztype.Maps, error) {
-	rows, err := m.Storage.Find(getFilter(m, filter), func(so *StorageOptions) error {
+func find(m *Modeler, filter ztype.Map, fn ...StorageOptionFn) (ztype.Maps, error) {
+	rows, err := m.Storage.Find(filter, func(so *StorageOptions) error {
 		if len(fn) > 0 {
 			if err := fn[0](so); err != nil {
 				return err
 			}
 		}
-		if len(so.Fields) > 0 {
+
+		if len(so.Fields) > 0 && len(so.Join) == 0 {
 			so.Fields = zarray.Filter(so.Fields, func(_ int, f string) bool {
 				return zarray.Contains(m.fullFields, f)
 			})
@@ -98,13 +99,18 @@ func Find[T Filter](m *Modeler, filter T, fn ...StorageOptionFn) (ztype.Maps, er
 	return rows, nil
 }
 
+func Find[T Filter](m *Modeler, filter T, fn ...StorageOptionFn) (ztype.Maps, error) {
+	return find(m, getFilter(m, filter), fn...)
+}
+
 func FindOne[T Filter](m *Modeler, filter T, fn ...StorageOptionFn) (ztype.Map, error) {
-	rows, err := Find(m, getFilter(m, filter), func(so *StorageOptions) error {
+	rows, err := find(m, getFilter(m, filter), func(so *StorageOptions) error {
 		if len(fn) > 0 {
 			if err := fn[0](so); err != nil {
 				return err
 			}
 		}
+
 		so.Limit = 1
 		return nil
 	})

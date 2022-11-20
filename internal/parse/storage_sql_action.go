@@ -12,7 +12,7 @@ import (
 func (s *SQL) parseExprs(d *builder.Cond, filter ztype.Map) (exprs []string, err error) {
 	if len(filter) > 0 {
 		for k := range filter {
-			v := filter.Get(k)
+			v := ztype.New(filter[k])
 			if k == "" {
 				exprs = append(exprs, d.And(v.String()))
 				continue
@@ -20,7 +20,12 @@ func (s *SQL) parseExprs(d *builder.Cond, filter ztype.Map) (exprs []string, err
 			f := strings.SplitN(zstring.TrimSpace(k), " ", 2)
 			l := len(f)
 			if l != 2 {
-				exprs = append(exprs, d.EQ(k, v.Value()))
+				switch val := v.Value().(type) {
+				case []interface{}:
+					exprs = append(exprs, d.In(f[0], val...))
+				default:
+					exprs = append(exprs, d.EQ(f[0], val))
+				}
 			} else {
 				switch f[1] {
 				default:
@@ -127,6 +132,12 @@ func (s *SQL) Find(filter ztype.Map, fn ...StorageOptionFn) (ztype.Maps, error) 
 
 		if len(exprs) > 0 {
 			b.Where(exprs...)
+		}
+
+		if len(o.Join) > 0 {
+			for _, v := range o.Join {
+				b.JoinWithOption("", b.As(v.Table, v.As), v.Expr)
+			}
 		}
 
 		if len(o.OrderBy) > 0 {

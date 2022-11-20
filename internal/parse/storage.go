@@ -5,18 +5,24 @@ import (
 	"github.com/zlsgo/zdb"
 )
 
-type StorageType uint8
-
 const (
 	SQLStorage StorageType = iota + 1
 	NoSQLStorage
 )
+
+type StorageType uint8
+type StorageJoin struct {
+	Table string
+	As    string
+	Expr  string
+}
 
 type StorageOptionFn func(*StorageOptions) error
 type StorageOptions struct {
 	Fields  []string
 	Limit   int
 	OrderBy map[string]int8
+	Join    []StorageJoin
 	// DisabledSoftDeletes bool
 }
 

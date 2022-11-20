@@ -17,7 +17,6 @@ type ManageRestApi struct {
 }
 
 func (h *ManageRestApi) Init(g *znet.Engine) {
-	// zerror.Panic(h.App.Di.Resolve(&h.db))
 	_ = g.GET("", h.lists)
 	_ = g.GET("/:model", h.info)
 	_ = g.GET("/:model/views", h.views)
