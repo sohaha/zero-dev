@@ -17,6 +17,7 @@ type StorageOptions struct {
 	Fields  []string
 	Limit   int
 	OrderBy map[string]int8
+	// DisabledSoftDeletes bool
 }
 
 type Storageer interface {

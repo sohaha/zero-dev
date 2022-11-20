@@ -86,7 +86,8 @@
         }
     },
     "options": {
-        "timestamps": true
+        "timestamps": true,
+        "soft_deletes": true
     },
     "views": {
         "lists": {

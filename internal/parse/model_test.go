@@ -10,6 +10,7 @@ import (
 	"github.com/sohaha/zlsgo/zstring"
 	"github.com/sohaha/zlsgo/ztype"
 	"github.com/zlsgo/zdb"
+	"github.com/zlsgo/zdb/builder"
 	"github.com/zlsgo/zdb/driver/sqlite3"
 )
 
@@ -140,9 +141,15 @@ func TestModelAction(t *testing.T) {
 
 	row, err = parse.FindOne(m, 2)
 	t.Log(row)
-
 	tt.Equal(zdb.ErrNotFound, err)
 
+	row2, err = DB.FindOne("news", func(b *builder.SelectBuilder) error {
+		b.Where(b.EQ(parse.IDKey, 2))
+		return nil
+	})
+	tt.NoError(err)
+	tt.Equal(2, row2.Get(parse.IDKey).Int())
+	tt.EqualTrue(row2.Get("deleted_at").Int() != 0)
 }
 
 func initDB() (*zdb.DB, error) {

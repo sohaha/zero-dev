@@ -103,6 +103,12 @@ func Insert(m *Modeler, data ztype.Map) (lastId interface{}, err error) {
 }
 
 func Delete[T Filter](m *Modeler, filter T, fn ...StorageOptionFn) (int64, error) {
+	if m.Options.SoftDeletes {
+		return m.Storage.Update(ztype.Map{
+			DeletedAtKey: ztime.Time().Unix(),
+		}, getFilter(m, filter))
+	}
+
 	return m.Storage.Delete(getFilter(m, filter), fn...)
 }
 
