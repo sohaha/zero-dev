@@ -19,7 +19,6 @@ type StorageOptions struct {
 }
 
 type Storageer interface {
-	FindOne(filter ztype.Map, fn ...StorageOptionFn) (ztype.Map, error)
 	Find(filter ztype.Map, fn ...StorageOptionFn) (ztype.Maps, error)
 	Migration(model *Model) Migrationer
 	Insert(data ztype.Map) (lastId interface{}, err error)

@@ -69,6 +69,7 @@ func TestModelAction(t *testing.T) {
 	})
 	t.Log(row)
 	tt.NoError(err)
+	tt.Equal(2, len(row))
 	tt.Equal(zstring.Md5("123"), row.Get("key").String())
 	tt.Equal(32, len(row.Get("key").String()))
 	tt.Equal("", row.Get("content").String())

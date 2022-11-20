@@ -91,21 +91,21 @@ func (s *SQL) Delete(filter ztype.Map, fn ...StorageOptionFn) (int64, error) {
 	})
 }
 
-func (s *SQL) FindOne(filter ztype.Map, fn ...StorageOptionFn) (ztype.Map, error) {
-	rows, err := s.Find(filter, func(so *StorageOptions) error {
-		so.Limit = 1
-		if len(fn) > 0 {
-			return fn[0](so)
-		}
-		return nil
-	})
+// func (s *SQL) FindOne(filter ztype.Map, fn ...StorageOptionFn) (ztype.Map, error) {
+// 	rows, err := s.Find(filter, func(so *StorageOptions) error {
+// 		so.Limit = 1
+// 		if len(fn) > 0 {
+// 			return fn[0](so)
+// 		}
+// 		return nil
+// 	})
 
-	if err == nil && rows.Len() > 0 {
-		return rows[0], nil
-	}
+// 	if err == nil && rows.Len() > 0 {
+// 		return rows[0], nil
+// 	}
 
-	return ztype.Map{}, err
-}
+// 	return ztype.Map{}, err
+// }
 
 func (s *SQL) Find(filter ztype.Map, fn ...StorageOptionFn) (ztype.Maps, error) {
 	o := StorageOptions{}

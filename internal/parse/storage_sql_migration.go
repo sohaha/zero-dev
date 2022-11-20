@@ -7,6 +7,7 @@ import (
 	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/zerror"
 	"github.com/sohaha/zlsgo/zlog"
+	"github.com/sohaha/zlsgo/ztype"
 	"github.com/sohaha/zlsgo/zutil"
 	"github.com/zlsgo/zdb"
 	"github.com/zlsgo/zdb/builder"
@@ -45,7 +46,7 @@ func (m *Migration) Auto(deleteColumn bool) (err error) {
 
 func (m *Migration) InitValue(all bool) error {
 	if !all {
-		row, _ := m.Model.Storage.FindOne(nil, func(o *StorageOptions) error {
+		row, _ := FindOne(m.Model, ztype.Map{}, func(o *StorageOptions) error {
 			o.Fields = []string{"COUNT(*) AS count"}
 			return nil
 		})
