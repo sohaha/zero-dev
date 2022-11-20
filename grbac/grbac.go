@@ -165,10 +165,9 @@ func (c *Engine) runCronTab() {
 	c.cron = ticker
 
 	for range ticker.C {
-		c.logger.Debug("grbac loader is scheduled")
 		err := c.reload()
 		if err != nil {
-			c.logger.Error("error occurred while loading the configuration in grbac: ", err)
+			c.logger.Error("error occurred while loading the configuration:", err)
 		}
 	}
 }
