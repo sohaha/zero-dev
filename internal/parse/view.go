@@ -12,7 +12,7 @@ type View struct {
 	Filters []interface{} `json:"filters"`
 }
 
-func resolverViewLists(m *Model) ztype.Map {
+func resolverViewLists(m *Modeler) ztype.Map {
 	columns := make(map[string]ztype.Map, 0)
 	data, ok := m.Views["lists"]
 	if !ok {
@@ -49,7 +49,7 @@ func resolverViewLists(m *Model) ztype.Map {
 	return info
 }
 
-func resolverViewInfo(m *Model) ztype.Map {
+func resolverViewInfo(m *Modeler) ztype.Map {
 	info := ztype.Map{}
 
 	data, ok := m.Views["detail"]
@@ -87,7 +87,7 @@ func resolverViewInfo(m *Model) ztype.Map {
 	return info
 }
 
-func resolverView(m *Model) {
+func resolverView(m *Modeler) {
 	m.views = ztype.Map{}
 
 	m.views["lists"] = resolverViewLists(m)

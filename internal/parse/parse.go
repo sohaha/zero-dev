@@ -7,7 +7,7 @@ import (
 	"github.com/zlsgo/zdb/schema"
 )
 
-func resolverColumn(m *Model, c *Column) {
+func resolverColumn(m *Modeler, c *Column) {
 	if c.ReadOnly {
 		m.readOnlyKeys = append(m.readOnlyKeys, c.Name)
 	}
@@ -44,7 +44,7 @@ func resolverColumn(m *Model, c *Column) {
 }
 
 // ParseModel 解析模型
-func ParseModel(json []byte) (m *Model, err error) {
+func ParseModel(json []byte) (m *Modeler, err error) {
 	err = jsonschema.ValidateModelSchema(json)
 	if err != nil {
 		return

@@ -20,7 +20,7 @@ func NewSQL(db *zdb.DB, table string) Storageer {
 
 // var _ storage.Migrationer = (*Migration)(nil)
 
-func (s *SQL) Migration(model *Model) Migrationer {
+func (s *SQL) Migration(model *Modeler) Migrationer {
 	return &Migration{
 		Model: model,
 		DB:    s.db,

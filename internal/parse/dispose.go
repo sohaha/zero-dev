@@ -12,7 +12,7 @@ import (
 
 type beforeProcess func(interface{}) (string, error)
 
-func (m *Model) GetBeforeProcess(p []string) (fn []beforeProcess, err error) {
+func (m *Modeler) GetBeforeProcess(p []string) (fn []beforeProcess, err error) {
 	for _, v := range p {
 		switch strings.ToLower(v) {
 		default:
@@ -41,7 +41,7 @@ func (m *Model) GetBeforeProcess(p []string) (fn []beforeProcess, err error) {
 
 type afterProcess func(string) (interface{}, error)
 
-func (m *Model) GetAfterProcess(p []string) (fn []afterProcess, err error) {
+func (m *Modeler) GetAfterProcess(p []string) (fn []afterProcess, err error) {
 	for _, v := range p {
 		switch strings.ToLower(v) {
 		default:
@@ -62,7 +62,7 @@ func (m *Model) GetAfterProcess(p []string) (fn []afterProcess, err error) {
 	return
 }
 
-func (m *Model) valuesBeforeProcess(data ztype.Map) (newData ztype.Map, err error) {
+func (m *Modeler) valuesBeforeProcess(data ztype.Map) (newData ztype.Map, err error) {
 	for k := range m.cryptKeys {
 		if _, ok := data[k]; ok {
 			data[k], err = m.cryptKeys[k](data.Get(k).String())

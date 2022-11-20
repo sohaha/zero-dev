@@ -1,5 +1,5 @@
 package parse
 
-func (m *Model) Migration() Migrationer {
+func (m *Modeler) Migration() Migrationer {
 	return m.Storage.Migration(m)
 }

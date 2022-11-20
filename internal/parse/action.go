@@ -11,7 +11,7 @@ type Filter interface {
 	ztype.Map | constraints.Integer | string
 }
 
-func getFilter[T Filter](m *Model, filter T) ztype.Map {
+func getFilter[T Filter](m *Modeler, filter T) ztype.Map {
 	var v interface{} = filter
 
 	val, ok := v.(ztype.Map)
@@ -28,7 +28,7 @@ func getFilter[T Filter](m *Model, filter T) ztype.Map {
 	return val
 }
 
-func Find[T Filter](m *Model, filter T, fn ...StorageOptionFn) (ztype.Maps, error) {
+func Find[T Filter](m *Modeler, filter T, fn ...StorageOptionFn) (ztype.Maps, error) {
 	return m.Storage.Find(getFilter(m, filter), func(so *StorageOptions) error {
 		if len(fn) > 0 {
 			if err := fn[0](so); err != nil {
@@ -45,7 +45,7 @@ func Find[T Filter](m *Model, filter T, fn ...StorageOptionFn) (ztype.Maps, erro
 	})
 }
 
-func FindOne[T Filter](m *Model, filter T, fn ...StorageOptionFn) (ztype.Map, error) {
+func FindOne[T Filter](m *Modeler, filter T, fn ...StorageOptionFn) (ztype.Map, error) {
 	rows, err := Find(m, getFilter(m, filter), func(so *StorageOptions) error {
 		if len(fn) > 0 {
 			if err := fn[0](so); err != nil {
@@ -62,7 +62,7 @@ func FindOne[T Filter](m *Model, filter T, fn ...StorageOptionFn) (ztype.Map, er
 	return rows[0], nil
 }
 
-func Insert(m *Model, data ztype.Map) (lastId interface{}, err error) {
+func Insert(m *Modeler, data ztype.Map) (lastId interface{}, err error) {
 	data, err = m.valuesBeforeProcess(data)
 	if err != nil {
 		return 0, err
@@ -85,11 +85,11 @@ func Insert(m *Model, data ztype.Map) (lastId interface{}, err error) {
 	return m.Storage.Insert(data)
 }
 
-func Delete[T Filter](m *Model, filter T, fn ...StorageOptionFn) (int64, error) {
+func Delete[T Filter](m *Modeler, filter T, fn ...StorageOptionFn) (int64, error) {
 	return m.Storage.Delete(getFilter(m, filter), fn...)
 }
 
-func Update[T Filter](m *Model, filter T, data ztype.Map, fn ...StorageOptionFn) (total int64, err error) {
+func Update[T Filter](m *Modeler, filter T, data ztype.Map, fn ...StorageOptionFn) (total int64, err error) {
 	data = filterDate(data, m.readOnlyKeys)
 
 	data, err = m.valuesBeforeProcess(data)

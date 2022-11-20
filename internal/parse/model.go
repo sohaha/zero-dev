@@ -6,7 +6,7 @@ import (
 	"github.com/zlsgo/zdb/schema"
 )
 
-func InitModel(m *Model) {
+func InitModel(m *Modeler) {
 	m.readOnlyKeys = make([]string, 0)
 	m.cryptKeys = make(map[string]cryptProcess, 0)
 	m.afterProcess = make(map[string][]afterProcess, 0)
@@ -38,7 +38,7 @@ func InitModel(m *Model) {
 	}
 }
 
-func (m *Model) isInlayField(field string) bool {
+func (m *Modeler) isInlayField(field string) bool {
 	if field == IDKey {
 		return true
 	}
@@ -49,7 +49,7 @@ func (m *Model) isInlayField(field string) bool {
 	return field == CreatedAtKey || field == UpdatedAtKey
 }
 
-func (m *Model) GetFields(exclude ...string) []string {
+func (m *Modeler) GetFields(exclude ...string) []string {
 	f := m.fullFields
 	if len(exclude) == 0 {
 		return f
@@ -60,7 +60,7 @@ func (m *Model) GetFields(exclude ...string) []string {
 	})
 }
 
-func (m *Model) GetColumn(name string) (*Column, bool) {
+func (m *Modeler) GetColumn(name string) (*Column, bool) {
 	column, ok := zarray.Find(m.Columns, func(_ int, c *Column) bool {
 		return c.Name == name
 	})

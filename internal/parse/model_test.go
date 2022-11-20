@@ -143,8 +143,8 @@ func initDB() (*zdb.DB, error) {
 	})
 }
 
-func initModel(force bool) (*parse.Model, error) {
-	m, err := parse.AddModel("news", modelJSON, func(m *parse.Model) (parse.Storageer, error) {
+func initModel(force bool) (*parse.Modeler, error) {
+	m, err := parse.AddModel("news", modelJSON, func(m *parse.Modeler) (parse.Storageer, error) {
 		s := parse.NewSQL(DB, m.Table.Name)
 		return s, nil
 	}, force)

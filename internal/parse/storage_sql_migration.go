@@ -15,7 +15,7 @@ import (
 )
 
 type Migration struct {
-	Model *Model
+	Model *Modeler
 	DB    *zdb.DB
 }
 

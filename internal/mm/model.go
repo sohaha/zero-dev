@@ -10,7 +10,7 @@ import (
 var globalModels = zarray.NewHashMap[string, *Model]()
 
 type Model struct {
-	parse.Model
+	parse.Modeler
 }
 
 func Get(name string) (*Model, bool) {
@@ -24,7 +24,7 @@ func Add(name string, json []byte, bindStorage func(*Model) (parse.Storageer, er
 	}
 
 	m := &Model{
-		Model: *p,
+		Modeler: *p,
 	}
 
 	m.Storage, err = bindStorage(m)

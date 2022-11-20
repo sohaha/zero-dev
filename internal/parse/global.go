@@ -4,13 +4,13 @@ import (
 	"github.com/sohaha/zlsgo/zarray"
 )
 
-var globalModels = zarray.NewHashMap[string, *Model]()
+var globalModels = zarray.NewHashMap[string, *Modeler]()
 
-func GetModel(name string) (*Model, bool) {
+func GetModel(name string) (*Modeler, bool) {
 	return globalModels.Get(name)
 }
 
-func AddModel(name string, json []byte, bindStorage func(*Model) (Storageer, error), force ...bool) (*Model, error) {
+func AddModel(name string, json []byte, bindStorage func(*Modeler) (Storageer, error), force ...bool) (*Modeler, error) {
 	m, err := ParseModel(json)
 	if err != nil {
 		return nil, err

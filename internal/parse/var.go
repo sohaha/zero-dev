@@ -12,7 +12,7 @@ import (
 )
 
 type (
-	Model struct {
+	Modeler struct {
 		Schema        string `json:"$schema"`
 		Raw           []byte
 		Storage       Storageer

@@ -25,6 +25,6 @@ func TestParseModel(t *testing.T) {
 
 var json, _ = zfile.ReadFile("../../testdata/news.model.json")
 
-func testParseModel() (m *parse.Model, err error) {
+func testParseModel() (m *parse.Modeler, err error) {
 	return parse.ParseModel(json)
 }

@@ -121,7 +121,7 @@ func userModel(db *zdb.DB) error {
 		},
 	})
 
-	m, err := parse.AddModel(UserModel, json, func(m *parse.Model) (parse.Storageer, error) {
+	m, err := parse.AddModel(UserModel, json, func(m *parse.Modeler) (parse.Storageer, error) {
 		return parse.NewSQL(db, m.Table.Name), nil
 	}, false)
 
@@ -225,7 +225,7 @@ func logsModel(db *zdb.DB) error {
 		},
 	})
 
-	m, err := parse.AddModel(LogsModel, json, func(m *parse.Model) (parse.Storageer, error) {
+	m, err := parse.AddModel(LogsModel, json, func(m *parse.Modeler) (parse.Storageer, error) {
 		return parse.NewSQL(db, m.Table.Name), nil
 	}, false)
 	if err != nil {

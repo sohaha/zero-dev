@@ -10,7 +10,7 @@ import (
 
 type cryptProcess func(string) (string, error)
 
-func (m *Model) GetCryptProcess(cryptName string) (fn cryptProcess, err error) {
+func (m *Modeler) GetCryptProcess(cryptName string) (fn cryptProcess, err error) {
 	switch strings.ToLower(cryptName) {
 	default:
 		return nil, errors.New("crypt name not found")
