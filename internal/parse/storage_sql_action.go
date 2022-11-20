@@ -4,11 +4,18 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/zstring"
 	"github.com/sohaha/zlsgo/ztype"
 	"github.com/zlsgo/zdb/builder"
 )
 
+func (s *SQL) m(f string) string {
+	if strings.Contains(f, ".") {
+		return f
+	}
+	return s.table + "." + f
+}
 func (s *SQL) parseExprs(d *builder.Cond, filter ztype.Map) (exprs []string, err error) {
 	if len(filter) > 0 {
 		for k := range filter {
@@ -22,9 +29,9 @@ func (s *SQL) parseExprs(d *builder.Cond, filter ztype.Map) (exprs []string, err
 			if l != 2 {
 				switch val := v.Value().(type) {
 				case []interface{}:
-					exprs = append(exprs, d.In(f[0], val...))
+					exprs = append(exprs, d.In(s.m(f[0]), val...))
 				default:
-					exprs = append(exprs, d.EQ(f[0], val))
+					exprs = append(exprs, d.EQ(s.m(f[0]), val))
 				}
 			} else {
 				switch f[1] {
@@ -117,8 +124,11 @@ func (s *SQL) Find(filter ztype.Map, fn ...StorageOptionFn) (ztype.Maps, error) 
 	}
 
 	return s.db.Find(s.table, func(b *builder.SelectBuilder) error {
-		if len(o.Fields) > 0 {
-			b.Select(o.Fields...)
+		fields := o.Fields
+		if len(fields) > 0 {
+			b.Select(zarray.Map(o.Fields, func(_ int, v string) string {
+				return s.m(v)
+			})...)
 		}
 
 		exprs, err := s.parseExprs(&b.Cond, filter)
@@ -147,6 +157,7 @@ func (s *SQL) Find(filter ztype.Map, fn ...StorageOptionFn) (ztype.Maps, error) 
 		if o.Limit > 0 {
 			b.Limit(o.Limit)
 		}
+
 		return nil
 	})
 }
@@ -161,7 +172,9 @@ func (s *SQL) Pages(page, pagesize int, filter ztype.Map, fn ...StorageOptionFn)
 
 	rows, p, err := s.db.Pages(s.table, page, pagesize, func(b *builder.SelectBuilder) error {
 		if len(o.Fields) > 0 {
-			b.Select(o.Fields...)
+			b.Select(zarray.Map(o.Fields, func(_ int, v string) string {
+				return s.m(v)
+			})...)
 		}
 
 		exprs, err := s.parseExprs(&b.Cond, filter)

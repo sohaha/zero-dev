@@ -31,14 +31,10 @@ func GetPages(c *znet.Context) (page, pagesize int, err error) {
 	return
 }
 
-func restApiInfo(m *Modeler, key string, hasPrefix bool, fn ...StorageOptionFn) (ztype.Map, error) {
+func restApiInfo(m *Modeler, key string, fn ...StorageOptionFn) (ztype.Map, error) {
 	filter := ztype.Map{}
 	if key != "" && key != "0" {
-		if hasPrefix {
-			filter[m.Table.Name+"."+IDKey] = key
-		} else {
-			filter[IDKey] = key
-		}
+		filter[IDKey] = key
 	}
 
 	row, err := FindOne(m, filter, fn...)
@@ -52,9 +48,9 @@ func RestapiGetInfo(c *znet.Context, m *Modeler) (interface{}, error) {
 	key := c.GetParam("key")
 
 	fields := GetViewFields(m, "info")
-	finalFields, tmpFields, quote, with, withMany := getFinalFields(m, c, fields)
+	finalFields, tmpFields, with, withMany := getFinalFields(m, c, fields)
 
-	info, err := restApiInfo(m, key, quote, func(so *StorageOptions) error {
+	info, err := restApiInfo(m, key, func(so *StorageOptions) error {
 		table := m.Table.Name
 		for k, v := range with {
 			m, ok := GetModel(v.Model)
@@ -129,13 +125,13 @@ func RestapiGetPage(c *znet.Context, m *Modeler) (interface{}, error) {
 
 	fields := GetViewFields(m, "lists")
 
-	finalFields, tmpFields, quote, with, withMany := getFinalFields(m, c, fields)
+	finalFields, tmpFields, with, withMany := getFinalFields(m, c, fields)
 
 	filter := ztype.Map{}
 
 	rows, pageInfo, err := Pages(m, page, pagesize, filter, func(so *StorageOptions) error {
 		so.OrderBy = map[string]int8{m.Table.Name + "." + IDKey: -1}
-		if quote {
+		if len(with) > 0 {
 			table := m.Table.Name
 			for k, v := range with {
 				m, ok := GetModel(v.Model)
@@ -203,7 +199,7 @@ func RestapiCreate(c *znet.Context, m *Modeler) (interface{}, error) {
 
 func RestapiDelete(c *znet.Context, m *Modeler) (interface{}, error) {
 	key := c.GetParam("key")
-	_, err := restApiInfo(m, key, false)
+	_, err := restApiInfo(m, key)
 	if err != nil {
 		return nil, err
 	}
@@ -215,7 +211,7 @@ func RestapiDelete(c *znet.Context, m *Modeler) (interface{}, error) {
 
 func RestapiUpdate(c *znet.Context, m *Modeler) (interface{}, error) {
 	key := c.GetParam("key")
-	_, err := restApiInfo(m, key, false)
+	_, err := restApiInfo(m, key)
 	if err != nil {
 		return nil, error_code.InvalidInput.Error(err)
 	}

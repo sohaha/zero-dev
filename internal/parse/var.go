@@ -16,6 +16,7 @@ type (
 		Schema        string `json:"$schema"`
 		Raw           []byte
 		Storage       Storageer
+		StorageType   StorageType
 		Name          string               `json:"name"`
 		Path          string               `json:"-"`
 		Table         Table                `json:"table"`

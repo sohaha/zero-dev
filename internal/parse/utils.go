@@ -7,19 +7,12 @@ import (
 	"github.com/sohaha/zlsgo/znet"
 )
 
-func getFinalFields(m *Modeler, c *znet.Context, fields []string) (finalFields, tmpFields []string, quote bool, with, withMany map[string]*relation) {
+func getFinalFields(m *Modeler, c *znet.Context, fields []string) (finalFields, tmpFields []string, with, withMany map[string]*relation) {
 	var mustFields []string
 	mustFields, with, withMany = GetRequestWiths(c, m)
-	hasWith := len(with) > 0
-	hasWithMany := len(withMany) > 0
-	quote = hasWith || hasWithMany
 
 	if len(fields) == 0 {
-		fields = GetRequestFields(c, m, quote)
-	} else if quote {
-		fields = zarray.Map(fields, func(_ int, s string) string {
-			return m.Table.Name + "." + s
-		})
+		fields = GetRequestFields(c, m)
 	}
 
 	finalFields = zarray.Unique(append(fields, mustFields...))
@@ -40,7 +33,7 @@ func GetViewFields(m *Modeler, view string) []string {
 	return zarray.Unique(append(fields, IDKey))
 }
 
-func GetRequestFields(c *znet.Context, m *Modeler, quote bool) []string {
+func GetRequestFields(c *znet.Context, m *Modeler) []string {
 	tableFields := make([]string, 0, len(m.fields)+1)
 	tableFields = append(tableFields, IDKey)
 	tableFields = append(tableFields, m.fields...)
@@ -58,12 +51,5 @@ func GetRequestFields(c *znet.Context, m *Modeler, quote bool) []string {
 		}
 	}
 
-	if !quote {
-		return tableFields
-	}
-
-	return zarray.Map(tableFields, func(_ int, v string) string {
-		return m.Table.Name + "." + v
-	})
-
+	return tableFields
 }

@@ -30,13 +30,13 @@ Authorization: Basic {{token}}
 
 
 ### 新闻详情
-GET {{host}}/model/news/1
+GET {{host}}/model/news/2
 Authorization: Basic {{token}}
 
 ### 新闻详情-关联查询
-GET {{host}}/model/news/1?with=category&fields=title
+GET {{host}}/model/news/2?with=category&fields=title
 Authorization: Basic {{token}}
 
 ### 新闻详情-关联查询多条
-GET {{host}}/model/news/1?with=category,belong_topic&fields=title
+GET {{host}}/model/news/2?with=category,belong_topic&fields=title
 Authorization: Basic {{token}}

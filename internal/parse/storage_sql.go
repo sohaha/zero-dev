@@ -16,6 +16,10 @@ func NewSQL(db *zdb.DB, table string) Storageer {
 	}
 }
 
+func (s *SQL) GetStorageType() StorageType {
+	return SQLStorage
+}
+
 func (s *SQL) Migration(model *Modeler) Migrationer {
 	return &Migration{
 		Model: model,

@@ -42,6 +42,15 @@ func Pages[T Filter](m *Modeler, page, pagesize int, filter T, fn ...StorageOpti
 			})
 		}
 
+		// if m.Storage.GetStorageType() == SQLStorage {
+		// 	so.Fields = zarray.Map(so.Fields, func(_ int, f string) string {
+		// 		if strings.Contains(f, ".") {
+		// 			return f
+		// 		}
+		// 		return m.Table.Name + "." + f
+		// 	})
+		// }
+
 		return nil
 	})
 	if err != nil {
@@ -77,6 +86,15 @@ func find(m *Modeler, filter ztype.Map, fn ...StorageOptionFn) (ztype.Maps, erro
 				return zarray.Contains(m.fullFields, f)
 			})
 		}
+
+		// if m.Storage.GetStorageType() == SQLStorage {
+		// 	so.Fields = zarray.Map(so.Fields, func(_ int, f string) string {
+		// 		if strings.Contains(f, ".") {
+		// 			return f
+		// 		}
+		// 		return m.Table.Name + "." + f
+		// 	})
+		// }
 
 		return nil
 	})
