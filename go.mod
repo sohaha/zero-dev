@@ -7,7 +7,7 @@ require (
 	github.com/d5/tengo/v2 v2.13.0
 	github.com/dop251/goja v0.0.0-20221106173738-3b8a68ca89b4
 	github.com/golang-jwt/jwt v3.2.2+incompatible
-	github.com/sohaha/zlsgo v1.3.7
+	github.com/sohaha/zlsgo v1.4.5
 	github.com/tetratelabs/wazero v1.0.0-pre.3
 	github.com/traefik/yaegi v0.14.3
 	github.com/vadv/gopher-lua-libs v0.1.2
@@ -16,6 +16,7 @@ require (
 	github.com/yuin/gopher-lua v0.0.0-20200816102855-ee81675732da
 	github.com/zlsgo/conf v0.0.0-20220614015108-b4ee9fc367b0
 	github.com/zlsgo/zdb v0.0.0-00010101000000-000000000000
+	golang.org/x/exp v0.0.0-20221031165847-c99f073a8326
 )
 
 require (
@@ -38,7 +39,6 @@ require (
 	github.com/mattn/go-runewidth v0.0.7 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/montanaflynn/stats v0.6.3 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_golang v1.11.1 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.26.0 // indirect
@@ -47,7 +47,6 @@ require (
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/yuin/gluamapper v0.0.0-20150323120927-d836955830e7 // indirect
-	golang.org/x/exp v0.0.0-20221031165847-c99f073a8326 // indirect
 	golang.org/x/net v0.0.0-20221014081412-f15817d10f9b // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/xmlpath.v2 v2.0.0-20150820204837-860cbeca3ebc // indirect

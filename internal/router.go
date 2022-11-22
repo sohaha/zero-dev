@@ -11,6 +11,9 @@ import (
 	"github.com/sohaha/zlsgo/znet/cors"
 )
 
+// pubPath todo 后台前端界面不需要权限
+var pubPath = []string{"/manage/base/login", "/admin*", "/", "/static/*"}
+
 func InitRouter(_ *service.Conf) []service.Router {
 	return []service.Router{
 		&controller.Home{},
@@ -40,6 +43,6 @@ func InitMiddleware(conf *service.Conf, app *service.App) []znet.Handler {
 
 	return []znet.Handler{
 		cors.Default(),
-		account.NewMiddleware(app),
+		account.NewMiddleware(app, pubPath),
 	}
 }

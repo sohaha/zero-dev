@@ -21,6 +21,7 @@ func GetPages(c *znet.Context) (page, pagesize int, err error) {
 			}
 			return rawValue, nil
 		})),
+
 		zvalid.BatchVar(&pagesize, c.Valid(rule, "pagesize", "数量").MaxInt(1000).Customize(func(rawValue string, err error) (string, error) {
 			if err != nil || rawValue == "" {
 				return "10", err

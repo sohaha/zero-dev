@@ -43,24 +43,33 @@ func InitWeb(app *App, middlewares []znet.Handler) *znet.Engine {
 	}
 
 	r.Use(znet.RewriteErrorHandler(func(c *znet.Context, err error) {
+		statusCode := http.StatusInternalServerError
+		switch zerror.GetTag(err) {
+		case zerror.InvalidInput:
+			statusCode = http.StatusBadRequest
+		case zerror.PermissionDenied:
+			statusCode = http.StatusForbidden
+		case zerror.Unauthorized:
+			statusCode = http.StatusUnauthorized
+		}
+
+		zlog.Debug(zerror.GetTag(err))
+		zlog.Debug((err))
+		var code int32
 		errCode, ok := zerror.UnwrapCode(err)
 		if ok && errCode != 0 {
-			_ = error_code.ErrCode(errCode).Result(c, err)
-			return
+			code = int32(errCode)
+		} else {
+			code = int32(error_code.ServerError)
 		}
 
 		errMsg := err.Error()
-
-		if ok && errCode == 0 {
-			c.ApiJSON(0, errMsg, struct{}{})
-			return
-		}
-
 		if errMsg == "" {
 			errMsg = "unknown error"
 		}
-		c.JSON(http.StatusInternalServerError, znet.ApiData{
-			Code: int32(error_code.ServerError), Msg: errMsg,
+
+		c.JSON(int32(statusCode), znet.ApiData{
+			Code: code, Msg: errMsg,
 		})
 	}))
 

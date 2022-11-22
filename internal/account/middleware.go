@@ -22,7 +22,7 @@ import (
 //go:embed permission.toml
 var defPermission []byte
 
-func NewMiddleware(app *service.App) znet.Handler {
+func NewMiddleware(app *service.App, pubPath []string) znet.Handler {
 	var loaderOptions grbac.Option
 	if zfile.FileExist("permission.toml") {
 		loaderOptions = grbac.WithFile("permission.toml", time.Second*2)
@@ -40,9 +40,6 @@ func NewMiddleware(app *service.App) znet.Handler {
 	options := grbac.WithMatchMode(meta.MatchPrioritySomeAllow)
 	rbac, err := grbac.New(loaderOptions, options)
 	zerror.Panic(err)
-
-	// todo 后台前端界面不需要权限
-	pubPath := []string{"/manage/base/login", "/admin*"}
 
 	m, err := migration(app.Di)
 	zerror.Panic(err)

@@ -12,6 +12,7 @@ import (
 
 	gjwt "github.com/golang-jwt/jwt"
 	"github.com/sohaha/zlsgo/zcache"
+	"github.com/sohaha/zlsgo/zerror"
 	"github.com/sohaha/zlsgo/znet"
 	"github.com/sohaha/zlsgo/zstring"
 	"github.com/sohaha/zlsgo/ztype"
@@ -121,7 +122,7 @@ func (h *AccountHandlers) CreateManageToken(user ztype.Map, key string, expire i
 func (h *AccountHandlers) ParsingManageToken(c *znet.Context, key string) (*jwt.JwtInfo, error) {
 	token := jwt.GetToken(c)
 	if token == "" {
-		return nil, error_code.Unauthorized.Text("请先登录")
+		return nil, zerror.New(error_code.Unauthorized2, "请先登录", zerror.WrapTag(zerror.Unauthorized))
 	}
 
 	j, err := jwt.ParsingToken(token, key)

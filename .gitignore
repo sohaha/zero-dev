@@ -16,3 +16,4 @@ zlsapp
 common/vm/yaegi/main/main_linux_amd64
 internal/model/testdata/test.db
 internal/testdata/test.db
+zero-dev.code-workspace
