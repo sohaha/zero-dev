@@ -138,6 +138,13 @@ func builtInRouter(r *znet.Engine, app *App) {
 		"log": func(args ...interface{}) template.HTML {
 			return template.HTML(ztype.ToString(args))
 		},
+		"get": func(args int) ztype.Map {
+			zlog.Debug(args)
+			return ztype.Map{
+				"i": args,
+				"d": ztype.ToInt(args) * 3,
+			}
+		},
 	})
 	// 静态模板目录
 	r.LoadHTMLGlob("./resource/html/**/*.html")
