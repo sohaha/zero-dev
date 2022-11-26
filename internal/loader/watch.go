@@ -22,8 +22,8 @@ import (
 
 func (l *Loader) Watch(dir string) {
 	// l.c
-	err := l.watcher.Add(dir)
-	zlog.Debug(dir, err)
+	// err := l.watcher.Add(dir)
+	// zlog.Debug(dir, err)
 
 }
 

@@ -8,12 +8,15 @@ import (
 
 	"zlsapp/internal/error_code"
 
+	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/zdi"
 	"github.com/sohaha/zlsgo/zerror"
+	"github.com/sohaha/zlsgo/zfile"
 	"github.com/sohaha/zlsgo/zlog"
 	"github.com/sohaha/zlsgo/znet"
 	"github.com/sohaha/zlsgo/zstring"
 	"github.com/sohaha/zlsgo/zutil"
+	"github.com/sohaha/zstatic"
 )
 
 type (
@@ -53,8 +56,6 @@ func InitWeb(app *App, middlewares []znet.Handler) *znet.Engine {
 			statusCode = http.StatusUnauthorized
 		}
 
-		zlog.Debug(zerror.GetTag(err))
-		zlog.Debug((err))
 		var code int32
 		errCode, ok := zerror.UnwrapCode(err)
 		if ok && errCode != 0 {
@@ -77,6 +78,7 @@ func InitWeb(app *App, middlewares []znet.Handler) *znet.Engine {
 		r.Use(middleware)
 	}
 
+	builtInRouter(r, app)
 	return r
 }
 
@@ -122,5 +124,50 @@ func RunWeb(r *znet.Engine, app *App, controllers []Router) {
 func StopWeb(_ *znet.Engine, _ *App) {
 	znet.SetShutdown(func() {
 
+	})
+}
+
+func builtInRouter(r *znet.Engine, app *App) {
+	// 静态资源目录，常用于放上传的文件
+	r.Log.Debug(22)
+	r.Static("/static/", zfile.RealPathMkdir("./resource/static"))
+
+	// 静态模板目录
+	r.LoadHTMLGlob("./resource/html/**/*.html")
+
+	// 后台前端
+	{
+		localFileExist := zarray.NewHashMap[string, []byte]()
+		fileserver := zstatic.NewFileserver("dist", func(c *znet.Context, name string, content []byte, err error) bool {
+			if err != nil {
+				return false
+			}
+
+			b, ok := localFileExist.ProvideGet(name, func() ([]byte, bool) {
+				path := "dist/" + name
+				if zfile.FileExist(path) {
+					return nil, true
+				}
+				b, err := zfile.ReadFile(path)
+				if err != nil {
+					return nil, false
+				}
+				return b, true
+			})
+
+			if ok && content != nil {
+				m := zfile.GetMimeType(name, b)
+				c.Byte(200, b)
+				c.SetContentType(m)
+				return true
+			}
+
+			return false
+		})
+		r.GET(`/admin{file:.*}`, fileserver)
+	}
+
+	r.NotFoundHandler(func(c *znet.Context) {
+		c.JSON(http.StatusNotFound, znet.ApiData{Code: 404, Msg: "此路不通"})
 	})
 }

@@ -6,5 +6,6 @@ func (s *SQL) FindOne() {
 }
 
 func (s *SQL) Insert(data ztype.Map) (lastId interface{}, err error) {
-	return s.db.InsertMaps(s.table, data)
+	// return s.db.InsertMaps(s.table, data)
+	return nil, nil
 }

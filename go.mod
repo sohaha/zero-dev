@@ -25,7 +25,7 @@ require (
 	github.com/aws/aws-sdk-go v1.32.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cbroglie/mustache v1.0.1 // indirect
-	github.com/cespare/xxhash/v2 v2.1.1 // indirect
+	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/cheggaaa/pb/v3 v3.0.5 // indirect
 	github.com/dlclark/regexp2 v1.7.0 // indirect
 	github.com/dop251/goja_nodejs v0.0.0-20220905124449-678b33ca5009 // indirect
