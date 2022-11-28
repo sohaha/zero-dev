@@ -2,7 +2,6 @@ package service
 
 import (
 	"fmt"
-	"html/template"
 	"net/http"
 	"reflect"
 	"strings"
@@ -16,7 +15,6 @@ import (
 	"github.com/sohaha/zlsgo/zlog"
 	"github.com/sohaha/zlsgo/znet"
 	"github.com/sohaha/zlsgo/zstring"
-	"github.com/sohaha/zlsgo/ztype"
 	"github.com/sohaha/zlsgo/zutil"
 	"github.com/sohaha/zstatic"
 )
@@ -134,20 +132,20 @@ func builtInRouter(r *znet.Engine, app *App) {
 	r.Log.Debug(22)
 	r.Static("/static/", zfile.RealPathMkdir("./resource/static"))
 
-	r.SetTemplateFuncMap(template.FuncMap{
-		"log": func(args ...interface{}) template.HTML {
-			return template.HTML(ztype.ToString(args))
-		},
-		"get": func(args int) ztype.Map {
-			zlog.Debug(args)
-			return ztype.Map{
-				"i": args,
-				"d": ztype.ToInt(args) * 3,
-			}
-		},
-	})
-	// 静态模板目录
-	r.LoadHTMLGlob("./resource/html/**/*.html")
+	// r.SetTemplateFuncMap(template.FuncMap{
+	// 	"log": func(args ...interface{}) template.HTML {
+	// 		return template.HTML(ztype.ToString(args))
+	// 	},
+	// 	"get": func(args int) ztype.Map {
+	// 		zlog.Debug(args)
+	// 		return ztype.Map{
+	// 			"i": args,
+	// 			"d": ztype.  (args) * 3,
+	// 		}
+	// 	},
+	// })
+	// // 静态模板目录
+	// r.LoadHTMLGlob("./resource/html/**/*.html")
 
 	// 后台前端
 	{
