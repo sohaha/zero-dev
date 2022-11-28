@@ -28,6 +28,7 @@ func (h *Home) Init(r *znet.Engine) {
 	r.GET("/2", func(c *znet.Context) {
 		err := j.Render(c.Writer, "index", map[string]interface{}{
 			"Title": zstring.Rand(10),
+			"data":  ztype.Map{"1": "v1", "2": "v2"},
 		}, "layouts/main")
 		c.Log.Debug(err)
 		// c.Template(200, "home.html", znet.Data{"html": template.HTML("<h1>A Safe header</h1>"), "title": "ZlsGo 文档 ", "js": template.JS(`<script>console.log(` + ztype.ToString(123) + `)</script>`)})
