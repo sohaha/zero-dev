@@ -21,7 +21,7 @@ func trim(str string) string {
 func TestRender(t *testing.T) {
 	tt := zlsgo.NewTest(t)
 
-	engine := New("./views", func(o *options) {
+	engine := New("./views", func(o *Options) {
 		o.Debug = true
 		o.Extension = ".jet.html"
 	})
@@ -53,8 +53,11 @@ func TestLayout(t *testing.T) {
 
 	engine := New("./views")
 
+	err := engine.Load()
+	tt.NoError(err)
+
 	var buf bytes.Buffer
-	err := engine.Render(&buf, "index", map[string]interface{}{
+	err = engine.Render(&buf, "index", map[string]interface{}{
 		"Title": "Hello, World!",
 	}, "layouts/main")
 	tt.NoError(err)
@@ -79,20 +82,23 @@ func TestEmptyLayout(t *testing.T) {
 
 func TestFileSystem(t *testing.T) {
 	tt := zlsgo.NewTest(t)
-	engine := NewFileSystem(http.Dir("./views"))
+	engine := NewFileSystem(http.Dir(zfile.RealPath("./views")), func(o *Options) {
+		o.Debug = true
+	})
 
 	var buf bytes.Buffer
 	err := engine.Render(&buf, "index", map[string]interface{}{
 		"Title": "Hello, World!",
-	}, "layouts/main")
+	}, "/layouts/main")
 	tt.NoError(err)
+
 	expect := `<!DOCTYPE html><html><head><title>Title</title></head><body><h2>Header</h2><h1>Hello, World!</h1><h2>Footer</h2></body></html>`
 	tt.Equal(expect, trim(buf.String()))
 }
 
 func TestReload(t *testing.T) {
 	tt := zlsgo.NewTest(t)
-	engine := NewFileSystem(http.Dir("./views"), func(o *options) {
+	engine := NewFileSystem(http.Dir("./views"), func(o *Options) {
 		o.Reload = true
 	})
 

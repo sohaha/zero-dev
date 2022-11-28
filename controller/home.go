@@ -4,8 +4,10 @@ import (
 	"zlsapp/common/jet"
 	"zlsapp/service"
 
+	"github.com/sohaha/zlsgo/zlog"
 	"github.com/sohaha/zlsgo/znet"
 	"github.com/sohaha/zlsgo/zstring"
+	"github.com/sohaha/zlsgo/ztype"
 )
 
 type Home struct {
@@ -14,16 +16,15 @@ type Home struct {
 
 func (h *Home) Init(r *znet.Engine) {
 
-	// var views = jet.NewSet(
-	// 	jet.NewOSFileSystemLoader("./resource/views"),
-	// 	// jet.InDevelopmentMode(), // remove in production
-	// )
+	j := jet.New("common/jet/views", func(o *jet.Options) {
+		o.Debug = true
+		o.Reload = true
+	})
 
-	j := jet.New(r, "./common/jet/views/*.jet", ".jet")
-	j.Debug(true)
-	j.Reload(true).Load()
-	// zlog.Debug(j.Load())
-	r.SetHTMLTemplate()
+	j.AddFunc("test", func(s interface{}) ztype.Map {
+		zlog.Debug(s)
+		return ztype.Map{"dd1": "dd2"}
+	})
 	r.GET("/2", func(c *znet.Context) {
 		err := j.Render(c.Writer, "index", map[string]interface{}{
 			"Title": zstring.Rand(10),

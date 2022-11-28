@@ -24,13 +24,13 @@ type Engine struct {
 	mutex      sync.RWMutex
 	funcmap    map[string]interface{}
 	Templates  *jet.Set
-	options    options
+	options    Options
 }
 
 var extensions = []string{".html.jet", ".jet.html", ".jet"}
 
 // New returns a Jet render engine for Fiber
-func New(directory string, opt ...func(o *options)) *Engine {
+func New(directory string, opt ...func(o *Options)) *Engine {
 	o := getOption(opt...)
 	if !zarray.Contains(extensions, o.Extension) {
 		Log.Fatalf("%s extension is not a valid jet engine ['.html.jet', .jet.html', '.jet']", o.Extension)
@@ -45,7 +45,7 @@ func New(directory string, opt ...func(o *options)) *Engine {
 	return engine
 }
 
-func NewFileSystem(fs http.FileSystem, opt ...func(o *options)) *Engine {
+func NewFileSystem(fs http.FileSystem, opt ...func(o *Options)) *Engine {
 	o := getOption(opt...)
 	if !zarray.Contains(extensions, o.Extension) {
 		Log.Fatalf("%s extension is not a valid jet engine ['.html.jet', .jet.html', '.jet']", o.Extension)
@@ -55,6 +55,7 @@ func NewFileSystem(fs http.FileSystem, opt ...func(o *options)) *Engine {
 		directory:  "/",
 		fileSystem: fs,
 		funcmap:    make(map[string]interface{}),
+		options:    o,
 	}
 
 	return engine
@@ -77,31 +78,31 @@ func (e *Engine) Load() (err error) {
 
 	if e.fileSystem != nil {
 		loader, err = httpfs.NewLoader(e.fileSystem)
-
 		if err != nil {
 			return
 		}
 	} else {
 		loader = jet.NewInMemLoader()
 	}
+
+	opts := []jet.Option{jet.WithDelims(e.options.Delims.Left, e.options.Delims.Right)}
+
 	if e.options.Debug {
-		e.Templates = jet.NewSet(
-			loader,
-			jet.WithDelims(e.options.Delims.Left, e.options.Delims.Right),
-			jet.InDevelopmentMode(),
-		)
-	} else {
-		e.Templates = jet.NewSet(
-			loader,
-			jet.WithDelims(e.options.Delims.Left, e.options.Delims.Right),
-		)
+		opts = append(opts, jet.InDevelopmentMode())
+
 	}
+
+	e.Templates = jet.NewSet(
+		loader,
+		opts...,
+	)
 
 	for name, fn := range e.funcmap {
 		e.Templates.AddGlobal(name, fn)
 	}
 
 	e.loaded = true
+
 	if _, ok := loader.(*jet.InMemLoader); ok {
 		total := 0
 		tip := zstring.Buffer()
@@ -170,10 +171,11 @@ func (e *Engine) Render(out io.Writer, template string, binding ztype.Map, layou
 		if err != nil {
 			return err
 		}
+
 		bind.Set(e.options.Layout, func() {
-			_ = tmpl.Execute(out, bind, nil)
+			_ = tmpl.Execute(out, bind, empty)
 		})
-		return lay.Execute(out, bind, nil)
+		return lay.Execute(out, bind, empty)
 	}
 	return tmpl.Execute(out, bind, nil)
 }

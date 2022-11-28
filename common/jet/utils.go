@@ -8,6 +8,8 @@ import (
 	"github.com/sohaha/zlsgo/zlog"
 )
 
+var empty = struct{}{}
+
 var Log = zlog.New("jet ")
 
 func init() {
@@ -19,7 +21,7 @@ type Delims struct {
 	Right string
 }
 
-type options struct {
+type Options struct {
 	Extension string
 	Layout    string
 	Debug     bool
@@ -27,14 +29,14 @@ type options struct {
 	Delims    Delims
 }
 
-func getOption(opt ...func(o *options)) options {
-	o := options{
+func getOption(opt ...func(o *Options)) Options {
+	o := Options{
 		Extension: ".jet.html",
 		Delims: Delims{
 			Left:  "{{",
 			Right: "}}",
 		},
-		Layout: "embed",
+		Layout: "slot",
 	}
 	for _, f := range opt {
 		f(&o)
