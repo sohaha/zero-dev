@@ -8,7 +8,10 @@ import (
 	"github.com/sohaha/zlsgo/zlog"
 )
 
-var empty = struct{}{}
+var (
+	empty      = struct{}{}
+	extensions = []string{".html.jet", ".jet.html", ".jet"}
+)
 
 var Log = zlog.New("jet ")
 
@@ -22,21 +25,24 @@ type Delims struct {
 }
 
 type Options struct {
-	Extension string
-	Layout    string
-	Debug     bool
-	Reload    bool
-	Delims    Delims
+	Extension  string
+	Layout     string
+	Debug      bool
+	Reload     bool
+	DelimLeft  string
+	DelimRight string
 }
 
-func getOption(opt ...func(o *Options)) Options {
+func getOption(debug bool, opt ...func(o *Options)) Options {
 	o := Options{
-		Extension: ".jet.html",
-		Delims: Delims{
-			Left:  "{{",
-			Right: "}}",
-		},
-		Layout: "slot",
+		Extension:  ".jet.html",
+		DelimLeft:  "{{",
+		DelimRight: "}}",
+		Layout:     "slot",
+	}
+	if debug {
+		o.Debug = true
+		o.Reload = true
 	}
 	for _, f := range opt {
 		f(&o)

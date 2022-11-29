@@ -21,6 +21,8 @@ func (h *Home) Init(r *znet.Engine) {
 		o.Reload = true
 	})
 
+	r.SetTemplate(j)
+
 	j.AddFunc("test", func(s interface{}) ztype.Map {
 		zlog.Debug(s)
 		return ztype.Map{"dd1": "dd2"}

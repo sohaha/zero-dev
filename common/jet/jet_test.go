@@ -3,25 +3,17 @@ package jet
 import (
 	"bytes"
 	"net/http"
-	"regexp"
-	"strings"
 	"testing"
 
 	"github.com/sohaha/zlsgo"
 	"github.com/sohaha/zlsgo/zfile"
+	"github.com/sohaha/zlsgo/zstring"
 )
-
-func trim(str string) string {
-	trimmed := strings.TrimSpace(regexp.MustCompile(`\s+`).ReplaceAllString(str, " "))
-	trimmed = strings.Replace(trimmed, " <", "<", -1)
-	trimmed = strings.Replace(trimmed, "> ", ">", -1)
-	return trimmed
-}
 
 func TestRender(t *testing.T) {
 	tt := zlsgo.NewTest(t)
 
-	engine := New("./views", func(o *Options) {
+	engine := New(nil, "./views", func(o *Options) {
 		o.Debug = true
 		o.Extension = ".jet.html"
 	})
@@ -36,7 +28,7 @@ func TestRender(t *testing.T) {
 	tt.NoError(err)
 	expect := `<h2>Header</h2><h1>Hello, World!</h1><h2>Footer</h2>`
 
-	tt.Equal(expect, trim(buf.String()))
+	tt.Equal(expect, zstring.TrimLine(buf.String()))
 
 	buf.Reset()
 
@@ -45,13 +37,13 @@ func TestRender(t *testing.T) {
 	})
 	tt.NoError(err)
 	expect = `<h1>Hello, World!</h1>`
-	tt.Equal(expect, trim(buf.String()))
+	tt.Equal(expect, zstring.TrimLine(buf.String()))
 }
 
 func TestLayout(t *testing.T) {
 	tt := zlsgo.NewTest(t)
 
-	engine := New("./views")
+	engine := New(nil, "./views")
 
 	err := engine.Load()
 	tt.NoError(err)
@@ -63,12 +55,12 @@ func TestLayout(t *testing.T) {
 	tt.NoError(err)
 
 	expect := `<!DOCTYPE html><html><head><title>Title</title></head><body><h2>Header</h2><h1>Hello, World!</h1><h2>Footer</h2></body></html>`
-	tt.Equal(expect, trim(buf.String()))
+	tt.Equal(expect, zstring.TrimLine(buf.String()))
 }
 
 func TestEmptyLayout(t *testing.T) {
 	tt := zlsgo.NewTest(t)
-	engine := New("./views")
+	engine := New(nil, "./views")
 
 	var buf bytes.Buffer
 
@@ -77,12 +69,12 @@ func TestEmptyLayout(t *testing.T) {
 	}, "")
 	tt.NoError(err)
 	expect := `<h2>Header</h2><h1>Hello, World!</h1><h2>Footer</h2>`
-	tt.Equal(expect, trim(buf.String()))
+	tt.Equal(expect, zstring.TrimLine(buf.String()))
 }
 
 func TestFileSystem(t *testing.T) {
 	tt := zlsgo.NewTest(t)
-	engine := NewFileSystem(http.Dir(zfile.RealPath("./views")), func(o *Options) {
+	engine := NewFileSystem(nil, http.Dir(zfile.RealPath("./views")), func(o *Options) {
 		o.Debug = true
 	})
 
@@ -93,12 +85,12 @@ func TestFileSystem(t *testing.T) {
 	tt.NoError(err)
 
 	expect := `<!DOCTYPE html><html><head><title>Title</title></head><body><h2>Header</h2><h1>Hello, World!</h1><h2>Footer</h2></body></html>`
-	tt.Equal(expect, trim(buf.String()))
+	tt.Equal(expect, zstring.TrimLine(buf.String()))
 }
 
 func TestReload(t *testing.T) {
 	tt := zlsgo.NewTest(t)
-	engine := NewFileSystem(http.Dir("./views"), func(o *Options) {
+	engine := NewFileSystem(nil, http.Dir("./views"), func(o *Options) {
 		o.Reload = true
 	})
 
@@ -119,5 +111,5 @@ func TestReload(t *testing.T) {
 
 	tt.NoError(err)
 	expect := "after reload"
-	tt.Equal(expect, trim(buf.String()))
+	tt.Equal(expect, zstring.TrimLine(buf.String()))
 }

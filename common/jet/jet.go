@@ -13,12 +13,15 @@ import (
 	"github.com/CloudyKit/jet/v6/loaders/httpfs"
 	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/zfile"
+	"github.com/sohaha/zlsgo/zlog"
+	"github.com/sohaha/zlsgo/znet"
 	"github.com/sohaha/zlsgo/zstring"
 	"github.com/sohaha/zlsgo/ztype"
 )
 
 type Engine struct {
 	directory  string
+	log        *zlog.Logger
 	fileSystem http.FileSystem
 	loaded     bool
 	mutex      sync.RWMutex
@@ -27,38 +30,36 @@ type Engine struct {
 	options    Options
 }
 
-var extensions = []string{".html.jet", ".jet.html", ".jet"}
+var _ znet.Template = &Engine{}
 
 // New returns a Jet render engine for Fiber
-func New(directory string, opt ...func(o *Options)) *Engine {
-	o := getOption(opt...)
-	if !zarray.Contains(extensions, o.Extension) {
-		Log.Fatalf("%s extension is not a valid jet engine ['.html.jet', .jet.html', '.jet']", o.Extension)
-	}
-
-	engine := &Engine{
+func New(r *znet.Engine, directory string, opt ...func(o *Options)) *Engine {
+	e := &Engine{
 		directory: zfile.RealPath(directory),
 		funcmap:   make(map[string]interface{}),
-		options:   o,
 	}
 
-	return engine
+	if r != nil {
+		e.options = getOption(r.IsDebug(), opt...)
+		e.log = r.Log
+	} else {
+		e.options = getOption(true, opt...)
+		e.log = zlog.New()
+		e.log.ResetFlags(zlog.BitLevel)
+	}
+
+	if !zarray.Contains(extensions, e.options.Extension) {
+		Log.Fatalf("%s extension is not a valid jet engine ['.html.jet', .jet.html', '.jet']", e.options.Extension)
+	}
+
+	return e
 }
 
-func NewFileSystem(fs http.FileSystem, opt ...func(o *Options)) *Engine {
-	o := getOption(opt...)
-	if !zarray.Contains(extensions, o.Extension) {
-		Log.Fatalf("%s extension is not a valid jet engine ['.html.jet', .jet.html', '.jet']", o.Extension)
-	}
+func NewFileSystem(r *znet.Engine, fs http.FileSystem, opt ...func(o *Options)) *Engine {
+	e := New(r, "/", opt...)
+	e.fileSystem = fs
 
-	engine := &Engine{
-		directory:  "/",
-		fileSystem: fs,
-		funcmap:    make(map[string]interface{}),
-		options:    o,
-	}
-
-	return engine
+	return e
 }
 
 // AddFunc adds the function to the template's function map
@@ -71,6 +72,10 @@ func (e *Engine) AddFunc(name string, fn interface{}) *Engine {
 
 // Parse parses the templates to the engine
 func (e *Engine) Load() (err error) {
+	if e.loaded && !e.options.Reload {
+		return nil
+	}
+
 	e.mutex.Lock()
 	defer e.mutex.Unlock()
 
@@ -85,7 +90,7 @@ func (e *Engine) Load() (err error) {
 		loader = jet.NewInMemLoader()
 	}
 
-	opts := []jet.Option{jet.WithDelims(e.options.Delims.Left, e.options.Delims.Right)}
+	opts := []jet.Option{jet.WithDelims(e.options.DelimLeft, e.options.DelimRight)}
 
 	if e.options.Debug {
 		opts = append(opts, jet.InDevelopmentMode())
@@ -100,8 +105,6 @@ func (e *Engine) Load() (err error) {
 	for name, fn := range e.funcmap {
 		e.Templates.AddGlobal(name, fn)
 	}
-
-	e.loaded = true
 
 	if _, ok := loader.(*jet.InMemLoader); ok {
 		total := 0
@@ -122,7 +125,19 @@ func (e *Engine) Load() (err error) {
 				return err
 			}
 			name := strings.TrimSuffix(rel, e.options.Extension)
-			buf, err := ReadFile(path, e.fileSystem)
+
+			var buf []byte
+			if e.fileSystem != nil {
+				var file http.File
+				file, err = e.fileSystem.Open(path)
+				if err != nil {
+					return err
+				}
+				defer file.Close()
+				buf, err = io.ReadAll(file)
+			} else {
+				buf, err = zfile.ReadFile(path)
+			}
 			if err != nil {
 				return err
 			}
@@ -136,20 +151,20 @@ func (e *Engine) Load() (err error) {
 			return err
 		})
 
-		if err == nil && e.options.Debug {
+		if err == nil && !e.loaded && e.options.Debug {
 			Log.Debugf("Loaded HTML Templates (%d): \n%s", total, tip.String())
 		}
+
+		e.loaded = true
+
 	}
 
 	return
 }
 
 // Execute will render the template by name
-func (e *Engine) Render(out io.Writer, template string, binding ztype.Map, layout ...string) error {
+func (e *Engine) Render(out io.Writer, template string, data interface{}, layout ...string) error {
 	if !e.loaded || e.options.Reload {
-		if e.options.Reload {
-			e.loaded = false
-		}
 		if err := e.Load(); err != nil {
 			return err
 		}
@@ -160,12 +175,22 @@ func (e *Engine) Render(out io.Writer, template string, binding ztype.Map, layou
 	}
 
 	var bind jet.VarMap
-	if binding != nil {
-		bind = make(jet.VarMap)
-		for key, value := range binding {
-			bind.Set(key, value)
+	if data != nil {
+		if binds, ok := data.(map[string]interface{}); ok {
+			bind = make(jet.VarMap)
+			for key, value := range binds {
+				bind.Set(key, value)
+			}
+		} else if binds, ok := data.(ztype.Map); ok {
+			bind = make(jet.VarMap)
+			for key, value := range binds {
+				bind.Set(key, value)
+			}
+		} else if binds, ok := data.(jet.VarMap); ok {
+			bind = binds
 		}
 	}
+
 	if len(layout) > 0 && layout[0] != "" {
 		lay, err := e.Templates.GetTemplate(layout[0])
 		if err != nil {
