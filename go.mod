@@ -102,3 +102,5 @@ replace github.com/zlsgo/zdb => ../zdb_dev
 replace github.com/sohaha/zlsgo => ../zlsgo-dev
 
 replace github.com/sohaha/zstatic => ../zstatic
+
+replace github.com/zlsgo/jet => ../jet

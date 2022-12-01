@@ -47,7 +47,7 @@ func InitMiddleware(conf *service.Conf, app *service.App) []znet.Handler {
 
 func InitRouterAfter(conf *service.Conf, app *service.App) service.RouterAfter {
 	return func(r *znet.Engine, app *service.App) {
-		bindStatic(r)
 		bindModelTemplate(r)
+		bindStatic(r)
 	}
 }

@@ -61,6 +61,8 @@ func bindModelTemplate(r *znet.Engine) {
 	j := jet.New(r, dir, func(o *jet.Options) {
 	})
 
+	_ = j.Load()
+
 	r.SetTemplate(j)
 
 	var mapping ztype.Map
@@ -87,8 +89,10 @@ func bindModelTemplate(r *znet.Engine) {
 		v := mapping.Get(k)
 		k := strings.TrimLeft(k, "/")
 		r.GET("/"+k, func(c *znet.Context) {
-			zlog.Debug(333)
-			c.Template(http.StatusOK, v.String(), ztype.Map{})
+			zlog.Debug(333, j, v)
+			zlog.Debug(333, j.Exists(v.String()))
+			zlog.Debug(333, j.Exists("pages/"+v.String()))
+			// c.Template(http.StatusOK, v.String(), ztype.Map{})
 		}, znet.Recovery(func(c *znet.Context, err error) {
 			zlog.Error("Recovery", err)
 			c.Next()
