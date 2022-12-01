@@ -37,7 +37,7 @@ _____
 			})
 
 			if c.Base.Debug {
-				_ = router.GET(`/debug/statsviz{*:[\S]*}`, func(c *znet.Context) {
+				_ = router.GET(`/debug/statsviz{*:.*}`, func(c *znet.Context) {
 					if c.GetParam("*") == "/ws" {
 						statsviz.Ws(c.Writer, c.Request)
 						return

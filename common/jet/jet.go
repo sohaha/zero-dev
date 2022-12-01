@@ -22,6 +22,7 @@ import (
 type Engine struct {
 	directory  string
 	log        *zlog.Logger
+	loader     jet.Loader
 	fileSystem http.FileSystem
 	loaded     bool
 	mutex      sync.RWMutex
@@ -60,6 +61,10 @@ func NewFileSystem(r *znet.Engine, fs http.FileSystem, opt ...func(o *Options)) 
 	e.fileSystem = fs
 
 	return e
+}
+
+func (e *Engine) Exists(templatePath string) bool {
+	return e.loader.Exists(templatePath)
 }
 
 // AddFunc adds the function to the template's function map

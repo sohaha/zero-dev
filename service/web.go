@@ -8,15 +8,14 @@ import (
 
 	"zlsapp/internal/error_code"
 
-	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/zdi"
 	"github.com/sohaha/zlsgo/zerror"
-	"github.com/sohaha/zlsgo/zfile"
 	"github.com/sohaha/zlsgo/zlog"
 	"github.com/sohaha/zlsgo/znet"
 	"github.com/sohaha/zlsgo/zstring"
+	"github.com/sohaha/zlsgo/ztime"
+	"github.com/sohaha/zlsgo/ztype"
 	"github.com/sohaha/zlsgo/zutil"
-	"github.com/sohaha/zstatic"
 )
 
 type (
@@ -30,6 +29,7 @@ type (
 	Router interface {
 		Init(r *znet.Engine)
 	}
+	RouterAfter func(r *znet.Engine, app *App)
 )
 
 // InitWeb 初始化 WEB
@@ -78,11 +78,19 @@ func InitWeb(app *App, middlewares []znet.Handler) *znet.Engine {
 		r.Use(middleware)
 	}
 
-	builtInRouter(r, app)
 	return r
 }
 
 func RunWeb(r *znet.Engine, app *App, controllers []Router) {
+	builtInRouter(r, app)
+
+	_, err := app.Di.Invoke(func(after RouterAfter) {
+		after(r, app)
+	})
+	if err != nil && !strings.Contains(err.Error(), "value not found for type service.RouterAfter") {
+		zerror.Panic(err)
+	}
+
 	for _, c := range controllers {
 		err := zutil.TryCatch(func() error {
 			typeOf := reflect.TypeOf(c).Elem()
@@ -128,58 +136,13 @@ func StopWeb(_ *znet.Engine, _ *App) {
 }
 
 func builtInRouter(r *znet.Engine, app *App) {
-	// 静态资源目录，常用于放上传的文件
-	r.Log.Debug(22)
-	r.Static("/static/", zfile.RealPathMkdir("./resource/static"))
-
-	// r.SetTemplateFuncMap(template.FuncMap{
-	// 	"log": func(args ...interface{}) template.HTML {
-	// 		return template.HTML(ztype.ToString(args))
-	// 	},
-	// 	"get": func(args int) ztype.Map {
-	// 		zlog.Debug(args)
-	// 		return ztype.Map{
-	// 			"i": args,
-	// 			"d": ztype.  (args) * 3,
-	// 		}
-	// 	},
-	// })
-	// // 静态模板目录
-	// r.LoadHTMLGlob("./resource/html/**/*.html")
-
-	// 后台前端
-	{
-		localFileExist := zarray.NewHashMap[string, []byte]()
-		fileserver := zstatic.NewFileserver("dist", func(c *znet.Context, name string, content []byte, err error) bool {
-			if err != nil {
-				return false
-			}
-
-			b, ok := localFileExist.ProvideGet(name, func() ([]byte, bool) {
-				path := "dist/" + name
-				if zfile.FileExist(path) {
-					return nil, true
-				}
-				b, err := zfile.ReadFile(path)
-				if err != nil {
-					return nil, false
-				}
-				return b, true
-			})
-
-			if ok && content != nil {
-				m := zfile.GetMimeType(name, b)
-				c.Byte(200, b)
-				c.SetContentType(m)
-				return true
-			}
-
-			return false
-		})
-		r.GET(`/admin{file:.*}`, fileserver)
-	}
-
 	r.NotFoundHandler(func(c *znet.Context) {
+		if c.Request.URL.Path == "/" {
+			c.JSON(http.StatusOK, znet.ApiData{Code: 0, Msg: "Success", Data: ztype.Map{
+				"now": ztime.Now(),
+			}})
+			return
+		}
 		c.JSON(http.StatusNotFound, znet.ApiData{Code: 404, Msg: "此路不通"})
 	})
 }

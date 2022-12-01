@@ -8,7 +8,7 @@ require (
 	github.com/d5/tengo/v2 v2.13.0
 	github.com/dop251/goja v0.0.0-20221106173738-3b8a68ca89b4
 	github.com/golang-jwt/jwt v3.2.2+incompatible
-	github.com/sohaha/zlsgo v1.4.5
+	github.com/sohaha/zlsgo v1.4.8
 	github.com/tetratelabs/wazero v1.0.0-pre.3
 	github.com/traefik/yaegi v0.14.3
 	github.com/vadv/gopher-lua-libs v0.1.2
@@ -50,7 +50,8 @@ require (
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/yuin/gluamapper v0.0.0-20150323120927-d836955830e7 // indirect
-	golang.org/x/net v0.0.0-20221014081412-f15817d10f9b // indirect
+	github.com/zlsgo/jet v0.0.0-20221130071113-0e394b6bf3fc // indirect
+	golang.org/x/net v0.2.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/xmlpath.v2 v2.0.0-20150820204837-860cbeca3ebc // indirect
 	layeh.com/gopher-luar v1.0.8 // indirect
@@ -83,9 +84,9 @@ require (
 	github.com/subosito/gotenv v1.4.1 // indirect
 	github.com/tx7do/go-js v0.0.0-20220909234857-52d3d46d719c
 	github.com/xeipuuv/gojsonschema v1.2.0
-	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d
+	golang.org/x/crypto v0.3.0
 	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.1.0 // indirect
+	golang.org/x/sys v0.2.0 // indirect
 	golang.org/x/text v0.4.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

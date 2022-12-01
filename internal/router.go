@@ -2,7 +2,6 @@ package app
 
 import (
 	"zlsapp/common/restapi"
-	"zlsapp/controller"
 	"zlsapp/internal/account"
 	"zlsapp/internal/open"
 	"zlsapp/service"
@@ -12,11 +11,10 @@ import (
 )
 
 // pubPath todo 后台前端界面不需要权限
-var pubPath = []string{"/manage/base/login", "/admin*", "/", "/static/*", "/2"}
+var pubPath = []string{"/", "/manage/base/login", "/admin*", "/static/*", "/html/*"}
 
 func InitRouter(_ *service.Conf) []service.Router {
 	return []service.Router{
-		&controller.Home{},
 		&open.Open{
 			Path: "/_",
 		},
@@ -44,5 +42,12 @@ func InitMiddleware(conf *service.Conf, app *service.App) []znet.Handler {
 	return []znet.Handler{
 		cors.Default(),
 		account.NewMiddleware(app, pubPath),
+	}
+}
+
+func InitRouterAfter(conf *service.Conf, app *service.App) service.RouterAfter {
+	return func(r *znet.Engine, app *service.App) {
+		bindStatic(r)
+		bindModelTemplate(r)
 	}
 }
