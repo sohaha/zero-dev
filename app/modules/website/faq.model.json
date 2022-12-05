@@ -12,8 +12,9 @@
             "type": "string"
         },
         {
-            "label": "内容模板",
+            "label": "内容",
             "nullable": true,
+            "default": "",
             "name": "content",
             "type": "string"
         },
@@ -40,7 +41,7 @@
             "category": "新手指南"
         },
         {
-            "_id": 1,
+            "_id": 2,
             "title": "使用PIN码",
             "content": "使用PIN码",
             "category": "新手指南"

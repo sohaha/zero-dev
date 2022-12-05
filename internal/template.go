@@ -147,5 +147,24 @@ func injectionTemplate(j *jet.Engine) {
 
 			return item
 		})
+
+		j.AddFunc("News", func(page, pagesize interface{}) ztype.Map {
+			m, ok := parse.GetModel("website-news")
+			if !ok {
+				return ztype.Map{}
+			}
+
+			filter := ztype.Map{}
+
+			items, p, _ := parse.Pages(m, ztype.ToInt(page), ztype.ToInt(pagesize), filter, func(so *parse.StorageOptions) error {
+				so.Fields = m.GetFields("content")
+				return nil
+			})
+
+			return ztype.Map{
+				"items": items,
+				"page":  p,
+			}
+		})
 	}
 }

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+</head>
+
+<body>
+    {{include "../partials/header"}}
+    新闻页面
+
+    {{page := params.page?params.page:1}}
+
+    {{res := News(page,3)}}
+    {{range res.items}}
+    <div>{{.title}} - {{.created_at}}</div>
+    {{end}}
+    <br>
+    总数量 {{res.page.Total}}
+    分页数量 {{res.page.Count}}
+    当前页码 {{res.page.Curpage}}
+    {{ if res.page.Curpage < res.page.Total }}
+    <a href="/news/{{res.page.Curpage+1}}">下一页</a>
+    {{ end }}
+
+    {{ if res.page.Curpage > 1 }}
+    <a href="/news/{{res.page.Curpage-1}}">上一页</a>
+    {{ end }}
+
+
+</body>
+
+</html>

@@ -114,6 +114,7 @@
       "parent_id": 0,
       "category_name": "新闻中心",
       "type": 1,
+      "link": "/news",
       "status": 1
     },
     {

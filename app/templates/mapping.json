@@ -1,5 +1,7 @@
 {
     "vas": "vas/index",
+    "news": "news/index",
+    "news/:page": "news/index",
     "faq": "faq/index",
     "faq/:id": "faq/content"
 }

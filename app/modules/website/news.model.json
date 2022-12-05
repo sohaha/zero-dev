@@ -1,0 +1,37 @@
+{
+    "name": "新闻中心",
+    "table": {
+        "name": "website_news",
+        "comment": "发布新闻"
+    },
+    "columns": [
+        {
+            "label": "标题",
+            "name": "title",
+            "size": 25,
+            "type": "string"
+        },
+        {
+            "label": "内容",
+            "default": "",
+            "nullable": true,
+            "name": "content",
+            "type": "string"
+        }
+    ],
+    "relations": {},
+    "values": [
+        {
+            "_id": 1,
+            "title": "一条新闻",
+            "content": "新闻内容"
+        },
+        {
+            "title": "新的新闻",
+            "content": "新的新闻内容"
+        }
+    ],
+    "options": {
+        "timestamps": true
+    }
+}
