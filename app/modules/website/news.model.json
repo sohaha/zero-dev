@@ -12,6 +12,14 @@
             "type": "string"
         },
         {
+            "label": "封面图",
+            "name": "cover",
+            "size": 225,
+            "default": "",
+            "nullable": true,
+            "type": "string"
+        },
+        {
             "label": "内容",
             "default": "",
             "nullable": true,
