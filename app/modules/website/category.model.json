@@ -76,6 +76,7 @@
       "label": "外链地址",
       "nullable": true,
       "name": "link",
+      "default": "",
       "size": 255,
       "type": "string"
     }
@@ -95,6 +96,7 @@
       "parent_id": 0,
       "category_name": "增值服务",
       "type": 0,
+      "link": "/vas",
       "status": 1
     },
     {
@@ -102,6 +104,7 @@
       "parent_id": 0,
       "category_name": "帮助中心",
       "type": 1,
+      "link": "/faq",
       "template_lists": "faq/index",
       "template_content": "faq/content",
       "status": 1

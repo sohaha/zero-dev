@@ -5,11 +5,36 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>首页</title>
+    <title></title>
 </head>
 
 <body>
+    {{include "../partials/header"}}
     FAQ
+    <div>
+        <h3>
+            新手指南
+        </h3>
+        {{ items:=FAQs("新手指南") }}
+        {{ range _, v := items }}
+        <a href="/faq/{{v._id}}">{{v.title}}</a><br />
+        {{ end }}
+    </div>
+    <div>
+        <h3>
+            权益说明
+        </h3>
+        {{ items:=FAQs("权益说明") }}
+        {{if len(items) == 0}}
+        暂无
+        {{ end }}
+        {{ range _, v := items }}
+        <a href="/faq/{{v._id}}">{{v.title}}</a><br />
+        {{ end }}
+    </div>
+
+    <a href="/faq/1">跳转到 ID:1 内容</a>
+    <a href="/faq/2">跳转到 ID:2 内容</a>
 </body>
 
 </html>

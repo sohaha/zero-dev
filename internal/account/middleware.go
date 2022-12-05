@@ -16,11 +16,14 @@ import (
 	"github.com/sohaha/zlsgo/zfile"
 	"github.com/sohaha/zlsgo/znet"
 	"github.com/sohaha/zlsgo/zstring"
+	"github.com/sohaha/zlsgo/ztype"
 	"github.com/speps/go-hashids/v2"
 )
 
 //go:embed permission.toml
 var defPermission []byte
+
+const DisabledAuthKey = "disabled-auth"
 
 func NewMiddleware(app *service.App, pubPath []string) znet.Handler {
 	var loaderOptions grbac.Option
@@ -60,6 +63,11 @@ func NewMiddleware(app *service.App, pubPath []string) znet.Handler {
 				c.Next()
 				return nil
 			}
+		}
+
+		if v, ok := c.Value(DisabledAuthKey); ok && ztype.ToBool(v) {
+			c.Next()
+			return nil
 		}
 
 		q, err := rbac.NewQueryByRequest(c.Request)

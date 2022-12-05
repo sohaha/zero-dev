@@ -5,11 +5,23 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>首页</title>
+    <title></title>
 </head>
 
 <body>
-    content
+    {{include "../partials/header"}}
+    {{id:=params.id}}
+    当前 ID: {{id}}
+
+
+    <pre>
+{{info:=FindOne("website-faq",id)}}
+{{if info._id}}
+{{raw(info.content)}}
+{{else}}
+未找到,可以引用到其他页面
+{{end}}
+    </pre>
 </body>
 
 </html>

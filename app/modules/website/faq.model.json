@@ -1,0 +1,55 @@
+{
+    "name": "帮助中心",
+    "table": {
+        "name": "website_faq",
+        "comment": "常见问题与解答表"
+    },
+    "columns": [
+        {
+            "label": "标题",
+            "name": "title",
+            "size": 25,
+            "type": "string"
+        },
+        {
+            "label": "内容模板",
+            "nullable": true,
+            "name": "content",
+            "type": "string"
+        },
+        {
+            "label": "分类",
+            "name": "category",
+            "type": "string",
+            "options": [
+                {
+                    "value": "新手指南"
+                },
+                {
+                    "value": "新手指南"
+                }
+            ]
+        }
+    ],
+    "relations": {},
+    "values": [
+        {
+            "_id": 1,
+            "title": "APP安装注册",
+            "content": "首先，您需要在手机上下载<b>安装APP</b>，然后打开APP，点击注册，输入您的手机号码，点击获取验证码，输入验证码，点击注册，即可完成注册。",
+            "category": "新手指南"
+        },
+        {
+            "_id": 1,
+            "title": "使用PIN码",
+            "content": "使用PIN码",
+            "category": "新手指南"
+        }
+    ],
+    "views": {
+        "lists": {}
+    },
+    "options": {
+        "timestamps": true
+    }
+}

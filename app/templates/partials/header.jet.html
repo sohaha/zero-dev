@@ -1,0 +1,17 @@
+<link rel="stylesheet" href="/static/app.css">
+</link>
+
+
+<div>
+    {* 定义一个分类变量 *}
+    {{ category:=Find("website-category") }}
+    {{ categoryLen:=len(category) }}
+    {{ range i, v := category }}
+    {{ if v.link !="" }}
+    <a href="{{v.link}}">{{v.category_name}}</a>
+    {{ else }}
+    {{v.category_name}}
+    {{ end }}
+    {{if categoryLen-1 != i}} | {{end}}
+    {{ end }}
+</div>

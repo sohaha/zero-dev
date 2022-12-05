@@ -1,0 +1,5 @@
+{
+    "vas": "vas/index",
+    "faq": "faq/index",
+    "faq/:id": "faq/content"
+}

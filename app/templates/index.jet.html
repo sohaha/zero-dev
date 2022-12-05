@@ -9,15 +9,15 @@
 </head>
 
 <body>
-    {{dump()}}
+    {{include "partials/header"}}
     <br />
-    {* 定义一个分类变量 *}
-    {{ category:=lists("website-category") }}
-    {{ categoryLen:=len(category) }}
-    {{ range i, v := category }}
-    <a href="/website-category">{{v.category_name}}</a>
-    {{if categoryLen-1 != i}} | {{end}}
-    {{ end }}
+
+    <pre>
+内置:
+{{dump()}}
+    </pre>
+
+
 </body>
 
 </html>

@@ -30,6 +30,10 @@ type (
 		Init(r *znet.Engine)
 	}
 	RouterAfter func(r *znet.Engine, app *App)
+	Template    struct {
+		DIR    string
+		Global ztype.Map
+	}
 )
 
 // InitWeb 初始化 WEB
