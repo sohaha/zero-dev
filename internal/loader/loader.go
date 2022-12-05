@@ -14,6 +14,7 @@ type files struct {
 
 type Loader struct {
 	Model   *Modeler
+	Views   *Views
 	Di      zdi.Invoker
 	err     error
 	watcher *fsnotify.Watcher
@@ -31,7 +32,9 @@ func Init(di zdi.Injector) *Loader {
 		watcher: watcher,
 	}
 
-	l.newModeler()
+	l.loadViews()
+	l.loadModeler()
+	l.loadModules()
 	zerror.Panic(l.err)
 
 	go pollEvents(watcher)

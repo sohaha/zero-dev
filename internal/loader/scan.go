@@ -16,6 +16,8 @@ func (t FileType) Dir() string {
 		return "models"
 	case Flow:
 		return "flows"
+	case View:
+		return "views"
 	}
 	return ""
 }
@@ -26,6 +28,8 @@ func (t FileType) Suffix() string {
 		return ".model.json"
 	case Flow:
 		return ".flow.json"
+	case View:
+		return ".view.json"
 	}
 	return ""
 }
@@ -33,42 +37,45 @@ func (t FileType) Suffix() string {
 const (
 	Model FileType = iota + 1
 	Flow
+	View
 )
 
-func Scan(root string, filetype FileType) (files map[string]string, dir string) {
+func Scan(root string, suffix string, recurve ...bool) (files map[string]string, dir string) {
 	files = make(map[string]string)
 	root = zfile.RealPath(root, true)
-	suffix := filetype.Suffix()
 
-	dir = zfile.RealPath(root + filetype.Dir())
-	_ = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
-		if d.IsDir() && (zfile.RealPath(path) != dir) {
+	_ = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if d.IsDir() && !(len(recurve) > 0 && recurve[0]) && (zfile.RealPath(path, true) != root) {
 			return filepath.SkipDir
 		}
-		baseName := filepath.Base(path)
-		if strings.HasSuffix(baseName, suffix) {
-			files[strings.TrimSuffix(baseName, suffix)] = path
+		if strings.HasSuffix(path, suffix) {
+			baseName, _ := filepath.Rel(root, path)
+			files[strings.Replace(strings.TrimSuffix(baseName, suffix), "/", "-", -1)] = path
 		}
 		return err
 	})
 
-	moduleDir := root + "module"
-	_ = filepath.WalkDir(moduleDir, func(path string, d fs.DirEntry, err error) error {
-		if path == moduleDir {
-			return nil
-		}
+	// moduleDir := root + "module"
+	// _ = filepath.WalkDir(moduleDir, func(path string, d fs.DirEntry, err error) error {
+	// 	if path == moduleDir {
+	// 		return nil
+	// 	}
 
-		prefix := strings.Trim(strings.TrimPrefix(path, moduleDir), "/")
-		if prefix == "" {
-			return nil
-		}
+	// 	prefix := strings.Trim(strings.TrimPrefix(path, moduleDir), "/")
+	// 	if prefix == "" {
+	// 		return nil
+	// 	}
 
-		baseName := filepath.Base(path)
-		if strings.HasSuffix(baseName, suffix) {
-			files[strings.TrimSuffix(prefix, suffix)] = path
-		}
-		return err
-	})
+	// 	baseName := filepath.Base(path)
+	// 	if strings.HasSuffix(baseName, suffix) {
+	// 		files[strings.Replace(strings.TrimSuffix(prefix, suffix), "/", "-", -1)] = path
+	// 	}
+	// 	return err
+	// })
 
 	return
 }

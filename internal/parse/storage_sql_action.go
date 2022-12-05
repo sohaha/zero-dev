@@ -14,6 +14,9 @@ func (s *SQL) m(f string) string {
 	if strings.Contains(f, ".") {
 		return f
 	}
+	if strings.Contains(f, " ") {
+		return f
+	}
 	return s.table + "." + f
 }
 func (s *SQL) parseExprs(d *builder.Cond, filter ztype.Map) (exprs []string, err error) {

@@ -3,10 +3,12 @@ package app
 import (
 	"net/http"
 	"strings"
+	"zlsapp/internal/parse"
 
 	"github.com/zlsgo/jet"
 
 	"github.com/sohaha/zlsgo/zarray"
+	"github.com/sohaha/zlsgo/zdi"
 	"github.com/sohaha/zlsgo/zfile"
 	"github.com/sohaha/zlsgo/zjson"
 	"github.com/sohaha/zlsgo/zlog"
@@ -52,13 +54,26 @@ func bindStatic(r *znet.Engine) {
 	}
 }
 
-func bindModelTemplate(r *znet.Engine) {
-	dir := "app/views"
+func bindModelTemplate(r *znet.Engine, di zdi.Invoker) {
+	dir := "app/templates"
 	if !zfile.DirExist(dir) {
 		return
 	}
 
 	j := jet.New(r, dir, func(o *jet.Options) {
+	})
+
+	j.AddFunc("lists", func(model string) ztype.Maps {
+		m, ok := parse.GetModel(model)
+		if !ok {
+			return ztype.Maps{}
+		}
+		_ = m
+		items, err := parse.Find(m, ztype.Map{})
+		zlog.Debug(items)
+		zlog.Debug(err)
+
+		return items
 	})
 
 	_ = j.Load()
@@ -71,19 +86,20 @@ func bindModelTemplate(r *znet.Engine) {
 		_ = zjson.Unmarshal(f, &mapping)
 	}
 
-	if mapping == nil {
-		if zfile.FileExist(dir + "/index.jet.html") {
-			r.GET("/", func(c *znet.Context) {
-				c.Template(http.StatusOK, "index", ztype.Map{})
-			})
-		}
+	// if mapping == nil {
 
-		// r.Any("/html/:model/:key", func(c *znet.Context) {
-		// 	zlog.Debug(c.GetAllParam())
-		// })
-
-		return
+	if j.Exists("index") {
+		r.GET("/", func(c *znet.Context) {
+			c.Template(http.StatusOK, "index", ztype.Map{})
+		})
 	}
+
+	// r.Any("/html/:model/:key", func(c *znet.Context) {
+	// 	zlog.Debug(c.GetAllParam())
+	// })
+
+	// 	return
+	// }
 
 	for k := range mapping {
 		v := mapping.Get(k)

@@ -26,19 +26,23 @@ type Modeler struct {
 	files
 }
 
-func (l *Loader) newModeler() {
+func (l *Loader) loadModeler(dir ...string) *Modeler {
+	m := &Modeler{}
+
 	if l.err != nil {
-		return
+		return m
 	}
 
-	m := &Modeler{}
 	models := make(map[string]*parse.Modeler, 0)
 
 	_, err := l.Di.Invoke(func(db *zdb.DB, c *service.Conf) {
 		conf := c.Core()
-		var dir string
-		m.Files, dir = Scan("./app/", Model)
-		l.Watch(dir)
+		path := "./app/" + Model.Dir()
+		if len(dir) > 0 {
+			path = dir[0]
+		}
+		m.Files, path = Scan(path, Model.Suffix(), true)
+		l.Watch(path)
 
 		for name, path := range m.Files {
 			safePath := zfile.SafePath(path)
@@ -57,7 +61,7 @@ func (l *Loader) newModeler() {
 				return
 			}
 
-			modelLog("Register: " + zlog.Log.ColorTextWrap(zlog.ColorLightGreen, name))
+			modelLog("Register Model: " + zlog.Log.ColorTextWrap(zlog.ColorLightGreen, name))
 
 			mv.Path = path
 			models[safePath] = mv
@@ -77,5 +81,13 @@ func (l *Loader) newModeler() {
 		l.err = err
 	}
 
-	l.Model = m
+	if l.Model == nil {
+		l.Model = m
+	} else {
+		for k, v := range m.Files {
+			l.Model.Files[k] = v
+		}
+	}
+
+	return m
 }

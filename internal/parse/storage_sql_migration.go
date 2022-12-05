@@ -46,11 +46,13 @@ func (m *Migration) Auto(deleteColumn bool) (err error) {
 
 func (m *Migration) InitValue(all bool) error {
 	if !all {
-		row, _ := FindOne(m.Model, ztype.Map{}, func(o *StorageOptions) error {
+		row, err := FindOne(m.Model, ztype.Map{}, func(o *StorageOptions) error {
 			o.Fields = []string{"COUNT(*) AS count"}
 			return nil
 		})
-		all = row.Get("count").Int() == 0
+		if err != nil {
+			all = row.Get("count").Int() == 0
+		}
 	}
 	for _, v := range m.Model.Values {
 		data, ok := v.(map[string]interface{})

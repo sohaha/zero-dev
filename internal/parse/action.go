@@ -1,7 +1,10 @@
 package parse
 
 import (
+	"strings"
+
 	"github.com/sohaha/zlsgo/zarray"
+	"github.com/sohaha/zlsgo/zstring"
 	"github.com/sohaha/zlsgo/ztime"
 	"github.com/sohaha/zlsgo/ztype"
 	"golang.org/x/exp/constraints"
@@ -83,6 +86,9 @@ func find(m *Modeler, filter ztype.Map, fn ...StorageOptionFn) (ztype.Maps, erro
 
 		if len(so.Fields) > 0 && len(so.Join) == 0 {
 			so.Fields = zarray.Filter(so.Fields, func(_ int, f string) bool {
+				if strings.Contains(zstring.TrimSpace(f), " ") {
+					return true
+				}
 				return zarray.Contains(m.fullFields, f)
 			})
 		}

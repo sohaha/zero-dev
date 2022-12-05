@@ -1,0 +1,128 @@
+{
+  "name": "网站栏目",
+  "table": {
+    "name": "website_category",
+    "comment": "网站栏目表"
+  },
+  "columns": [
+    {
+      "label": "栏目名称",
+      "name": "category_name",
+      "size": 25,
+      "type": "string"
+    },
+    {
+      "label": "栏目描述",
+      "nullable": true,
+      "name": "description",
+      "size": 255,
+      "type": "string"
+    },
+    {
+      "label": "栏目列表模板",
+      "nullable": true,
+      "name": "template_lists",
+      "size": 255,
+      "default": "",
+      "type": "string"
+    },
+    {
+      "label": "栏目内容模板",
+      "nullable": true,
+      "name": "template_content",
+      "size": 255,
+      "type": "string"
+    },
+    {
+      "label": "栏目父分类",
+      "nullable": true,
+      "default": 0,
+      "name": "parent_id",
+      "type": "uint"
+    },
+    {
+      "label": "栏目状态",
+      "name": "status",
+      "type": "int8",
+      "options": [
+        {
+          "label": "正常",
+          "value": "1"
+        },
+        {
+          "label": "禁用",
+          "value": "0"
+        }
+      ]
+    },
+    {
+      "label": "栏目类型",
+      "name": "type",
+      "type": "int8",
+      "nullable": true,
+      "default": 0,
+      "options": [
+        {
+          "label": "文章",
+          "value": "1"
+        },
+        {
+          "label": "链接",
+          "value": "0"
+        }
+      ]
+    },
+    {
+      "label": "外链地址",
+      "nullable": true,
+      "name": "link",
+      "size": 255,
+      "type": "string"
+    }
+  ],
+  "relations": {},
+  "values": [
+    {
+      "_id": 1,
+      "parent_id": 0,
+      "category_name": "首页",
+      "link": "/",
+      "type": 0,
+      "status": 1
+    },
+    {
+      "_id": 2,
+      "parent_id": 0,
+      "category_name": "增值服务",
+      "type": 0,
+      "status": 1
+    },
+    {
+      "_id": 3,
+      "parent_id": 0,
+      "category_name": "帮助中心",
+      "type": 1,
+      "template_lists": "faq/index",
+      "template_content": "faq/content",
+      "status": 1
+    },
+    {
+      "_id": 4,
+      "parent_id": 0,
+      "category_name": "新闻中心",
+      "type": 1,
+      "status": 1
+    },
+    {
+      "_id": 5,
+      "parent_id": 0,
+      "category_name": "关于我们",
+      "type": 0,
+      "status": 1
+    }
+  ],
+  "views": {
+    "lists": {}
+  },
+  "options": {}
+}
