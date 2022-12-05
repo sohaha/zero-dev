@@ -81,7 +81,7 @@ func bindModelTemplate(r *znet.Engine, di zdi.Invoker) {
 }
 
 func injectionTemplate(j *jet.Engine) {
-	j.AddFunc("FindOne", func(model, id string) ztype.Map {
+	j.AddFunc("FindOne", func(model string, id interface{}) ztype.Map {
 		m, ok := parse.GetModel(model)
 		if !ok {
 			return ztype.Map{}
@@ -153,9 +153,7 @@ func injectionTemplate(j *jet.Engine) {
 			if !ok {
 				return ztype.Map{}
 			}
-
 			filter := ztype.Map{}
-
 			items, p, _ := parse.Pages(m, ztype.ToInt(page), ztype.ToInt(pagesize), filter, func(so *parse.StorageOptions) error {
 				so.Fields = m.GetFields("content")
 				return nil
