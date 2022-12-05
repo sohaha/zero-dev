@@ -36,10 +36,27 @@ const (
 )
 
 func ErrorMsg(code ErrCode, text string, err ...error) error {
-	if len(err) > 0 {
-		return zerror.Wrap(err[0], zerror.ErrCode(code), text)
+	var tags []zerror.External
+
+	switch {
+	case code >= 20000 && code <= 29999:
+		// tags = append(tags, zerror.WrapTag(zerror.InvalidInput))
+	case code == 0:
+
+	default:
+		switch code {
+		case Unauthorized, AuthorizedExpires:
+			tags = append(tags, zerror.WrapTag(zerror.Unauthorized))
+		case PermissionDenied:
+			tags = append(tags, zerror.WrapTag(zerror.PermissionDenied))
+		}
 	}
-	return zerror.New(zerror.ErrCode(code), text)
+
+	if len(err) > 0 {
+		return zerror.Wrap(err[0], zerror.ErrCode(code), text, tags...)
+	}
+
+	return zerror.New(zerror.ErrCode(code), text, tags...)
 }
 
 type ApiData struct {

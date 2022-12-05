@@ -18,10 +18,9 @@ func bindStatic(r *znet.Engine) {
 			if err != nil {
 				return false
 			}
-
 			b, ok := localFileExist.ProvideGet(name, func() ([]byte, bool) {
 				path := "dist/" + name
-				if zfile.FileExist(path) {
+				if !zfile.FileExist(path) {
 					return nil, true
 				}
 				b, err := zfile.ReadFile(path)
