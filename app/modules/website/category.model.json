@@ -15,7 +15,7 @@
       "label": "栏目描述",
       "nullable": true,
       "name": "description",
-      "size": 255,
+      "size": 300,
       "type": "string"
     },
     {

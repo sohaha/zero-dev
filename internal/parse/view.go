@@ -75,12 +75,17 @@ func resolverViewInfo(m *Modeler) ztype.Map {
 		if !ok {
 			continue
 		}
+
 		columns[column.Name] = ztype.Map{
 			"label":    column.Label,
 			"type":     column.Type,
 			"readonly": column.ReadOnly,
-			"options":  column.Options,
+			"size":     column.Size,
 			"disabled": m.isInlayField(v),
+		}
+
+		if column.Options != nil && len(column.Options) > 0 {
+			columns[column.Name]["options"] = column.Options
 		}
 	}
 

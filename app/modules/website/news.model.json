@@ -22,6 +22,7 @@
         {
             "label": "内容",
             "default": "",
+            "size": 3000,
             "nullable": true,
             "name": "content",
             "type": "string"
@@ -41,5 +42,8 @@
     ],
     "options": {
         "timestamps": true
+    },
+    "views": {
+        "lists": {}
     }
 }
