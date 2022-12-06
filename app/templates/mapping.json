@@ -1,4 +1,5 @@
 {
+    "/": "index",
     "vas": "vas/index",
     "news": "news/index",
     "news/:page": "news/index",

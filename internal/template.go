@@ -7,6 +7,7 @@ import (
 	"zlsapp/internal/parse"
 	"zlsapp/service"
 
+	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/zdi"
 	"github.com/sohaha/zlsgo/zfile"
 	"github.com/sohaha/zlsgo/zjson"
@@ -27,38 +28,26 @@ func bindModelTemplate(r *znet.Engine, di zdi.Invoker) {
 		return
 	}
 
-	j := jet.New(r, dir, func(o *jet.Options) {
-	})
+	j := jet.New(r, dir, func(o *jet.Options) {})
 
 	_ = j.Load()
 
 	injectionTemplate(j)
 	r.SetTemplate(j)
 
-	// var mapping struct {
-	// 	Guard  string    `json:"guard"`
-	// 	Router ztype.Map `json:"router"`
-	// }
 	var mapping ztype.Map
+
 	if zfile.FileExist(dir + "/mapping.json") {
 		f, _ := zfile.ReadFile(dir + "/mapping.json")
 		_ = zjson.Unmarshal(f, &mapping)
 	}
 
-	// if mapping == nil {
-
-	if j.Exists("index") {
+	_, hasHome := zarray.Find(zarray.Keys(mapping), func(_ int, k string) bool { return k == "/" })
+	if !hasHome && j.Exists("index") {
 		r.GET("/", func(c *znet.Context) {
 			c.Template(http.StatusOK, "index", ztype.Map{})
 		})
 	}
-
-	// r.Any("/html/:model/:key", func(c *znet.Context) {
-	// 	zlog.Debug(c.GetAllParam())
-	// })
-
-	// 	return
-	// }
 
 	for k := range mapping {
 		v := mapping.Get(k)

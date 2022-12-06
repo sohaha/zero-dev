@@ -3,7 +3,6 @@ package app
 import (
 	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/zfile"
-	"github.com/sohaha/zlsgo/zlog"
 	"github.com/sohaha/zlsgo/znet"
 	"github.com/sohaha/zstatic"
 )
@@ -16,7 +15,6 @@ func bindStatic(r *znet.Engine) {
 	{
 		localFileExist := zarray.NewHashMap[string, []byte]()
 		fileserver := zstatic.NewFileserver("dist", func(c *znet.Context, name string, content []byte, err error) bool {
-			zlog.Debug(name, len(content))
 			if err != nil {
 				return false
 			}
@@ -30,6 +28,7 @@ func bindStatic(r *znet.Engine) {
 				if !zfile.FileExist(path) {
 					return nil, true
 				}
+
 				b, err := zfile.ReadFile(path)
 				if err != nil {
 					return nil, false

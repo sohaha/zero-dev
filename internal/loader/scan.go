@@ -45,6 +45,7 @@ func Scan(root string, suffix string, recurve ...bool) (files map[string]string,
 	root = zfile.RealPath(root, true)
 
 	_ = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
+		path = zfile.RealPath(path)
 		if err != nil {
 			return err
 		}
@@ -53,7 +54,8 @@ func Scan(root string, suffix string, recurve ...bool) (files map[string]string,
 			return filepath.SkipDir
 		}
 		if strings.HasSuffix(path, suffix) {
-			baseName, _ := filepath.Rel(root, path)
+			baseName := zfile.SafePath(path, root)
+			baseName = strings.Replace(baseName, "\\", "/", -1)
 			files[strings.Replace(strings.TrimSuffix(baseName, suffix), "/", "-", -1)] = path
 		}
 		return err
