@@ -39,7 +39,7 @@ _____
 			})
 
 			if c.Base.Debug {
-				_ = router.HandleWrapBefore(http.MethodGet, `/debug/statsviz{*:.*}`, func(c *znet.Context) {
+				_ = router.HandleWrapBefore(http.MethodGet, `/debug/statsviz{*:[\S]*}`, func(c *znet.Context) {
 					q := c.GetParam("*")
 					if q == "" {
 						c.Redirect("/debug/statsviz/")

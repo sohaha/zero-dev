@@ -63,6 +63,13 @@ func VerifiData(data ztype.Map, columns []*Column, active activeType) (ztype.Map
 		}
 
 		if ok {
+			if v == nil {
+				if column.Nullable {
+					continue
+				} else {
+					return d, errors.New(label + "不能为 null")
+				}
+			}
 			typ := column.Type
 			switch typ {
 			case schema.Bool:
