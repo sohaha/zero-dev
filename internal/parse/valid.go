@@ -132,6 +132,12 @@ func VerifiData(data ztype.Map, columns []*Column, active activeType) (ztype.Map
 
 func resolverColumnOptions(c *Column) {
 	if len(c.Options) > 0 {
+		c.Options = zarray.Map(c.Options, func(_ int, v ColumnEnum) ColumnEnum {
+			if v.Label == "" {
+				v.Label = v.Value
+			}
+			return v
+		})
 		c.validRules = c.validRules.EnumString(zarray.Map(c.Options, func(_ int, v ColumnEnum) string {
 			return v.Value
 		}))
