@@ -16,6 +16,7 @@
             "nullable": true,
             "default": "",
             "name": "content",
+            "size": 3000,
             "type": "string"
         },
         {
