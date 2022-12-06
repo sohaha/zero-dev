@@ -44,6 +44,11 @@
         "timestamps": true
     },
     "views": {
-        "lists": {}
+        "lists": {
+            "fields": [
+                "title",
+                "updated_at"
+            ]
+        }
     }
 }
