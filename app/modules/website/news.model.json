@@ -48,6 +48,7 @@
             "layouts": {
                 "content": {
                     "props": {
+                        "show-count": true,
                         "autosize": {
                             "minRows": 5
                         }
