@@ -9,6 +9,7 @@ import (
 type View struct {
 	Title   string        `json:"title"`
 	Fields  []string      `json:"fields"`
+	Layouts ztype.Map     `json:"layouts"`
 	Filters []interface{} `json:"filters"`
 }
 
@@ -35,10 +36,12 @@ func resolverViewLists(m *Modeler) ztype.Map {
 		if !ok {
 			continue
 		}
+		layout := data.Layouts.Get(column.Name).Map()
 		columns[column.Name] = ztype.Map{
 			"title":   column.Label,
 			"type":    column.Type,
 			"options": column.Options,
+			"layout":  layout,
 		}
 	}
 
@@ -75,12 +78,13 @@ func resolverViewInfo(m *Modeler) ztype.Map {
 		if !ok {
 			continue
 		}
-
+		layout := data.Layouts.Get(column.Name).Map()
 		columns[column.Name] = ztype.Map{
 			"label":    column.Label,
 			"type":     column.Type,
 			"readonly": column.ReadOnly,
 			"size":     column.Size,
+			"layout":   layout,
 			"disabled": m.isInlayField(v),
 		}
 
@@ -91,6 +95,9 @@ func resolverViewInfo(m *Modeler) ztype.Map {
 
 	info["columns"] = columns
 	info["fields"] = fields
+	if data.Layouts != nil {
+		info["layouts"] = data.Layouts
+	}
 	return info
 }
 

@@ -44,11 +44,27 @@
         "timestamps": true
     },
     "views": {
+        "detail": {
+            "layouts": {
+                "content": {
+                    "props": {
+                        "autosize": {
+                            "minRows": 5
+                        }
+                    }
+                }
+            }
+        },
         "lists": {
             "fields": [
                 "title",
                 "updated_at"
-            ]
+            ],
+            "layouts": {
+                "_id": {
+                    "width": 100
+                }
+            }
         }
     }
 }
