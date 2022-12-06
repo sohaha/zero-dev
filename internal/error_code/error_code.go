@@ -38,18 +38,13 @@ const (
 func ErrorMsg(code ErrCode, text string, err ...error) error {
 	var tags []zerror.External
 
-	switch {
-	case code >= 20000 && code <= 29999:
-		// tags = append(tags, zerror.WrapTag(zerror.InvalidInput))
-	case code == 0:
-
-	default:
-		switch code {
-		case Unauthorized, AuthorizedExpires:
-			tags = append(tags, zerror.WrapTag(zerror.Unauthorized))
-		case PermissionDenied:
-			tags = append(tags, zerror.WrapTag(zerror.PermissionDenied))
-		}
+	switch code {
+	case Unauthorized, AuthorizedExpires:
+		tags = append(tags, zerror.WrapTag(zerror.Unauthorized))
+	case PermissionDenied:
+		tags = append(tags, zerror.WrapTag(zerror.PermissionDenied))
+	case InvalidInput:
+		tags = append(tags, zerror.WrapTag(zerror.InvalidInput))
 	}
 
 	if len(err) > 0 {
