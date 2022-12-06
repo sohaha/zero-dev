@@ -61,6 +61,7 @@ func bindModelTemplate(r *znet.Engine, di zdi.Invoker) {
 			params := c.GetAllParam()
 			c.Template(http.StatusOK, template, ztype.Map{
 				"params": params,
+				"path":   c.Request.URL.Path,
 			})
 		}, func(c *znet.Context) {
 			c.WithValue(account.DisabledAuthKey, true)
