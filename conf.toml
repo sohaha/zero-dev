@@ -14,12 +14,12 @@ Port = 3306
 User = 'root'
 
 [db.postgres]
-DBName = 'zls'
+DBName = 'default'
 Host = '127.0.0.1'
 Password = '666666'
 Port = 5432
 SSLMode = ''
-User = 'root'
+User = 'default'
 
 [db.sqlite]
 Path = 'db.db'

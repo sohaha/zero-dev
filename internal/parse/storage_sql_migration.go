@@ -6,7 +6,6 @@ import (
 
 	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/zerror"
-	"github.com/sohaha/zlsgo/zlog"
 	"github.com/sohaha/zlsgo/ztype"
 	"github.com/sohaha/zlsgo/zutil"
 	"github.com/zlsgo/zdb"
@@ -25,22 +24,23 @@ func (m *Migration) Auto(deleteColumn bool) (err error) {
 	}
 
 	exist := m.HasTable()
+
+	defer func() {
+		if err == nil {
+			err = m.Indexs()
+			if err == nil {
+				err = m.InitValue(!exist)
+			}
+		}
+	}()
+
 	if !exist {
 		err = m.CreateTable()
-		if err != nil {
-			return
-		}
-
-		err = m.InitValue(true)
 		return
 	}
 
 	err = m.UpdateTable(deleteColumn)
-	if err != nil {
-		return
-	}
 
-	err = m.InitValue(false)
 	return
 }
 
@@ -89,7 +89,7 @@ func (m *Migration) HasTable() bool {
 
 func (m *Migration) UpdateTable(deleteColumn bool) error {
 	table := builder.NewTable(m.Model.Table.Name)
-	d := table.GetDriver()
+	// d := table.GetDriver()
 
 	sql, values, process := table.GetColumn()
 	res, err := m.DB.QueryToMaps(sql, values...)
@@ -123,15 +123,17 @@ func (m *Migration) UpdateTable(deleteColumn bool) error {
 		}
 	}
 
-	updateColumns := zarray.Map(zarray.Filter(m.Model.Columns, func(_ int, n *Column) bool {
-		c := currentColumns.Get(n.Name)
-		if !c.Exists() {
-			return false
-		}
-		nf := schema.NewField(n.Name, schema.DataType(n.Type))
-		t := d.DataTypeOf(nf, true)
-		return !strings.EqualFold(t, c.Get("type").String())
-	}), func(i int, v *Column) string { return v.Name })
+	// updateColumns := zarray.Map(zarray.Filter(m.Model.Columns, func(_ int, n *Column) bool {
+	// 	c := currentColumns.Get(n.Name)
+	// 	if !c.Exists() {
+	// 		return false
+	// 	}
+	// 	nf := schema.NewField(n.Name, schema.DataType(n.Type), func(f *schema.Field) {
+	// 		f.Size = n.Size
+	// 	})
+	// 	t := d.DataTypeOf(nf, true)
+	// 	return !strings.EqualFold(t, c.Get("type").String())
+	// }), func(i int, v *Column) string { return v.Name })
 
 	addColumns := zarray.Filter(newColumns, func(_ int, n string) bool {
 		return !zarray.Contains(oldColumns, n)
@@ -207,9 +209,9 @@ func (m *Migration) UpdateTable(deleteColumn bool) error {
 	}
 
 	// TODO 是否需要支持修改字段类型
-	if len(updateColumns) > 0 {
-		zlog.Warn("暂不支持修改字段类型")
-	}
+	// if len(updateColumns) > 0 {
+	// 	zlog.Warn("暂不支持修改字段类型：", updateColumns)
+	// }
 
 	return nil
 }
@@ -274,4 +276,56 @@ func (m *Migration) getPrimaryKey() *schema.Field {
 		f.PrimaryKey = true
 		f.AutoIncrement = true
 	})
+}
+
+func (m *Migration) Indexs() error {
+	table := builder.NewTable(m.Model.Table.Name).Create()
+
+	uniques := make(map[string][]string, 0)
+	indexs := make(map[string][]string, 0)
+	for _, column := range m.Model.Columns {
+		unique := ztype.ToString(column.Unique)
+		if unique != "" {
+			if unique == "true" {
+				unique = column.Name
+			}
+			uniques[unique] = append(uniques[unique], column.Name)
+		}
+
+		index := ztype.ToString(column.Index)
+		if index != "" {
+			if index == "true" {
+				index = column.Name
+			}
+			indexs[index] = append(indexs[index], column.Name)
+		}
+	}
+
+	for name, v := range uniques {
+		name = m.Model.Table.Name + "__unique__" + name
+		sql, values, process := table.HasIndex(name)
+		res, err := m.DB.QueryToMaps(sql, values...)
+		if err == nil && !process(res) {
+			sql, values := table.CreateIndex(name, v, "UNIQUE")
+			_, err = m.DB.Exec(sql, values...)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	for name, v := range indexs {
+		name = m.Model.Table.Name + "__idx__" + name
+		sql, values, process := table.HasIndex(name)
+		res, err := m.DB.QueryToMaps(sql, values...)
+		if err == nil && !process(res) {
+			sql, values := table.CreateIndex(name, v, "")
+			_, err = m.DB.Exec(sql, values...)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }

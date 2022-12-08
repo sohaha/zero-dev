@@ -1,4 +1,5 @@
 {
+    "$schema": "https://resources.73zls.com/zero/model-schema.json",
     "name": "新闻中心",
     "table": {
         "name": "website_news",

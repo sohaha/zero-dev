@@ -1,4 +1,5 @@
 {
+    "$schema": "https://resources.73zls.com/zero/model-schema.json",
     "name": "帮助中心",
     "table": {
         "name": "website_faq",
@@ -23,6 +24,7 @@
             "label": "分类",
             "name": "category",
             "type": "string",
+            "index": "faq_category",
             "options": [
                 {
                     "value": "新手指南"

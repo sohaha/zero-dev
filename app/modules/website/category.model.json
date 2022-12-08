@@ -1,4 +1,5 @@
 {
+  "$schema": "https://resources.73zls.com/zero/model-schema.json",
   "name": "网站栏目",
   "table": {
     "name": "website_category",

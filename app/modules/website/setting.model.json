@@ -1,0 +1,49 @@
+{
+    "$schema": "https://resources.73zls.com/zero/model-schema.json",
+    "name": "网站设置",
+    "table": {
+        "name": "website_settting",
+        "comment": "网站设置表"
+    },
+    "columns": [
+        {
+            "label": "参数名",
+            "name": "title",
+            "size": 25,
+            "type": "string",
+            "unique": true
+        },
+        {
+            "label": "参数值",
+            "nullable": true,
+            "name": "value",
+            "size": 300,
+            "type": "string"
+        },
+        {
+            "label": "参数说明",
+            "nullable": true,
+            "name": "description",
+            "size": 300,
+            "type": "string"
+        }
+    ],
+    "relations": {},
+    "values": [
+        {
+            "_id": 1,
+            "title": "网站名称",
+            "value": "麒麟守护",
+            "description": "网站名称"
+        },
+        {
+            "_id": 2,
+            "title": "联系邮箱",
+            "value": "app@tairnet.com"
+        }
+    ],
+    "views": {
+        "lists": {}
+    },
+    "options": {}
+}
