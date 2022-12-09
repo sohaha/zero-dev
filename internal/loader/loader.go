@@ -23,8 +23,7 @@ type Loader struct {
 }
 
 func Init(di zdi.Injector) *Loader {
-
-	l := &Loader{
+	loader := &Loader{
 		Di:        di,
 		watcheDir: make(map[string]struct{}),
 	}
@@ -33,17 +32,18 @@ func Init(di zdi.Injector) *Loader {
 		if conf.Base.Debug || conf.Base.Watch {
 			watcher, err := fsnotify.NewWatcher()
 			if err == nil {
-				l.watcher = watcher
+				loader.watcher = watcher
 
 				go pollEvents(di, watcher)
 			}
 		}
 	})
 
-	l.loadViews()
-	l.loadModeler()
-	l.loadModules()
-	zerror.Panic(l.err)
+	// loader.loadViews()
+	loader.loadModeler()
+	loader.loadModules()
 
-	return l
+	zerror.Panic(loader.err)
+
+	return loader
 }

@@ -2,11 +2,9 @@ package main
 
 import (
 	app "zlsapp/internal"
-	"zlsapp/internal/account"
 	"zlsapp/internal/loader"
 	"zlsapp/service"
 
-	"github.com/arl/statsviz"
 	"github.com/sohaha/zlsgo/zcli"
 	"github.com/sohaha/zlsgo/zlog"
 	"github.com/sohaha/zlsgo/znet"
@@ -36,24 +34,25 @@ _____
 			_, _ = di.Invoke(func(r *znet.Engine, l *loader.Loader) {
 				router = r
 			})
+			_ = router
 
-			if c.Base.Debug {
-				_ = router.GET(`/debug/statsviz{*:[\S]*}`, func(c *znet.Context) {
-					q := c.GetParam("*")
-					if q == "" {
-						c.Redirect("/debug/statsviz/")
-						return
-					}
-					if q == "/ws" {
-						statsviz.Ws(c.Writer, c.Request)
-						return
-					}
-					statsviz.IndexAtRoot("/debug/statsviz").ServeHTTP(c.Writer, c.Request)
-				}, znet.WrapFirstMiddleware(func(c *znet.Context) {
-					c.WithValue(account.DisabledAuthKey, true)
-					c.Next()
-				}))
-			}
+			// if c.Base.Debug {
+			// 	_ = router.GET(`/debug/statsviz{*:[\S]*}`, func(c *znet.Context) {
+			// 		q := c.GetParam("*")
+			// 		if q == "" {
+			// 			c.Redirect("/debug/statsviz/")
+			// 			return
+			// 		}
+			// 		if q == "/ws" {
+			// 			statsviz.Ws(c.Writer, c.Request)
+			// 			return
+			// 		}
+			// 		statsviz.IndexAtRoot("/debug/statsviz").ServeHTTP(c.Writer, c.Request)
+			// 	}, znet.WrapFirstMiddleware(func(c *znet.Context) {
+			// 		c.WithValue(account.DisabledAuthKey, true)
+			// 		c.Next()
+			// 	}))
+			// }
 
 			err = app.Start()
 		}
