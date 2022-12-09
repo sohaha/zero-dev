@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"path/filepath"
 	"strings"
+	"time"
 	"zlsapp/internal/parse"
 	"zlsapp/service"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/sohaha/zlsgo/zdi"
 	"github.com/sohaha/zlsgo/zfile"
 	"github.com/sohaha/zlsgo/zlog"
+	"github.com/sohaha/zlsgo/zpool"
 	"github.com/zlsgo/zdb"
 )
 
@@ -43,24 +45,30 @@ func (l *Loader) Watch(dir string) {
 			continue
 		}
 		l.watcheDir[dir] = struct{}{}
-		var err error
-		err = l.watcher.Add(dir)
-		zlog.Debug("add", dir, err)
+		// var err error
+		_ = l.watcher.Add(dir)
+		// _=err
+		// zlog.Debug("add", dir, err)
 	}
 
 }
 
 func pollEvents(di zdi.Invoker, watcher *fsnotify.Watcher) {
+	pool := zpool.New(10)
 	for {
 		event, ok := <-watcher.Events
 		if !ok {
 			return
 		}
-		for _, v := range []fsnotify.Op{fsnotify.Write, fsnotify.Create, fsnotify.Rename} {
+		for _, v := range []fsnotify.Op{fsnotify.Write, fsnotify.Create} {
 			if event.Has(v) {
 				for _, v := range []FileType{Model, Flow, View} {
-					if strings.HasSuffix(event.Name, v.Suffix()) {
-						reRegister(di, event.Name, v)
+					t := v
+					if strings.HasSuffix(event.Name, t.Suffix()) {
+						_ = pool.Do(func() {
+							time.Sleep(time.Second / 2)
+							reRegister(di, event.Name, t)
+						})
 					}
 				}
 			}
