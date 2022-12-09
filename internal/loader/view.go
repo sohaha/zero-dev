@@ -27,13 +27,14 @@ func (l *Loader) loadViews(dir ...string) *Views {
 
 	_, err := l.Di.Invoke(func(db *zdb.DB, c *service.Conf) {
 		// conf := c.Core()
-		path := "./app/" + View.Dir()
+		root := zfile.RealPath("./app/" + View.Dir())
 		if len(dir) > 0 {
-			path = dir[0]
+			root = dir[0]
 		}
-		m.Files, path = Scan(path, View.Suffix(), true)
+		m.Files = Scan(root, View.Suffix(), true)
 
-		for name, path := range m.Files {
+		for _, path := range m.Files {
+			name := toName(path, root)
 			safePath := zfile.SafePath(path)
 			json, err := zfile.ReadFile(path)
 			if err != nil {

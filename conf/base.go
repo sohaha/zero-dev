@@ -8,6 +8,7 @@ type Base struct {
 	Debug       bool `mapstructure:"debug"`
 	LogPosition bool `mapstructure:"log_position"`
 	Pprof       bool
+	Watch       bool
 }
 
 const (

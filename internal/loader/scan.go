@@ -40,8 +40,8 @@ const (
 	View
 )
 
-func Scan(root string, suffix string, recurve ...bool) (files map[string]string, dir string) {
-	files = make(map[string]string)
+func Scan(root string, suffix string, recurve ...bool) (files []string) {
+	files = make([]string, 0)
 	root = zfile.RealPath(root, true)
 
 	_ = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
@@ -54,9 +54,10 @@ func Scan(root string, suffix string, recurve ...bool) (files map[string]string,
 			return filepath.SkipDir
 		}
 		if strings.HasSuffix(path, suffix) {
-			baseName := zfile.SafePath(path, root)
-			baseName = strings.Replace(baseName, "\\", "/", -1)
-			files[strings.Replace(strings.TrimSuffix(baseName, suffix), "/", "-", -1)] = path
+			// baseName := zfile.SafePath(path, root)
+			// baseName = strings.Replace(baseName, "\\", "/", -1)
+			// files[strings.Replace(strings.TrimSuffix(baseName, suffix), "/", "-", -1)] = path
+			files = append(files, path)
 		}
 		return err
 	})
@@ -80,4 +81,13 @@ func Scan(root string, suffix string, recurve ...bool) (files map[string]string,
 	// })
 
 	return
+}
+
+func toName(path string, root string) string {
+	baseName := zfile.SafePath(zfile.RealPath(path), zfile.RealPath(root))
+	sp := strings.Split(baseName, ".")
+	if len(sp) > 2 {
+		baseName = strings.Join(sp[:len(sp)-2], ".")
+	}
+	return strings.Replace(baseName, "/", "-", -1)
 }

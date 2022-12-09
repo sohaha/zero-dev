@@ -1,6 +1,7 @@
 package loader
 
 import (
+	"strings"
 	"zlsapp/internal/parse"
 	"zlsapp/service"
 
@@ -41,30 +42,16 @@ func (l *Loader) loadModeler(dir ...string) *Modeler {
 		if len(dir) > 0 {
 			path = dir[0]
 		}
-		m.Files, path = Scan(path, Model.Suffix(), true)
+
+		m.Files = Scan(path, Model.Suffix(), true)
 		l.Watch(path)
 
-		for name, path := range m.Files {
+		for _, path := range m.Files {
 			safePath := zfile.SafePath(path)
-			json, err := zfile.ReadFile(path)
-			if err != nil {
-				l.err = zerror.With(err, "读取模型文件失败: "+safePath)
+			models[safePath], l.err = registerModel(db, path, false)
+			if l.err != nil {
 				return
 			}
-			mv, err := parse.AddModel(name, json, func(m *parse.Modeler) (parse.Storageer, error) {
-				// 因为模型文件可能和内置模型重名，所以这里需要追加前缀
-				m.Table.Name = "model_" + m.Table.Name
-				return parse.NewSQL(db, m.Table.Name), nil
-			}, false)
-			if err != nil {
-				l.err = zerror.With(err, "添加模型失败: "+safePath)
-				return
-			}
-
-			modelLog("Register Model: " + zlog.Log.ColorTextWrap(zlog.ColorLightGreen, name))
-
-			mv.Path = path
-			models[safePath] = mv
 		}
 
 		for path, m := range models {
@@ -84,10 +71,39 @@ func (l *Loader) loadModeler(dir ...string) *Modeler {
 	if l.Model == nil {
 		l.Model = m
 	} else {
-		for k, v := range m.Files {
-			l.Model.Files[k] = v
-		}
+		l.Model.Files = append(l.Model.Files, m.Files...)
 	}
 
 	return m
+}
+
+func registerModel(db *zdb.DB, path string, force bool) (*parse.Modeler, error) {
+	path = zfile.RealPath(path)
+	safePath := zfile.SafePath(path)
+	json, err := zfile.ReadFile(path)
+	if err != nil {
+		return nil, zerror.With(err, "读取模型文件失败: "+safePath)
+	}
+
+	var root string
+	for _, v := range []string{"app/models", "app/modules"} {
+		p := zfile.RealPath(v)
+		if strings.HasPrefix(path, p) {
+			root = p
+		}
+	}
+
+	name := toName(path, root)
+	mv, err := parse.AddModel(name, json, func(m *parse.Modeler) (parse.Storageer, error) {
+		// 因为模型文件可能和内置模型重名，所以这里需要追加前缀
+		m.Table.Name = "model_" + m.Table.Name
+		return parse.NewSQL(db, m.Table.Name), nil
+	}, force)
+	if err != nil {
+		return nil, zerror.With(err, "添加模型失败: "+safePath)
+	}
+
+	modelLog("Register Model: " + zlog.Log.ColorTextWrap(zlog.ColorLightGreen, name))
+	mv.Path = path
+	return mv, nil
 }

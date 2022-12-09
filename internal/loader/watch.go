@@ -2,10 +2,18 @@ package loader
 
 import (
 	// "github.com/rjeczalik/notify"
-	"log"
+
+	"io/fs"
+	"path/filepath"
+	"strings"
+	"zlsapp/internal/parse"
+	"zlsapp/service"
 
 	"github.com/fsnotify/fsnotify"
+	"github.com/sohaha/zlsgo/zdi"
+	"github.com/sohaha/zlsgo/zfile"
 	"github.com/sohaha/zlsgo/zlog"
+	"github.com/zlsgo/zdb"
 )
 
 // type watch struct {
@@ -21,31 +29,59 @@ import (
 // }
 
 func (l *Loader) Watch(dir string) {
-	// l.c
-	// err := l.watcher.Add(dir)
-	// zlog.Debug(dir, err)
+	dir = zfile.RealPath(dir)
+	dirs := []string{dir}
+	_ = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+		if d.IsDir() {
+			dirs = append(dirs, path)
+		}
+		return nil
+	})
+
+	for _, dir := range dirs {
+		if _, ok := l.watcheDir[dir]; ok {
+			continue
+		}
+		l.watcheDir[dir] = struct{}{}
+		var err error
+		err = l.watcher.Add(dir)
+		zlog.Debug("add", dir, err)
+	}
 
 }
 
-func pollEvents(watcher *fsnotify.Watcher) {
+func pollEvents(di zdi.Invoker, watcher *fsnotify.Watcher) {
 	for {
-		select {
-		case event, ok := <-watcher.Events:
-			zlog.Success("---:", event, ok)
-			if !ok {
-				return
-			}
-			for _, v := range []fsnotify.Op{fsnotify.Write, fsnotify.Create, fsnotify.Rename} {
-				if event.Has(v) {
-					log.Println("modified file:", event.Name)
+		event, ok := <-watcher.Events
+		if !ok {
+			return
+		}
+		for _, v := range []fsnotify.Op{fsnotify.Write, fsnotify.Create, fsnotify.Rename} {
+			if event.Has(v) {
+				for _, v := range []FileType{Model, Flow, View} {
+					if strings.HasSuffix(event.Name, v.Suffix()) {
+						reRegister(di, event.Name, v)
+					}
 				}
 			}
+		}
 
-		case err, ok := <-watcher.Errors:
-			zlog.Error("error:", err)
-			if !ok {
-				return
+	}
+}
+
+func reRegister(di zdi.Invoker, file string, f FileType) {
+	_, _ = di.Invoke(func(db *zdb.DB, conf *service.Conf) {
+		var err error
+		switch f {
+		case Model:
+			var m *parse.Modeler
+			m, err = registerModel(db, file, true)
+			if err == nil {
+				err = m.Migration().Auto(conf.Core().GetBool("migration.delete_column"))
 			}
 		}
-	}
+		if err != nil {
+			zlog.Error(err)
+		}
+	})
 }
