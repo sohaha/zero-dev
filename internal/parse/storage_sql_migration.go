@@ -305,6 +305,7 @@ func (m *Migration) Indexs() error {
 		name = m.Model.Table.Name + "__unique__" + name
 		sql, values, process := table.HasIndex(name)
 		res, err := m.DB.QueryToMaps(sql, values...)
+
 		if err == nil && !process(res) {
 			sql, values := table.CreateIndex(name, v, "UNIQUE")
 			_, err = m.DB.Exec(sql, values...)

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"net/http"
 	app "zlsapp/internal"
 	"zlsapp/internal/account"
 	"zlsapp/internal/loader"
@@ -39,7 +38,7 @@ _____
 			})
 
 			if c.Base.Debug {
-				_ = router.HandleWrapBefore(http.MethodGet, `/debug/statsviz{*:[\S]*}`, func(c *znet.Context) {
+				_ = router.GET(`/debug/statsviz{*:[\S]*}`, func(c *znet.Context) {
 					q := c.GetParam("*")
 					if q == "" {
 						c.Redirect("/debug/statsviz/")
@@ -50,10 +49,10 @@ _____
 						return
 					}
 					statsviz.IndexAtRoot("/debug/statsviz").ServeHTTP(c.Writer, c.Request)
-				}, func(c *znet.Context) {
+				}, znet.WrapFirstMiddleware(func(c *znet.Context) {
 					c.WithValue(account.DisabledAuthKey, true)
 					c.Next()
-				})
+				}))
 			}
 
 			err = app.Start()

@@ -52,7 +52,7 @@ func bindModelTemplate(r *znet.Engine, di zdi.Invoker) {
 	for k := range mapping {
 		v := mapping.Get(k)
 		k := strings.TrimLeft(k, "/")
-		r.HandleWrapBefore(http.MethodGet, "/"+k, func(c *znet.Context) {
+		r.GET("/"+k, func(c *znet.Context) {
 			template := v.String()
 			if !j.Exists(template) {
 				c.String(400, "模板不存在")
@@ -63,10 +63,10 @@ func bindModelTemplate(r *znet.Engine, di zdi.Invoker) {
 				"params": params,
 				"path":   c.Request.URL.Path,
 			})
-		}, func(c *znet.Context) {
+		}, znet.WrapFirstMiddleware(func(c *znet.Context) {
 			c.WithValue(account.DisabledAuthKey, true)
 			c.Next()
-		})
+		}))
 	}
 }
 
