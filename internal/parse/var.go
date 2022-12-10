@@ -17,14 +17,14 @@ type (
 		Raw           []byte
 		Storage       Storageer
 		StorageType   StorageType
-		Name          string               `json:"name"`
-		Path          string               `json:"-"`
-		Table         Table                `json:"table"`
-		Columns       []*Column            `json:"columns"`
-		Views         map[string]*View     `json:"views"`
-		views         ztype.Map            `json:"-"`
-		Relations     map[string]*relation `json:"relations"`
-		Values        []interface{}        `json:"values"`
+		Name          string                   `json:"name"`
+		Path          string                   `json:"-"`
+		Table         Table                    `json:"table"`
+		Columns       []*Column                `json:"columns"`
+		Views         map[string]*View         `json:"views"`
+		views         ztype.Map                `json:"-"`
+		Relations     map[string]*relation     `json:"relations"`
+		Values        []map[string]interface{} `json:"values"`
 		fields        []string
 		inlayFields   []string
 		fullFields    []string
@@ -32,22 +32,22 @@ type (
 		cryptKeys     map[string]cryptProcess
 		beforeProcess map[string][]beforeProcess
 		afterProcess  map[string][]afterProcess
-		Options       struct {
-			Api              interface{} `json:"api"`
-			ApiPath          string      `json:"api_path"`
-			CryptID          bool        `json:"crypt_id"`
-			DisabledMigrator bool        `json:"disabled_migrator"`
-			SoftDeletes      bool        `json:"soft_deletes"`
-			Timestamps       bool        `json:"timestamps"`
-		} `json:"options"`
+		Options       Options `json:"options"`
 	}
 
 	Table struct {
 		Name    string `json:"name"`
 		Comment string `json:"comment"`
 	}
-
-	validations struct {
+	Options struct {
+		Api              interface{} `json:"api"`
+		ApiPath          string      `json:"api_path"`
+		CryptID          bool        `json:"crypt_id"`
+		DisabledMigrator bool        `json:"disabled_migrator"`
+		SoftDeletes      bool        `json:"soft_deletes"`
+		Timestamps       bool        `json:"timestamps"`
+	}
+	Validations struct {
 		Args    interface{} `json:"args"`
 		Method  string      `json:"method"`
 		Message string      `json:"message"`

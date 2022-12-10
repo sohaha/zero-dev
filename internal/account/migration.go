@@ -14,6 +14,7 @@ func migration(di zdi.Invoker) (m *parse.Modeler, err error) {
 	_, diErr := di.Invoke(func(db *zdb.DB) {
 		zerror.Panic(userModel(db))
 		zerror.Panic(logsModel(db))
+		zerror.Panic(roleModel(db))
 	})
 
 	if diErr != nil {

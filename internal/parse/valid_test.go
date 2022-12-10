@@ -15,7 +15,7 @@ var testColumns = []*Column{
 		Type:     "string",
 		Size:     10,
 		Nullable: false,
-		Validations: []validations{
+		Validations: []Validations{
 			{
 				Method: "minLength",
 				Args:   "5",
@@ -26,7 +26,7 @@ var testColumns = []*Column{
 		Name:  "age",
 		Label: "年龄",
 		Type:  "int",
-		Validations: []validations{
+		Validations: []Validations{
 			{
 				Method: "min",
 				Args:   "18",
@@ -41,7 +41,7 @@ var testColumns = []*Column{
 		Name:     "gender",
 		Type:     "float",
 		Nullable: true,
-		Validations: []validations{
+		Validations: []Validations{
 			{
 				Method: "enum",
 				Args:   []float64{1.0, 1.1},
@@ -53,7 +53,7 @@ var testColumns = []*Column{
 		Name:     "login_ip",
 		Type:     "string",
 		Nullable: true,
-		Validations: []validations{
+		Validations: []Validations{
 			{
 				Method: "ip",
 			},

@@ -14,23 +14,28 @@ func ModelsForEach(fn func(key string, m *Modeler) bool) {
 	globalModels.ForEach(fn)
 }
 
-func AddModel(name string, json []byte, bindStorage func(*Modeler) (Storageer, error), force ...bool) (*Modeler, error) {
+func AddModelForJSON(name string, json []byte, bindStorage func(*Modeler) (Storageer, error), force ...bool) (*Modeler, error) {
 	m, err := ParseModel(json)
 	if err != nil {
 		return nil, err
 	}
 
+	err = AddModel(name, m, bindStorage, force...)
+
+	return m, err
+}
+
+func AddModel(name string, m *Modeler, bindStorage func(*Modeler) (Storageer, error), force ...bool) (err error) {
+	InitModel(m)
 	m.Storage, err = bindStorage(m)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	// name = strings.TrimSuffix(name, ".model.json")
-	// name = strings.Replace(name, "/", "-", -1)
 	if _, ok := globalModels.Get(name); ok && !(len(force) > 0 && force[0]) {
-		return nil, ErrModuleAlreadyExists
+		return ErrModuleAlreadyExists
 	}
 	globalModels.Set(name, m)
 
-	return m, nil
+	return nil
 }

@@ -102,7 +102,7 @@ func registerModel(db *zdb.DB, path string, force bool) (*parse.Modeler, error) 
 		}
 	}
 
-	mv, err := parse.AddModel(name, json, func(m *parse.Modeler) (parse.Storageer, error) {
+	mv, err := parse.AddModelForJSON(name, json, func(m *parse.Modeler) (parse.Storageer, error) {
 		// 因为模型文件可能和内置模型重名，所以这里需要追加前缀
 		m.Table.Name = "model_" + m.Table.Name
 		return parse.NewSQL(db, m.Table.Name), nil

@@ -73,8 +73,9 @@ func InitWeb(app *App, middlewares []znet.Handler) *znet.Engine {
 			errMsg = "unknown error"
 		}
 
-		c.JSON(int32(statusCode), znet.ApiData{
-			Code: code, Msg: errMsg,
+		c.JSON(int32(statusCode), map[string]interface{}{
+			"code": code,
+			"msg":  errMsg,
 		})
 	}))
 

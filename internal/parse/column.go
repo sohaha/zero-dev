@@ -14,7 +14,7 @@ type Column struct {
 	Comment     string          `json:"comment"`
 	Label       string          `json:"label"`
 	Type        schema.DataType `json:"type"`
-	Validations []validations   `json:"validations"`
+	Validations []Validations   `json:"validations"`
 	Options     []ColumnEnum    `json:"options"`
 	Before      []string        `json:"before"`
 	After       []string        `json:"after"`

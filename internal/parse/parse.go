@@ -53,7 +53,6 @@ func ParseModel(j []byte) (m *Modeler, err error) {
 
 	if err == nil {
 		m.Raw = j
-		InitModel(m)
 	}
 	return
 }

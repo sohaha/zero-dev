@@ -21,6 +21,9 @@ func InitRouter(_ *service.Conf) []service.Router {
 		&account.Account{
 			Path: "/manage/base",
 		},
+		&account.Role{
+			Path: "/manage/account/role",
+		},
 		&restapi.ManageRestApi{
 			Path: "/manage/model",
 		},

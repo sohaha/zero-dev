@@ -10,13 +10,13 @@ import (
 	"github.com/zlsgo/zdb"
 )
 
-const UserModel = "inlay::account"
+const UserModel = "inlay::accounts"
 
 func userModel(db *zdb.DB) error {
 	json, _ := zjson.SetBytes([]byte("{}"), "name", ztype.Map{})
 	json, _ = zjson.SetBytes(json, "name", "账号模型")
 	json, _ = zjson.SetBytes(json, "table", ztype.Map{
-		"name":    "account_user",
+		"name":    "account_users",
 		"comment": "用户表",
 	})
 
@@ -120,7 +120,7 @@ func userModel(db *zdb.DB) error {
 		},
 	})
 
-	m, err := parse.AddModel(UserModel, json, func(m *parse.Modeler) (parse.Storageer, error) {
+	m, err := parse.AddModelForJSON(UserModel, json, func(m *parse.Modeler) (parse.Storageer, error) {
 		return parse.NewSQL(db, m.Table.Name), nil
 	}, false)
 
@@ -224,7 +224,68 @@ func logsModel(db *zdb.DB) error {
 		},
 	})
 
-	m, err := parse.AddModel(LogsModel, json, func(m *parse.Modeler) (parse.Storageer, error) {
+	m, err := parse.AddModelForJSON(LogsModel, json, func(m *parse.Modeler) (parse.Storageer, error) {
+		return parse.NewSQL(db, m.Table.Name), nil
+	}, false)
+	if err != nil {
+		return err
+	}
+
+	return m.Migration().Auto(true)
+}
+
+const RolesModel = "inlay::roles"
+
+func roleModel(db *zdb.DB) error {
+	m := &parse.Modeler{
+		Name: "角色模型",
+		Table: parse.Table{
+			Name:    "account_roles",
+			Comment: "角色表",
+		},
+		Columns: []*parse.Column{
+			{
+				Name:   "name",
+				Type:   "string",
+				Label:  "角色名称",
+				Unique: true,
+				Size:   20,
+			},
+			{
+				Name:   "key",
+				Type:   "string",
+				Label:  "角色标识",
+				Unique: true,
+				Size:   20,
+				Validations: []parse.Validations{
+					{
+						Method:  "regex",
+						Args:    "^[a-zA-Z0-9_]+$",
+						Message: "角色标识只能包含字母、数字、下划线",
+					},
+				},
+			},
+
+			{
+				Name:     "menu",
+				Type:     "json",
+				Label:    "角色菜单",
+				Default:  "[]",
+				Nullable: true,
+			},
+		},
+		Options: parse.Options{
+			Timestamps: true,
+		},
+		Values: []map[string]interface{}{
+			{
+				parse.IDKey: 1,
+				"name":      "管理员",
+				"key":       "admin",
+			},
+		},
+	}
+	err := parse.AddModel(RolesModel, m, func(m *parse.Modeler) (parse.Storageer, error) {
 		return parse.NewSQL(db, m.Table.Name), nil
 	}, false)
 	if err != nil {

@@ -54,11 +54,11 @@ func (m *Migration) InitValue(all bool) error {
 			all = row.Get("count").Int() == 0
 		}
 	}
-	for _, v := range m.Model.Values {
-		data, ok := v.(map[string]interface{})
-		if !ok {
-			return errors.New("初始化数据格式错误")
-		}
+	for _, data := range m.Model.Values {
+		// data, ok := v.(map[string]interface{})
+		// if !ok {
+		// 	return errors.New("初始化数据格式错误")
+		// }
 		if !all {
 			if _, ok := data[IDKey]; ok {
 				continue
