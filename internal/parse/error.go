@@ -12,7 +12,7 @@ const (
 
 var errDescriptions = [...]string{
 	ErrException:           "异常",
-	ErrModuleAlreadyExists: "模型已存在",
+	ErrModuleAlreadyExists: "模型名称已存在",
 	ErrNotMigration:        "不支持表迁移",
 }
 

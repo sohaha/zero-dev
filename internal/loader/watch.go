@@ -53,15 +53,26 @@ func (l *Loader) Watch(dir string) {
 
 }
 
-func pollEvents(di zdi.Invoker, watcher *fsnotify.Watcher) {
+func (l *Loader) pollEvents(di zdi.Invoker) {
+	watcher := l.watcher
 	pool := zpool.New(10)
 	for {
 		event, ok := <-watcher.Events
 		if !ok {
 			return
 		}
+		if event.Has(fsnotify.Remove) {
+			if zfile.DirExist(event.Name) {
+				_ = watcher.Remove(event.Name)
+				continue
+			}
+		}
 		for _, v := range []fsnotify.Op{fsnotify.Write, fsnotify.Create} {
 			if event.Has(v) {
+				if zfile.DirExist(event.Name) {
+					l.Watch(event.Name)
+					continue
+				}
 				for _, v := range []FileType{Model, Flow, View} {
 					t := v
 					if strings.HasSuffix(event.Name, t.Suffix()) {
@@ -88,6 +99,7 @@ func reRegister(di zdi.Invoker, file string, f FileType) {
 				err = m.Migration().Auto(conf.Core().GetBool("migration.delete_column"))
 			}
 		}
+
 		if err != nil {
 			zlog.Error(err)
 		}

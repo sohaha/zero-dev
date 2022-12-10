@@ -34,7 +34,7 @@ func Init(di zdi.Injector) *Loader {
 			if err == nil {
 				loader.watcher = watcher
 
-				go pollEvents(di, watcher)
+				go loader.pollEvents(di)
 			}
 		}
 	})

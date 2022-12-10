@@ -1,6 +1,7 @@
 package loader
 
 import (
+	"errors"
 	"strings"
 	"zlsapp/internal/parse"
 	"zlsapp/service"
@@ -94,6 +95,13 @@ func registerModel(db *zdb.DB, path string, force bool) (*parse.Modeler, error) 
 	}
 
 	name := toName(path, root)
+	if force {
+		m, ok := parse.GetModel(name)
+		if ok && m.Path != path {
+			return m, errors.New("模型名称与 " + zfile.SafePath(m.Path) + " 相同")
+		}
+	}
+
 	mv, err := parse.AddModel(name, json, func(m *parse.Modeler) (parse.Storageer, error) {
 		// 因为模型文件可能和内置模型重名，所以这里需要追加前缀
 		m.Table.Name = "model_" + m.Table.Name
