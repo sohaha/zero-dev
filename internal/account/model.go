@@ -38,7 +38,7 @@ func userModel(db *zdb.DB) error {
 			"validations": ztype.Maps{
 				{
 					"method": "regex",
-					"args":   "^([https|[http]]?://|data:image/)",
+					"args":   "^(data:image/|http://|https://)",
 				},
 			},
 		},
