@@ -13,7 +13,7 @@ func Init(conf *service.Conf) *hashids.HashID {
 		salt = conf.Core().GetString("account.key")
 	}
 	hd.Salt = salt
-	hd.MinLength = 5
+	hd.MinLength = 8
 	hashI, _ := hashids.NewWithData(hd)
 	return hashI
 }
