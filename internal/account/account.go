@@ -137,6 +137,9 @@ func (h *Account) PostLogin(c *znet.Context) (any, error) {
 
 	token, _ := h.Handlers.CreateManageToken(user, conf.Get("key").String(), conf.Get("expire").Int())
 
+	uid := user.Get(parse.IDKey).String()
+	_ = CreateLogs(uid, "登录成功", "", c.GetClientIP(), c.GetUserAgent(), LogsStatusRead)
+
 	return map[string]interface{}{
 		"token": token,
 	}, nil
@@ -144,9 +147,40 @@ func (h *Account) PostLogin(c *znet.Context) (any, error) {
 
 // GetMessage 获取站内消息
 func (h *Account) GetMessage(c *znet.Context) (any, error) {
+	m, _ := parse.GetModel(LogsModel)
+	uid := common.GetUID(c)
+	item, _ := parse.FindOne(m, ztype.Map{
+		"uid":    uid,
+		"status": LogsStatusUnread,
+	}, func(so *parse.StorageOptions) error {
+		so.Fields = []string{"count(*) as unread"}
+		return nil
+	})
 	return ztype.Map{
-		"unread": 0,
+		"unread": item.Get("unread").Int(),
 	}, nil
+}
+
+// GetLogs 获取操作日志
+func (h *Account) GetLogs(c *znet.Context) (any, error) {
+	m, _ := parse.GetModel(LogsModel)
+	uid := common.GetUID(c)
+	page, size, err := parse.GetPages(c)
+	if err != nil {
+		return nil, zerror.InvalidInput.Wrap(err, "Invalid page or size")
+	}
+
+	filter := ztype.Map{
+		"uid": uid,
+	}
+	items, p, err := parse.Pages(m, page, size, filter, func(so *parse.StorageOptions) error {
+		so.OrderBy = map[string]int8{parse.IDKey: -1}
+		return nil
+	})
+	return ztype.Map{
+		"items": items,
+		"page":  p,
+	}, err
 }
 
 // GetMe 获取当前用户信息

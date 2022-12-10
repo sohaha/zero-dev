@@ -35,7 +35,10 @@ func (u *Users) Get(c *znet.Context) (any, error) {
 	}
 
 	filter := ztype.Map{}
-	items, p, err := parse.Pages(u.model, page, size, filter)
+	items, p, err := parse.Pages(u.model, page, size, filter, func(so *parse.StorageOptions) error {
+		so.OrderBy = map[string]int8{parse.IDKey: -1}
+		return nil
+	})
 
 	return ztype.Map{
 		"items": items,

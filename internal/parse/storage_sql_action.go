@@ -217,7 +217,7 @@ func (s *SQL) Pages(page, pagesize int, filter ztype.Map, fn ...StorageOptionFn)
 		return nil
 	})
 	if err != nil && err != zdb.ErrNotFound {
-		return nil, PageInfo{}, err
+		return rows, PageInfo{}, err
 	}
 
 	return rows, PageInfo{

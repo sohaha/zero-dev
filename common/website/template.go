@@ -1,5 +1,0 @@
-package website
-
-func Injection() {
-
-}
