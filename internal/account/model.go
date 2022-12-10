@@ -10,7 +10,7 @@ import (
 	"github.com/zlsgo/zdb"
 )
 
-const UserModel = "inlay::accounts"
+const UsersModel = "inlay::accounts"
 
 func userModel(db *zdb.DB) error {
 	json, _ := zjson.SetBytes([]byte("{}"), "name", ztype.Map{})
@@ -27,7 +27,6 @@ func userModel(db *zdb.DB) error {
 
 	defAccount := defaultAccount()
 	json, _ = zjson.SetBytes(json, "values", defAccount)
-
 	json, _ = zjson.SetBytes(json, "columns", ztype.Maps{
 		{
 			"label":    "头像",
@@ -120,7 +119,7 @@ func userModel(db *zdb.DB) error {
 		},
 	})
 
-	m, err := parse.AddModelForJSON(UserModel, json, func(m *parse.Modeler) (parse.Storageer, error) {
+	m, err := parse.AddModelForJSON(UsersModel, json, func(m *parse.Modeler) (parse.Storageer, error) {
 		return parse.NewSQL(db, m.Table.Name), nil
 	}, false)
 

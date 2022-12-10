@@ -21,7 +21,7 @@ func migration(di zdi.Invoker) (m *parse.Modeler, err error) {
 		return nil, diErr
 	}
 
-	m, _ = parse.GetModel(UserModel)
+	m, _ = parse.GetModel(UsersModel)
 	return
 }
 

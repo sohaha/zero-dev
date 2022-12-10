@@ -53,7 +53,7 @@ func (h *Account) logout(user ztype.Map) error {
 
 func (h *Account) Init(r *znet.Engine) {
 	var ok bool
-	h.Model, ok = parse.GetModel(UserModel)
+	h.Model, ok = parse.GetModel(UsersModel)
 	if !ok {
 		zerror.Panic(errors.New("model account not found"))
 	}
