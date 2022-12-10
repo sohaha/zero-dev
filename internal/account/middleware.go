@@ -90,12 +90,12 @@ func NewMiddleware(app *service.App, pubPath []string) znet.Handler {
 			return error_code.Unauthorized.Text(err.Error())
 		}
 
-		if app.Conf.Core().GetBool("account.only") {
-			salt := user.Get("salt").String()
-			if salt != j.U[:8] {
-				return error_code.AuthorizedExpires.Text("登录状态失效，请重新登录")
-			}
+		// if app.Conf.Core().GetBool("account.only") {
+		salt := user.Get("salt").String()
+		if salt != j.U[:8] {
+			return error_code.AuthorizedExpires.Text("登录状态失效，请重新登录")
 		}
+		// }
 
 		roles := user.Get("roles").Slice().String()
 

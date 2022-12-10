@@ -39,7 +39,6 @@ func (h *AccountHandlers) Update(id interface{}, update ztype.Map) error {
 	}
 
 	_, _ = h.Cache().Delete(row.Get(parse.IDKey).String())
-
 	return nil
 }
 
@@ -47,6 +46,7 @@ func (h *AccountHandlers) Cache() *zcache.Table {
 	return zcache.New("__account_" + h.Model.Table.Name + "__")
 }
 
+// CacheForID 从缓存中获取用户信息
 func (h *AccountHandlers) CacheForID(uid interface{}) (row ztype.Map, err error) {
 	idStr := ztype.ToString(uid)
 	data, err := h.Cache().MustGet(idStr, func(set func(data interface{},

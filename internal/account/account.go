@@ -178,9 +178,8 @@ func (h *Account) AnyLogout(c *znet.Context) (interface{}, error) {
 		return nil, err
 	}
 
-	_ = h.logout(user)
-
-	return nil, nil
+	err = h.logout(user)
+	return nil, err
 }
 
 // PatchPassword 修改密码
