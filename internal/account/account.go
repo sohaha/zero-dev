@@ -69,10 +69,10 @@ func (h *Account) Init(r *znet.Engine) {
 }
 
 // PostLogin 用户登录
-func (h *Account) PostLogin(c *znet.Context) error {
+func (h *Account) PostLogin(c *znet.Context) (any, error) {
 	c.SetHeader("Test", "test")
 	if h.isBusyLogin(c) {
-		return error_code.InvalidInput.Text("错误次数过多，请稍后再试")
+		return nil, error_code.InvalidInput.Text("错误次数过多，请稍后再试")
 	}
 
 	json, _ := c.GetJSONs()
@@ -84,21 +84,21 @@ func (h *Account) PostLogin(c *znet.Context) error {
 	}
 
 	if account == "" {
-		return error_code.InvalidInput.Text("请输入账号")
+		return nil, error_code.InvalidInput.Text("请输入账号")
 	}
 
 	if password == "" {
-		return error_code.InvalidInput.Text("请输入密码")
+		return nil, error_code.InvalidInput.Text("请输入密码")
 	}
 
 	user, err := parse.FindOne(h.Model, ztype.Map{
 		"account": account,
 	})
 	if user.IsEmpty() {
-		return error_code.InvalidInput.Text("账号或密码错误")
+		return nil, error_code.InvalidInput.Text("账号或密码错误")
 	}
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	userPassword := user.Get("password").String()
@@ -107,16 +107,16 @@ func (h *Account) PostLogin(c *znet.Context) error {
 
 	if err != nil {
 		h.loginFailed(c)
-		return error_code.InvalidInput.Text("账号或密码错误")
+		return nil, error_code.InvalidInput.Text("账号或密码错误")
 	}
 
 	status := user.Get("status").Int()
 	if status != 1 {
 		switch status {
 		case 0:
-			return error_code.Unavailable.Text("用户待激活")
+			return nil, error_code.Unavailable.Text("用户待激活")
 		default:
-			return error_code.Unavailable.Text("用户已停用")
+			return nil, error_code.Unavailable.Text("用户已停用")
 		}
 	}
 
@@ -132,25 +132,25 @@ func (h *Account) PostLogin(c *znet.Context) error {
 	}
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	token, _ := h.Handlers.CreateManageToken(user, conf.Get("key").String(), conf.Get("expire").Int())
 
-	return error_code.Success.Result(c, map[string]interface{}{
+	return map[string]interface{}{
 		"token": token,
-	})
+	}, nil
 }
 
 // GetMessage 获取站内消息
-func (h *Account) GetMessage(c *znet.Context) (interface{}, error) {
+func (h *Account) GetMessage(c *znet.Context) (any, error) {
 	return ztype.Map{
 		"unread": 0,
 	}, nil
 }
 
 // GetMe 获取当前用户信息
-func (h *Account) GetMe(c *znet.Context) (interface{}, error) {
+func (h *Account) GetMe(c *znet.Context) (any, error) {
 	info, err := parse.FindOne(h.Model, ztype.Map{
 		parse.IDKey: common.GetUID(c),
 	}, func(so *parse.StorageOptions) error {
@@ -163,7 +163,7 @@ func (h *Account) GetMe(c *znet.Context) (interface{}, error) {
 }
 
 // PatchMe 修改当前用户信息
-func (h *Account) PatchMe(c *znet.Context) (interface{}, error) {
+func (h *Account) PatchMe(c *znet.Context) (any, error) {
 	uid := common.GetUID(c)
 	data, _ := c.GetJSONs()
 	err := h.Handlers.Update(uid, data.MapString())
@@ -171,7 +171,7 @@ func (h *Account) PatchMe(c *znet.Context) (interface{}, error) {
 }
 
 // AnyLogout 用户退出
-func (h *Account) AnyLogout(c *znet.Context) (interface{}, error) {
+func (h *Account) AnyLogout(c *znet.Context) (any, error) {
 	uid := common.GetUID(c)
 	user, err := h.Handlers.CacheForID(uid)
 	if err != nil {
@@ -183,7 +183,7 @@ func (h *Account) AnyLogout(c *znet.Context) (interface{}, error) {
 }
 
 // PatchPassword 修改密码
-func (h *Account) PatchPassword(c *znet.Context) (interface{}, error) {
+func (h *Account) PatchPassword(c *znet.Context) (any, error) {
 	var (
 		old    string
 		passwd string

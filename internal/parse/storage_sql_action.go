@@ -7,6 +7,7 @@ import (
 	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/zstring"
 	"github.com/sohaha/zlsgo/ztype"
+	"github.com/zlsgo/zdb"
 	"github.com/zlsgo/zdb/builder"
 )
 
@@ -102,21 +103,21 @@ func (s *SQL) Delete(filter ztype.Map, fn ...StorageOptionFn) (int64, error) {
 	})
 }
 
-// func (s *SQL) FindOne(filter ztype.Map, fn ...StorageOptionFn) (ztype.Map, error) {
-// 	rows, err := s.Find(filter, func(so *StorageOptions) error {
-// 		so.Limit = 1
-// 		if len(fn) > 0 {
-// 			return fn[0](so)
-// 		}
-// 		return nil
-// 	})
+func (s *SQL) FindOne(filter ztype.Map, fn ...StorageOptionFn) (ztype.Map, error) {
+	rows, err := s.Find(filter, func(so *StorageOptions) error {
+		so.Limit = 1
+		if len(fn) > 0 {
+			return fn[0](so)
+		}
+		return nil
+	})
 
-// 	if err == nil && rows.Len() > 0 {
-// 		return rows[0], nil
-// 	}
+	if err == nil && rows.Len() > 0 {
+		return rows[0], nil
+	}
 
-// 	return ztype.Map{}, err
-// }
+	return ztype.Map{}, err
+}
 
 func (s *SQL) Find(filter ztype.Map, fn ...StorageOptionFn) (ztype.Maps, error) {
 	o := StorageOptions{}
@@ -126,7 +127,7 @@ func (s *SQL) Find(filter ztype.Map, fn ...StorageOptionFn) (ztype.Maps, error) 
 		}
 	}
 
-	return s.db.Find(s.table, func(b *builder.SelectBuilder) error {
+	items, err := s.db.Find(s.table, func(b *builder.SelectBuilder) error {
 		fields := o.Fields
 		if len(fields) > 0 {
 			b.Select(zarray.Map(o.Fields, func(_ int, v string) string {
@@ -163,6 +164,12 @@ func (s *SQL) Find(filter ztype.Map, fn ...StorageOptionFn) (ztype.Maps, error) 
 
 		return nil
 	})
+
+	if err != nil && err != zdb.ErrNotFound {
+		return items, err
+	}
+
+	return items, nil
 }
 
 func (s *SQL) Pages(page, pagesize int, filter ztype.Map, fn ...StorageOptionFn) (ztype.Maps, PageInfo, error) {
@@ -209,7 +216,7 @@ func (s *SQL) Pages(page, pagesize int, filter ztype.Map, fn ...StorageOptionFn)
 
 		return nil
 	})
-	if err != nil {
+	if err != nil && err != zdb.ErrNotFound {
 		return nil, PageInfo{}, err
 	}
 

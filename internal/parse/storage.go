@@ -29,6 +29,7 @@ type StorageOptions struct {
 type Storageer interface {
 	GetStorageType() StorageType
 	Find(filter ztype.Map, fn ...StorageOptionFn) (ztype.Maps, error)
+	FindOne(filter ztype.Map, fn ...StorageOptionFn) (ztype.Map, error)
 	Pages(page, pagesize int, filter ztype.Map, fn ...StorageOptionFn) (ztype.Maps, PageInfo, error)
 	Migration(model *Modeler) Migrationer
 	Insert(data ztype.Map) (lastId interface{}, err error)

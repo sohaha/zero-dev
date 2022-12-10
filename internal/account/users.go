@@ -19,7 +19,7 @@ func (u *Users) Init(z *znet.Engine) {
 	u.model, _ = parse.GetModel(UsersModel)
 }
 
-func (u *Users) KeyGet(c *znet.Context) (interface{}, error) {
+func (u *Users) KeyGet(c *znet.Context) (any, error) {
 	id := c.GetParam("key")
 	item, err := parse.FindOne(u.model, id)
 	if err != nil {
@@ -28,7 +28,7 @@ func (u *Users) KeyGet(c *znet.Context) (interface{}, error) {
 	return item, nil
 }
 
-func (u *Users) Get(c *znet.Context) (interface{}, error) {
+func (u *Users) Get(c *znet.Context) (any, error) {
 	page, size, err := parse.GetPages(c)
 	if err != nil {
 		return nil, zerror.InvalidInput.Wrap(err, "Invalid page or size")
