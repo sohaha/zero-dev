@@ -9,17 +9,17 @@ import (
 	"github.com/sohaha/zlsgo/ztype"
 )
 
-type Role struct {
+type Roles struct {
 	service.App
 	Path  string
 	model *parse.Modeler
 }
 
-func (r *Role) Init(z *znet.Engine) {
+func (r *Roles) Init(z *znet.Engine) {
 	r.model, _ = parse.GetModel(RolesModel)
 }
 
-func (r *Role) KeyGet(c *znet.Context) (interface{}, error) {
+func (r *Roles) KeyGet(c *znet.Context) (interface{}, error) {
 	id := c.GetParam("key")
 	item, err := parse.FindOne(r.model, id)
 	if err != nil {
@@ -28,7 +28,7 @@ func (r *Role) KeyGet(c *znet.Context) (interface{}, error) {
 	return item, nil
 }
 
-func (r *Role) Get(c *znet.Context) (interface{}, error) {
+func (r *Roles) Get(c *znet.Context) (interface{}, error) {
 	page, size, err := parse.GetPages(c)
 	if err != nil {
 		return nil, zerror.InvalidInput.Wrap(err, "Invalid page or size")
