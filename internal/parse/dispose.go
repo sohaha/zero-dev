@@ -11,27 +11,46 @@ import (
 
 type beforeProcess func(interface{}) (string, error)
 
+func jsonMarshalProcess(s interface{}) (string, error) {
+	switch v := s.(type) {
+	case string:
+		if zjson.Valid(v) {
+			return v, nil
+		}
+		return "{}", nil
+	case []interface{}:
+	case map[string]interface{}:
+	default:
+		return "{}", nil
+	}
+	j, err := zjson.Marshal(s)
+	if err != nil {
+		return "{}", err
+	}
+	return zstring.Bytes2String(j), nil
+}
+
+func jsonUnmarshalProcess(s string) (interface{}, error) {
+	j := zjson.Parse(s)
+	if s == "" {
+		return ztype.Map{}, nil
+	}
+	if !j.Exists() {
+		return nil, errors.New("json parse error")
+	}
+	if j.IsArray() {
+		return j.Slice().Value(), nil
+	}
+	return j.MapString(), nil
+}
+
 func (m *Modeler) GetBeforeProcess(p []string) (fn []beforeProcess, err error) {
 	for _, v := range p {
 		switch strings.ToLower(v) {
 		default:
 			return nil, errors.New("before name not found")
 		case "json":
-			fn = append(fn, func(s interface{}) (string, error) {
-				switch v := s.(type) {
-				case string:
-					if zjson.Valid(v) {
-						return v, nil
-					}
-					return " ", nil
-				case []interface{}:
-				case map[string]interface{}:
-				default:
-					return " ", nil
-				}
-				j, err := zjson.Marshal(s)
-				return zstring.Bytes2String(j), err
-			})
+			fn = append(fn, jsonMarshalProcess)
 		}
 	}
 	return
@@ -74,16 +93,7 @@ func (m *Modeler) GetAfterProcess(p []string) (fn []afterProcess, err error) {
 		default:
 			return nil, errors.New("after name not found")
 		case "json":
-			fn = append(fn, func(s string) (interface{}, error) {
-				j := zjson.Parse(s)
-				if !j.Exists() {
-					return nil, errors.New("json parse error")
-				}
-				if j.IsArray() {
-					return j.Slice().Value(), nil
-				}
-				return j.MapString(), nil
-			})
+			fn = append(fn, jsonUnmarshalProcess)
 		}
 	}
 	return

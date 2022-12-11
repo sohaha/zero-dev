@@ -151,7 +151,7 @@ func (h *AccountHandlers) QueryRoles(j *jwt.JwtInfo) (user ztype.Map, err error)
 		var id int64
 		id, err = hashid.DecryptID(h.hashid, j.U[8:])
 		if err != nil {
-			return nil, err
+			return nil, errors.New("无效签名")
 		}
 		uid = ztype.ToString(id)
 	} else {
