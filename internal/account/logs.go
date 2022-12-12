@@ -52,6 +52,12 @@ func WrapActionLogs(c *znet.Context, action, module string) {
 
 // var logPool = zpool.New(100)
 
+func init() {
+	go func() {
+		_, _ = ipRegion.Region("")
+	}()
+}
+
 func WrapLogs(c *znet.Context, action string, fn ...func(data *ztype.Map)) {
 	// _ = logPool.Do(func() {
 	status := LogsStatusRead
