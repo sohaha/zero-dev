@@ -26,4 +26,4 @@ Path = 'db.db'
 
 [account]
 key = "678777654a"
-only = true
+only = false

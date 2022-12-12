@@ -128,7 +128,7 @@ func FindOne[T Filter](m *Modeler, filter T, fn ...StorageOptionFn) (ztype.Map, 
 		return ztype.Map{}, err
 	}
 
-	return rows[0], nil
+	return rows.Index(0), nil
 }
 
 func Insert(m *Modeler, data ztype.Map) (lastId interface{}, err error) {

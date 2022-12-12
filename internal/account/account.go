@@ -107,6 +107,14 @@ func (h *Account) PostLogin(c *znet.Context) (any, error) {
 
 	if err != nil {
 		h.loginFailed(c)
+
+		WrapLogs(c, "登录失败", func(data *ztype.Map) {
+			(*data)["category"] = LogTypeLogin
+			(*data)["detail"] = "密码错误"
+			(*data)["status"] = LogsStatusUnread
+			(*data)["uid"] = user.Get(parse.IDKey).String()
+		})
+
 		return nil, error_code.InvalidInput.Text("账号或密码错误")
 	}
 
@@ -137,8 +145,10 @@ func (h *Account) PostLogin(c *znet.Context) (any, error) {
 
 	token, _ := h.Handlers.CreateManageToken(user, conf.Get("key").String(), conf.Get("expire").Int())
 
-	uid := user.Get(parse.IDKey).String()
-	_ = CreateLogs(uid, "登录成功", "", c.GetClientIP(), c.GetUserAgent(), LogsStatusRead)
+	WrapLogs(c, "登录成功", func(data *ztype.Map) {
+		(*data)["category"] = LogTypeLogin
+		(*data)["uid"] = user.Get(parse.IDKey).String()
+	})
 
 	return map[string]interface{}{
 		"token": token,
@@ -164,23 +174,63 @@ func (h *Account) GetMessage(c *znet.Context) (any, error) {
 // GetLogs 获取操作日志
 func (h *Account) GetLogs(c *znet.Context) (any, error) {
 	m, _ := parse.GetModel(LogsModel)
-	uid := common.GetUID(c)
-	page, size, err := parse.GetPages(c)
-	if err != nil {
-		return nil, zerror.InvalidInput.Wrap(err, "Invalid page or size")
-	}
+	// page, size, err := parse.GetPages(c)
+	// if err != nil {
+	// 	return nil, zerror.InvalidInput.Wrap(err, "Invalid page or size")
+	// }
 
 	filter := ztype.Map{
-		"uid": uid,
+		"uid": common.GetUID(c),
 	}
-	items, p, err := parse.Pages(m, page, size, filter, func(so *parse.StorageOptions) error {
-		so.OrderBy = map[string]int8{parse.IDKey: -1}
+
+	category, _ := c.GetQuery("category")
+	if category != "" {
+		filter["category"] = category
+	}
+
+	// items, p, err := parse.Pages(m, page, size, filter, func(so *parse.StorageOptions) error {
+	// 	so.OrderBy = map[string]int8{parse.IDKey: -1}
+	// 	return nil
+	// })
+	fields := m.GetFields()
+	withFilds := []string{"user"}
+
+	res, err := parse.RestapiGetPage(c, m, filter, fields, withFilds, func(so *parse.StorageOptions) error {
+		// so.Wheres = []parse.StorageWhere{
+		// 	{
+		// 		Field: "category",
+		// 		Expr:  "eq",
+		// 		Value: category,
+		// 	},
+		// }
 		return nil
 	})
-	return ztype.Map{
-		"items": items,
-		"page":  p,
-	}, err
+	if err != nil {
+		return nil, err
+	}
+
+	go func() {
+		if res.Page.Total == 0 {
+			return
+		}
+		ids := []interface{}{}
+		for _, item := range res.Items {
+			if item.Get("status").Int() == LogsStatusUnread {
+				ids = append(ids, item.Get(parse.IDKey).String())
+			}
+		}
+
+		if len(ids) == 0 {
+			return
+		}
+		_, _ = parse.Update(m, ztype.Map{
+			parse.IDKey: ids,
+		}, ztype.Map{
+			"status": LogsStatusRead,
+		})
+	}()
+
+	return res, err
 }
 
 // GetMe 获取当前用户信息
@@ -255,7 +305,7 @@ func (h *Account) PatchPassword(c *znet.Context) (any, error) {
 	conf := ztype.Map(h.App.Conf.Core().GetStringMap("account"))
 	token := h.Handlers.ResetManageToken(c, user, conf.Get("key").String(), conf.Get("expire").Int())
 
-	_ = WrapLogs(c, "修改密码", "")
+	WrapLogs(c, "修改密码")
 
 	return ztype.Map{
 		"token": token,

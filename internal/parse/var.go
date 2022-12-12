@@ -17,14 +17,14 @@ type (
 		Raw           []byte
 		Storage       Storageer
 		StorageType   StorageType
-		Name          string                   `json:"name"`
-		Path          string                   `json:"-"`
-		Table         Table                    `json:"table"`
-		Columns       []*Column                `json:"columns"`
-		Views         map[string]*View         `json:"views"`
-		views         ztype.Map                `json:"-"`
-		Relations     map[string]*relation     `json:"relations"`
-		Values        []map[string]interface{} `json:"values"`
+		Name          string                    `json:"name"`
+		Path          string                    `json:"-"`
+		Table         Table                     `json:"table"`
+		Columns       []*Column                 `json:"columns"`
+		Views         map[string]*View          `json:"views"`
+		views         ztype.Map                 `json:"-"`
+		Relations     map[string]*ModelRelation `json:"relations"`
+		Values        []map[string]interface{}  `json:"values"`
 		fields        []string
 		inlayFields   []string
 		fullFields    []string

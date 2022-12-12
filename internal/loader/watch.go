@@ -31,8 +31,13 @@ import (
 // }
 
 func (l *Loader) Watch(dir string) {
+	if l.watcher == nil || !zfile.DirExist(dir) {
+		return
+	}
 	dir = zfile.RealPath(dir)
+
 	dirs := []string{dir}
+
 	_ = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() {
 			dirs = append(dirs, path)

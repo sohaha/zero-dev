@@ -111,14 +111,15 @@ func VerifiData(data ztype.Map, columns []*Column, active activeType) (ztype.Map
 				default:
 					rule := column.GetValidations().VerifiAny(v).IsNumber()
 					switch typ {
-					case "int":
+					case "int", "int8", "int16", "int32", "int64":
 						val, err = rule.Int()
-					case "uint":
+					case "uint", "uint8", "uint16", "uint32", "uint64":
 						val = ztype.ToUint(rule.Value())
 					default:
 						val, err = rule.Float64()
 					}
 				}
+
 				if err != nil {
 					return d, err
 				}

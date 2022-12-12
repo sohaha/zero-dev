@@ -12,6 +12,11 @@ import (
 	"github.com/zlsgo/zdb"
 )
 
+type PageData struct {
+	Page  PageInfo   `json:"page"`
+	Items ztype.Maps `json:"items"`
+}
+
 func GetPages(c *znet.Context) (page, pagesize int, err error) {
 	rule := c.ValidRule().IsNumber().MinInt(1)
 	err = zvalid.Batch(
@@ -39,17 +44,16 @@ func restApiInfo(m *Modeler, key string, fn ...StorageOptionFn) (ztype.Map, erro
 	}
 
 	row, err := FindOne(m, filter, fn...)
-	if err != nil && err == zdb.ErrNotFound {
+	if (err != nil && err == zdb.ErrNotFound) || row.IsEmpty() {
 		err = errors.New("记录不存在")
 	}
 	return row, err
 }
 
-func RestapiGetInfo(c *znet.Context, m *Modeler) (interface{}, error) {
+func RestapiGetInfo(c *znet.Context, m *Modeler, fields []string, withFilds []string) (interface{}, error) {
 	key := c.GetParam("key")
 
-	fields := GetViewFields(m, "info")
-	finalFields, tmpFields, with, withMany := getFinalFields(m, c, fields)
+	finalFields, tmpFields, with, withMany := getFinalFields(m, c, fields, withFilds)
 
 	info, err := restApiInfo(m, key, func(so *StorageOptions) error {
 		table := m.Table.Name
@@ -118,17 +122,13 @@ func RestapiGetInfo(c *znet.Context, m *Modeler) (interface{}, error) {
 
 }
 
-func RestapiGetPage(c *znet.Context, m *Modeler) (interface{}, error) {
+func RestapiGetPage(c *znet.Context, m *Modeler, filter ztype.Map, fields []string, withFilds []string, fn ...func(so *StorageOptions) error) (*PageData, error) {
 	page, pagesize, err := GetPages(c)
 	if err != nil {
 		return nil, error_code.InvalidInput.Error(err)
 	}
 
-	fields := GetViewFields(m, "lists")
-
-	finalFields, tmpFields, with, withMany := getFinalFields(m, c, fields)
-
-	filter := ztype.Map{}
+	finalFields, tmpFields, with, withMany := getFinalFields(m, c, fields, withFilds)
 
 	rows, pageInfo, err := Pages(m, page, pagesize, filter, func(so *StorageOptions) error {
 		so.OrderBy = map[string]int8{m.Table.Name + "." + IDKey: -1}
@@ -159,6 +159,11 @@ func RestapiGetPage(c *znet.Context, m *Modeler) (interface{}, error) {
 		}
 
 		so.Fields = finalFields
+		for _, f := range fn {
+			if err = f(so); err != nil {
+				return err
+			}
+		}
 		return nil
 	})
 
@@ -173,9 +178,9 @@ func RestapiGetPage(c *znet.Context, m *Modeler) (interface{}, error) {
 		}
 	}
 
-	return ztype.Map{
-		"items": rows,
-		"page":  pageInfo,
+	return &PageData{
+		Items: rows,
+		Page:  pageInfo,
 	}, nil
 
 }

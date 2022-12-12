@@ -1,14 +1,17 @@
 package account
 
 import (
-	"errors"
 	"zlsapp/common"
 	"zlsapp/internal/parse"
 	"zlsapp/service"
 
 	"github.com/mileusna/useragent"
+	"github.com/sohaha/zlsgo/zjson"
 	"github.com/sohaha/zlsgo/znet"
+	"github.com/sohaha/zlsgo/zpool"
+	"github.com/sohaha/zlsgo/zstring"
 	"github.com/sohaha/zlsgo/ztype"
+	ipRegion "github.com/zlsgo/ip"
 )
 
 type Logs struct {
@@ -22,37 +25,66 @@ const (
 	LogsStatusRead
 )
 
+type LogType int
+
+const (
+	LogTypeCommon LogType = iota + 1
+	LogTypeAction
+	LogTypeLogin
+)
+
 func (l *Logs) Init(z *znet.Engine) {
 	l.model, _ = parse.GetModel(LogsModel)
 }
 
-func WrapLogs(c *znet.Context, action, remark string, hint ...bool) error {
-	status := LogsStatusRead
-	if len(hint) > 0 && hint[0] {
-		status = 1
-	}
-	uid := common.GetUID(c)
-	return CreateLogs(uid, action, remark, c.GetClientIP(), c.GetUserAgent(), status)
+func WrapActionLogs(c *znet.Context, action, module string) {
+	WrapLogs(c, action, func(data *ztype.Map) {
+		(*data)["category"] = LogTypeAction
+		(*data)["module"] = module
+		p := c.PrevContent()
+		success := p.Code.Load() == 200
+		(*data)["result"] = success
+		if !success {
+			json := zjson.ParseBytes(p.Content)
+			(*data)["detail"] = json.Get("msg").String()
+		}
+	})
 }
 
-func CreateLogs(uid, action, remark, ip, userAgent string, status int) error {
-	m, ok := parse.GetModel(LogsModel)
-	if !ok {
-		return errors.New("model(" + LogsModel + ") not found")
-	}
+var logPool = zpool.New(100)
 
-	u := useragent.Parse(userAgent)
-	data := ztype.Map{
-		"uid":        uid,
-		"action":     action,
-		"ip":         ip,
-		"remark":     remark,
-		"os":         u.OS,
-		"os_version": u.OSVersion,
-		"device":     u.Device,
-		// "user_agent": userAgent,
-		"status": status,
-	}
-	_, err := parse.Insert(m, data)
-	return err
+func WrapLogs(c *znet.Context, action string, fn ...func(data *ztype.Map)) {
+	_ = logPool.Do(func() {
+		status := LogsStatusRead
+		uid := common.GetUID(c)
+		url := c.Request.URL.Path
+		m, _ := parse.GetModel(LogsModel)
+
+		ip := c.GetClientIP()
+		region, _ := ipRegion.Region(ip)
+		u := useragent.Parse(c.GetUserAgent())
+
+		data := ztype.Map{
+			"uid":             uid,
+			"action":          action,
+			"category":        LogTypeCommon,
+			"ip":              ip,
+			"detail":          "",
+			"method":          c.Request.Method,
+			"path":            url,
+			"os":              u.OS,
+			"ip_region":       zstring.TrimSpace(region.Country + " " + region.Province + " " + region.City),
+			"os_version":      u.OSVersion,
+			"device":          u.Device,
+			"browser":         u.Name,
+			"browser_version": u.Version,
+			"status":          status,
+		}
+
+		for _, f := range fn {
+			f(&data)
+		}
+
+		_, _ = parse.Insert(m, data)
+	})
 }

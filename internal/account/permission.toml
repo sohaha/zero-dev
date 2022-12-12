@@ -2,14 +2,12 @@
 # 管理员拥有全部接口权限
 [0]
 authorized_roles = ["admin"]
-host = "*"
 method = "*"
 path = "*"
 
 # /_/ 前缀的 API 为内部 API，不需要鉴权
 [1]
 allow_anyone = true
-host = "*"
 method = "*"
 path = "/_/*"
 sort = 100

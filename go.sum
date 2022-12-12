@@ -526,6 +526,8 @@ github.com/yuin/gopher-lua v0.0.0-20200816102855-ee81675732da h1:NimzV1aGyq29m5u
 github.com/yuin/gopher-lua v0.0.0-20200816102855-ee81675732da/go.mod h1:E1AXubJBdNmFERAOucpDIxNzeGfLzg0mYh+UfMWdChA=
 github.com/zlsgo/conf v0.0.0-20220614015108-b4ee9fc367b0 h1:VOfVQbRQaBarP3RSekH/v6girayNK02TtYv/xQfsI5k=
 github.com/zlsgo/conf v0.0.0-20220614015108-b4ee9fc367b0/go.mod h1:oLq4xPekZgWbWTZhOrHeoS3rrqMRxiaJYJp/L5J9JJ8=
+github.com/zlsgo/ip v0.0.0-20221211085620-1fdcebb109d3 h1:hil7kKmhWODZEgQbFDCXfXhDp4tZmefcu/CQ7fMzvPI=
+github.com/zlsgo/ip v0.0.0-20221211085620-1fdcebb109d3/go.mod h1:A/hU2ohmXXWk4ZFa2LTTJaYUw4fFPUzFgG3pnvGyII8=
 github.com/zlsgo/jet v0.0.0-20221129101533-bfbf36b96366 h1:hT4aI2VbVGQWoAdNL1H6MPoFBfUZJ+ibcCNbnAwQ2k4=
 github.com/zlsgo/jet v0.0.0-20221129101533-bfbf36b96366/go.mod h1:c/NjBPWLXUC5I4Z/l6nkxhRxEsuVEbwnMuZbVieaN+o=
 github.com/zlsgo/jet v0.0.0-20221130071113-0e394b6bf3fc h1:/nfSgjPmDjL+Uz5n6fMLFcPLlYDNg8D5NFge6JJhSQQ=

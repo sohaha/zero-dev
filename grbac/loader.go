@@ -40,12 +40,20 @@ func ParseMap(m map[string]interface{}) meta.Rules {
 	rules := make(meta.Rules, 0)
 	for _, v := range m {
 		m := ztype.ToMap(v)
+		host := m.Get("host").String()
+		if host == "" {
+			host = "*"
+		}
+		method := m.Get("method").String()
+		if method == "" {
+			method = "*"
+		}
 		rule := &meta.Rule{
 			Sort: m.Get("sort").Int(),
 			Resource: &meta.Resource{
-				Host:   m.Get("host").String(),
+				Host:   host,
 				Path:   m.Get("path").String(),
-				Method: m.Get("method").String(),
+				Method: method,
 			},
 			Permission: &meta.Permission{
 				AuthorizedRoles: m.Get("authorized_roles").Slice().String(),

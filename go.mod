@@ -8,7 +8,7 @@ require (
 	github.com/d5/tengo/v2 v2.13.0
 	github.com/dop251/goja v0.0.0-20221106173738-3b8a68ca89b4
 	github.com/golang-jwt/jwt v3.2.2+incompatible
-	github.com/sohaha/zlsgo v1.4.8
+	github.com/sohaha/zlsgo v1.4.9
 	github.com/tetratelabs/wazero v1.0.0-pre.3
 	github.com/traefik/yaegi v0.14.3
 	github.com/vadv/gopher-lua-libs v0.1.2
@@ -51,6 +51,7 @@ require (
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/yuin/gluamapper v0.0.0-20150323120927-d836955830e7 // indirect
+	github.com/zlsgo/ip v0.0.0-20221211085620-1fdcebb109d3 // indirect
 	github.com/zlsgo/jet v0.0.0-20221130071113-0e394b6bf3fc // indirect
 	golang.org/x/net v0.2.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect

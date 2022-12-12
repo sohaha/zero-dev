@@ -8,6 +8,10 @@ import (
 )
 
 func resolverColumn(m *Modeler, c *Column) {
+	if c.Default != nil {
+		c.Nullable = true
+	}
+
 	if c.ReadOnly {
 		m.readOnlyKeys = append(m.readOnlyKeys, c.Name)
 	}

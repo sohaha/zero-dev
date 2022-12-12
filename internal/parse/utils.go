@@ -7,9 +7,9 @@ import (
 	"github.com/sohaha/zlsgo/znet"
 )
 
-func getFinalFields(m *Modeler, c *znet.Context, fields []string) (finalFields, tmpFields []string, with, withMany map[string]*relation) {
+func getFinalFields(m *Modeler, c *znet.Context, fields []string, withFilds []string) (finalFields, tmpFields []string, with, withMany map[string]*ModelRelation) {
 	var mustFields []string
-	mustFields, with, withMany = GetRequestWiths(c, m)
+	mustFields, with, withMany = GetRequestWiths(c, m, withFilds)
 
 	if len(fields) == 0 {
 		fields = GetRequestFields(c, m)

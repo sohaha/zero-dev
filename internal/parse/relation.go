@@ -1,12 +1,10 @@
 package parse
 
 import (
-	"strings"
-
 	"github.com/sohaha/zlsgo/znet"
 )
 
-type relation struct {
+type ModelRelation struct {
 	Name    string   `json:"name"`
 	Type    string   `json:"type"`
 	Model   string   `json:"model"`
@@ -15,18 +13,16 @@ type relation struct {
 	Fields  []string `json:"fields"`
 }
 
-func GetRequestWiths(c *znet.Context, m *Modeler) (mustFields []string, hasOne map[string]*relation, hasMany map[string]*relation) {
-	with, ok := c.GetQuery("with")
-	if !ok || with == "" {
-		return []string{}, map[string]*relation{}, map[string]*relation{}
+func GetRequestWiths(c *znet.Context, m *Modeler, withFilds []string) (mustFields []string, hasOne map[string]*ModelRelation, hasMany map[string]*ModelRelation) {
+	if len(withFilds) == 0 {
+		return []string{}, map[string]*ModelRelation{}, map[string]*ModelRelation{}
 	}
 
-	w := strings.Split(with, ",")
-	mustFields = make([]string, 0, len(w))
-	hasOne = make(map[string]*relation, len(w))
-	hasMany = make(map[string]*relation, len(w))
+	mustFields = make([]string, 0, len(withFilds))
+	hasOne = make(map[string]*ModelRelation, len(withFilds))
+	hasMany = make(map[string]*ModelRelation, len(withFilds))
 
-	for _, v := range w {
+	for _, v := range withFilds {
 		r, ok := m.Relations[v]
 		if !ok {
 			continue

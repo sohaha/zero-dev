@@ -20,6 +20,7 @@ func (s *SQL) m(f string) string {
 	}
 	return s.table + "." + f
 }
+
 func (s *SQL) parseExprs(d *builder.Cond, filter ztype.Map) (exprs []string, err error) {
 	if len(filter) > 0 {
 		for k := range filter {
@@ -214,6 +215,20 @@ func (s *SQL) Pages(page, pagesize int, filter ztype.Map, fn ...StorageOptionFn)
 			b.Limit(o.Limit)
 		}
 
+		// wheres := o.Wheres
+		// whereLen := len(wheres)
+		// if whereLen == 0 {
+		// 	return nil
+		// }
+		// ws := make([]string, whereLen)
+		// for i := range wheres {
+		// 	w := &wheres[i]
+		// 	switch w.Expr {
+		// 	case "eq":
+		// 		ws[i] = b.EQ(w.Field, w.Value)
+		// 	}
+		// }
+		// b.Where(ws...)
 		return nil
 	})
 	if err != nil && err != zdb.ErrNotFound {

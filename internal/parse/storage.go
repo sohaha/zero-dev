@@ -17,12 +17,20 @@ type StorageJoin struct {
 	Expr  string
 }
 
+// type StorageWhere struct {
+// 	Expr string
+// 	// Cond  string
+// 	Field string
+// 	Value interface{}
+// }
+
 type StorageOptionFn func(*StorageOptions) error
 type StorageOptions struct {
 	Fields  []string
 	Limit   int
 	OrderBy map[string]int8
 	Join    []StorageJoin
+	// Wheres  []StorageWhere
 	// DisabledSoftDeletes bool
 }
 

@@ -144,110 +144,163 @@ func userModel(db *zdb.DB) error {
 const LogsModel = "inlay::logs"
 
 func logsModel(db *zdb.DB) error {
-	json, _ := zjson.SetBytes([]byte("{}"), "name", ztype.Map{})
-	json, _ = zjson.SetBytes(json, "name", "日志模型")
-	json, _ = zjson.SetBytes(json, "table", ztype.Map{
-		"name":    "account_logs",
-		"comment": "日志表",
-	})
+	m := &parse.Modeler{
+		Name: "日志模型",
+		Table: parse.Table{
+			Name:    "account_logs",
+			Comment: "日志表",
+		},
+		Options: parse.Options{
+			Timestamps: true,
+			CryptID:    true,
+		},
+	}
 
-	json, _ = zjson.SetBytes(json, "options", ztype.Map{
-		"timestamps": true,
-		"crypt_id":   true,
-	})
-
-	json, _ = zjson.SetBytes(json, "columns", ztype.Maps{
+	m.Columns = []*parse.Column{
 		{
-			"name":  "action",
-			"type":  "string",
-			"label": "操作",
-			"validations": ztype.Maps{
+			Name:    "action",
+			Type:    "string",
+			Label:   "操作",
+			Default: "",
+			Validations: []parse.Validations{
 				{
-					"method": "minLength",
-					"args":   1,
+					Method: "minLength",
+					Args:   1,
 				},
 				{
-					"method": "maxLength",
-					"args":   60,
+					Method: "maxLength",
+					Args:   60,
 				},
 			},
 		},
 		{
-			"name":  "uid",
-			"type":  "string",
-			"label": "操作用户",
-			"validations": ztype.Maps{
+			Name:  "uid",
+			Type:  "string",
+			Label: "操作用户",
+			Validations: []parse.Validations{
 				{
-					"method": "minLength",
-					"args":   1,
+					Method: "minLength",
+					Args:   1,
 				},
 			},
 		},
 		{
-			"name":     "ip",
-			"type":     "string",
-			"size":     100,
-			"default":  "",
-			"nullable": true,
-			"validations": []ztype.Map{
-				{"method": "ip"},
+			Name:    "ip",
+			Type:    "string",
+			Label:   "请求 IP",
+			Size:    100,
+			Default: "",
+			Validations: []parse.Validations{
+				{Method: "ip"},
 			},
-			"label": "IP",
-		},
-		// {
-		// 	"name":     "user_agent",
-		// 	"type":     "string",
-		// 	"size":     250,
-		// 	"default":  "",
-		// 	"nullable": true,
-		// 	"label":    "user_agent",
-		// },
-		{
-			"name":     "device",
-			"type":     "string",
-			"size":     10,
-			"default":  "",
-			"nullable": true,
-			"label":    "操作设备",
 		},
 		{
-			"name":     "os",
-			"type":     "string",
-			"size":     10,
-			"default":  "",
-			"nullable": true,
-			"label":    "操作系统",
+			Name:    "ip_region",
+			Type:    "string",
+			Label:   "IP 归属地",
+			Size:    100,
+			Default: "",
 		},
 		{
-			"name":     "os_version",
-			"type":     "string",
-			"size":     10,
-			"default":  "",
-			"nullable": true,
-			"label":    "系统版本",
+			Name:    "method",
+			Type:    "string",
+			Label:   "请求方法",
+			Size:    10,
+			Default: "",
 		},
 		{
-			"name":    "status",
-			"type":    "int8",
-			"size":    9,
-			"label":   "状态",
-			"default": LogsStatusRead,
-			"enum": []parse.ColumnEnum{
+			Name:  "path",
+			Type:  "string",
+			Label: "请求路径",
+			Size:  200,
+		},
+		{
+			Name:    "device",
+			Type:    "string",
+			Label:   "操作设备",
+			Size:    10,
+			Default: "",
+		},
+		{
+			Name:    "browser",
+			Type:    "string",
+			Label:   "浏览器",
+			Size:    10,
+			Default: "",
+		}, {
+			Name:    "browser_version",
+			Type:    "string",
+			Label:   "浏览器版本",
+			Size:    20,
+			Default: "",
+		}, {
+			Name:    "os",
+			Type:    "string",
+			Label:   "操作系统",
+			Size:    10,
+			Default: "",
+		},
+		{
+			Name:    "os_version",
+			Type:    "string",
+			Label:   "系统版本",
+			Size:    10,
+			Default: "",
+		},
+		{
+			Name:    "module",
+			Type:    "string",
+			Label:   "访问模块",
+			Size:    20,
+			Default: "",
+		},
+		{
+			Name:    "result",
+			Type:    "bool",
+			Label:   "操作状态",
+			Default: true,
+		},
+		{
+			Name:    "status",
+			Type:    "int8",
+			Label:   "状态",
+			Size:    9,
+			Default: LogsStatusRead,
+			Options: []parse.ColumnEnum{
 				{Value: ztype.ToString(LogsStatusUnread), Label: "未读"},
 				{Value: ztype.ToString(LogsStatusRead), Label: "已读"},
 			},
 		},
 		{
-			"name":     "remark",
-			"type":     "string",
-			"size":     100,
-			"default":  "",
-			"nullable": true,
-			"label":    "备注",
+			Name:    "category",
+			Type:    "int8",
+			Label:   "类别",
+			Default: LogTypeCommon,
+			Options: []parse.ColumnEnum{
+				{Value: ztype.ToString(LogTypeCommon), Label: "普通日志"},
+				{Value: ztype.ToString(LogTypeLogin), Label: "登录日志"},
+				{Value: ztype.ToString(LogTypeAction), Label: "操作日志"},
+			},
 		},
-	})
+		{
+			Name:    "detail",
+			Type:    "string",
+			Label:   "详情",
+			Size:    200,
+			Default: "",
+		},
+	}
 
-	m, err := parse.AddModelForJSON(LogsModel, json, func(m *parse.Modeler) (parse.Storageer, error) {
+	m.Relations = map[string]*parse.ModelRelation{
+		"user": {
+			Name:    "user",
+			Key:     "uid",
+			Model:   UsersModel,
+			Foreign: parse.IDKey,
+			Fields:  []string{"nickname", "account"},
+		},
+	}
+	err := parse.AddModel(LogsModel, m, func(m *parse.Modeler) (parse.Storageer, error) {
 		return parse.NewSQL(db, m.Table.Name), nil
 	}, false)
 	if err != nil {
