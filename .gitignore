@@ -19,3 +19,5 @@ internal/testdata/test.db
 zero-dev.code-workspace
 pkg/
 dist3/
+.DS_Store
+internal/.DS_Store

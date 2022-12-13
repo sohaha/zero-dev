@@ -25,10 +25,21 @@ func (s *SQL) parseExprs(d *builder.Cond, filter ztype.Map) (exprs []string, err
 	if len(filter) > 0 {
 		for k := range filter {
 			v := ztype.New(filter[k])
-			if k == "" {
-				exprs = append(exprs, d.And(v.String()))
+			if k == "" || k == "$OR" || k == "$AND" {
+				m := v.MapString()
+				cexprs, err := s.parseExprs(d, m)
+				if err != nil {
+					return nil, err
+				}
+				switch k {
+				case "$ADN", "":
+					exprs = append(exprs, d.And(cexprs...))
+				case "$OR":
+					exprs = append(exprs, d.Or(cexprs...))
+				}
 				continue
 			}
+
 			f := strings.SplitN(zstring.TrimSpace(k), " ", 2)
 			l := len(f)
 			if l != 2 {
@@ -55,14 +66,15 @@ func (s *SQL) parseExprs(d *builder.Cond, filter ztype.Map) (exprs []string, err
 					exprs = append(exprs, d.LE(f[0], v.Value()))
 				case "!=":
 					exprs = append(exprs, d.NE(f[0], v.Value()))
-					// case "like":
-					// 	exprs = append(exprs, d.Like(f[0], v.String()))
-					// case "in":
-					// 	exprs = append(exprs, d.In(f[0], v.Value()))
-					// case "not in":
-					// 	exprs = append(exprs, d.NotIn(f[0], v.Value()))
-					// case "between":
-					// 	exprs = append(exprs, d.Between(f[0], v.Value()))
+				case "like":
+					exprs = append(exprs, d.Like(f[0], v.Value()))
+				case "in":
+					exprs = append(exprs, d.In(f[0], v.Value()))
+				case "notIn":
+					exprs = append(exprs, d.NotIn(f[0], v.Value()))
+				case "between":
+					s := v.Slice()
+					exprs = append(exprs, d.Between(f[0], s.Index(0), s.Index(1)))
 				}
 			}
 		}
@@ -137,10 +149,10 @@ func (s *SQL) Find(filter ztype.Map, fn ...StorageOptionFn) (ztype.Maps, error) 
 		}
 
 		exprs, err := s.parseExprs(&b.Cond, filter)
+
 		if err != nil {
 			return err
 		}
-
 		if len(exprs) > 0 {
 			b.Where(exprs...)
 		}

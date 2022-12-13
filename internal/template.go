@@ -62,6 +62,9 @@ func bindModelTemplate(r *znet.Engine, di zdi.Invoker) {
 			c.Template(http.StatusOK, template, ztype.Map{
 				"params": params,
 				"path":   c.Request.URL.Path,
+				"query": func(key string) string {
+					return c.DefaultQuery("key", "")
+				},
 			})
 		}, znet.WrapFirstMiddleware(func(c *znet.Context) {
 			c.WithValue(account.DisabledAuthKey, true)
@@ -109,6 +112,22 @@ func injectionTemplate(j *jet.Engine) {
 
 		return items
 	})
+
+	j.AddFunc("Pages", func(model string, page, pagesize interface{}, filter ztype.Map) ztype.Map {
+		m, ok := parse.GetModel(model)
+		if !ok {
+			return ztype.Map{}
+		}
+		items, p, _ := parse.Pages(m, ztype.ToInt(page), ztype.ToInt(pagesize), filter, func(so *parse.StorageOptions) error {
+			so.Fields = m.GetFields("content")
+			return nil
+		})
+
+		return ztype.Map{
+			"items": items,
+			"page":  p,
+		}
+	})
 	{
 
 		j.AddFunc("FAQs", func(category string, data ...ztype.Map) ztype.Maps {
@@ -116,9 +135,15 @@ func injectionTemplate(j *jet.Engine) {
 			if !ok {
 				return ztype.Maps{}
 			}
-			filter := ztype.Map{
-				"category": category,
+
+			filter := ztype.Map{}
+			if len(data) > 0 {
+				filter = data[0]
 			}
+			if category != "" {
+				filter["category"] = category
+			}
+
 			items, _ := parse.Find(m, filter, func(so *parse.StorageOptions) error {
 				so.Fields = []string{parse.IDKey, "title"}
 				so.Limit = 6
