@@ -28,6 +28,9 @@ func bindModelTemplate(r *znet.Engine, di zdi.Invoker) {
 		return
 	}
 
+	var conf *service.Conf
+	_ = di.Resolve(&conf)
+
 	j := jet.New(r, dir, func(o *jet.Options) {})
 
 	_ = j.Load()
@@ -45,7 +48,7 @@ func bindModelTemplate(r *znet.Engine, di zdi.Invoker) {
 	_, hasHome := zarray.Find(zarray.Keys(mapping), func(_ int, k string) bool { return k == "/" })
 	if !hasHome && j.Exists("index") {
 		r.GET("/", func(c *znet.Context) {
-			c.Template(http.StatusOK, "index", ztype.Map{})
+			c.Template(http.StatusOK, "index", inlayTemplateArgs(c, conf, nil))
 		})
 	}
 
@@ -58,19 +61,27 @@ func bindModelTemplate(r *znet.Engine, di zdi.Invoker) {
 				c.String(400, "模板不存在")
 				return
 			}
-			params := c.GetAllParam()
-			c.Template(http.StatusOK, template, ztype.Map{
-				"params": params,
-				"path":   c.Request.URL.Path,
-				"query": func(key string) string {
-					return c.DefaultQuery("key", "")
-				},
-			})
+
+			c.Template(http.StatusOK, template, inlayTemplateArgs(c, conf, nil))
 		}, znet.WrapFirstMiddleware(func(c *znet.Context) {
 			c.WithValue(account.DisabledAuthKey, true)
 			c.Next()
 		}))
 	}
+}
+
+func inlayTemplateArgs(c *znet.Context, conf *service.Conf, m ztype.Map) ztype.Map {
+	if m == nil {
+		m = ztype.Map{}
+	}
+	m["conf"] = conf.Core().Get("app")
+	m["path"] = c.Request.URL.Path
+	m["host"] = c.Host()
+	m["params"] = c.GetAllParam()
+	m["query"] = func(key string) string {
+		return c.DefaultQuery("key", "")
+	}
+	return m
 }
 
 func injectionTemplate(j *jet.Engine) {

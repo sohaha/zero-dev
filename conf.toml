@@ -27,3 +27,6 @@ Path = 'db.db'
 [account]
 key = "678777654a"
 only = false
+
+[app]
+domain = "https://chat.hw.73zls.com"
