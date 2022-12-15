@@ -98,7 +98,7 @@ func registerModel(db *zdb.DB, path string, force bool) (*parse.Modeler, error) 
 	if force {
 		m, ok := parse.GetModel(name)
 		if ok && m.Path != path {
-			return m, errors.New("模型名称与 " + zfile.SafePath(m.Path) + " 相同")
+			return m, errors.New("模型名称(" + name + ")与 " + zfile.SafePath(m.Path) + " 相同")
 		}
 	}
 
