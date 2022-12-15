@@ -90,6 +90,8 @@ github.com/bet365/jingo v1.0.4/go.mod h1:YVo0ML7j7ob+mvgmOXoZHcGu99n2HJQXw2VqkTt
 github.com/bgentry/speakeasy v0.1.0/go.mod h1:+zsyZBPWlz7T6j88CTgSN5bM796AkVf0kBD4zp0CCIs=
 github.com/buke/quickjs-go v0.1.11 h1:pE+ssSXMCRhB4he7019E9HBcm+tcMdilttkgpjFn+o8=
 github.com/buke/quickjs-go v0.1.11/go.mod h1:igOP6CA3nn55l7lshLqAtFvPNBd6qciR7c9q5Bg/xqk=
+github.com/buke/quickjs-go-polyfill v0.0.3 h1:oPrKEl6SpLkOC50cYquSOqm8Ss7p5Pg5JmJWLIh5bpo=
+github.com/buke/quickjs-go-polyfill v0.0.3/go.mod h1:dJMUu0mU3kHJv+/IsxS7tbFw1bdPfkyqXb+MayNRKbA=
 github.com/bytecodealliance/wasmtime-go v1.0.0 h1:9u9gqaUiaJeN5IoD1L7egD8atOnTGyJcNp8BhkL9cUU=
 github.com/cbroglie/mustache v1.0.1/go.mod h1:R/RUa+SobQ14qkP4jtx5Vke5sDytONDQXNLPY/PO69g=
 github.com/cbroglie/mustache v1.4.0 h1:Azg0dVhxTml5me+7PsZ7WPrQq1Gkf3WApcHMjMprYoU=
@@ -488,8 +490,6 @@ github.com/subosito/gotenv v1.3.0/go.mod h1:YzJjq/33h7nrwdY+iHMhEOEEbW0ovIz0tB6t
 github.com/subosito/gotenv v1.4.0/go.mod h1:mZd6rFysKEcUhUHXJk0C/08wAgyDBFuwEYL7vWWGaGo=
 github.com/subosito/gotenv v1.4.1 h1:jyEFiXpy21Wm81FBN71l9VoMMV8H8jG+qIK3GCpY6Qs=
 github.com/subosito/gotenv v1.4.1/go.mod h1:ayKnFf/c6rvx/2iiLrJUk1e6plDbT3edrFNGqEflhK0=
-github.com/syumai/quickjs v0.1.0 h1:clr9KSPvkrD8veXcgAiQ7oLPr5DCLzeeuXboFeDlwVg=
-github.com/syumai/quickjs v0.1.0/go.mod h1:6TkMin2PtwnDECtY7dOiehwrhC5iSBR62hDCi2uuBDw=
 github.com/technoweenie/multipartstreamer v1.0.1 h1:XRztA5MXiR1TIRHxH2uNxXxaIkKQDeX7m2XsSOlQEnM=
 github.com/technoweenie/multipartstreamer v1.0.1/go.mod h1:jNVxdtShOxzAsukZwTSw6MDx5eUJoiEBsSvzDU9uzog=
 github.com/tetratelabs/wazero v1.0.0-pre.3 h1:Z5fbogMUGcERzaQb9mQU8+yJSy0bVvv2ce3dfR4wcZg=

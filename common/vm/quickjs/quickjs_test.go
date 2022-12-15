@@ -1,9 +1,15 @@
 package quickjs_test
 
 import (
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"sync"
 	"testing"
+	"time"
 	"zlsapp/common/vm/quickjs"
+
+	"github.com/sohaha/zlsgo/zlog"
 	// "github.com/syumai/quickjs"
 )
 
@@ -20,17 +26,36 @@ import (
 
 func TestQuickjs(t *testing.T) {
 	js := quickjs.New()
-
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Header().Set("Content-Type", "application/json; utf-8")
+		_, _ = w.Write([]byte(`{"status": true}`))
+		zlog.Debug(333)
+	}))
 	var wg sync.WaitGroup
 
-	for i := 0; i < 100; i++ {
+	for i := 0; i < 10; i++ {
+		// id := i
 		wg.Add(1)
-		// go func() {
-		js.RunScript(`("Hello world!")`)
-		wg.Done()
-		// }()
+		go func() {
+			a, err := quickjs.RunScript(js, fmt.Sprintf(`
+	setTimeout(() => {
+		fetch('%s', {Method: 'GET'}).then(response => response.json()).then(data => {
+			console.log(data.status);
+		});
+	}, 50);
+	`, srv.URL), func(v *quickjs.Value, err error) (string, error) {
+				return v.String(), err
+			})
+			t.Log(a, err)
+			// js.RunScript(`("!` + ztype.ToString(i) + `")`)
+			// js.RunScript(`console.log("!` + ztype.ToString(i) + `")`)
+			// js.RunScript(`console.error("Error Hello world!` + ztype.ToString(i) + `")`)
+			wg.Done()
+		}()
 	}
 	wg.Wait()
+	time.Sleep(time.Second * 2)
 	return
 	// runtime := quickjs.NewRuntime()
 	// defer runtime.Free()
