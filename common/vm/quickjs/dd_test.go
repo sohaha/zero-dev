@@ -41,6 +41,7 @@ func TestXxx(t *testing.T) {
 	ret, err := ctx.Compile(fmt.Sprintf(`
 	var res = 1;
 	 console.log('res:', res);
+	 console.log(JSON.stringify({"s":11}));
 	const myFun = async () => {
 		hello(1)
 

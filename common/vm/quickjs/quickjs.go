@@ -2,11 +2,12 @@ package quickjs
 
 import (
 	"sync"
-	"time"
 
 	"github.com/buke/quickjs-go"
 	polyfill "github.com/buke/quickjs-go-polyfill"
+	"github.com/sohaha/zlsgo/zfile"
 	"github.com/sohaha/zlsgo/zlog"
+	"github.com/sohaha/zlsgo/zstring"
 	// "github.com/syumai/quickjs"
 )
 
@@ -60,21 +61,72 @@ func (j *JS) RunScript(script string, fn func(*quickjs.Value, error)) {
 	res.Free()
 }
 
-func RunScript[T any](j *JS, script string, fn func(*Value, error) (T, error)) (T, error) {
-	// j.runtime.
-	// context := j.runtime.NewContext()
+func RunLocalFile[T any](j *JS, file string, fn func(*Value) (T, error)) (v T, err error) {
+	var bytes []byte
+	bytes, err = zfile.ReadFile(file)
+	if err != nil {
+		return
+	}
 	r := j.pool.Get().(*runtime)
 	defer j.pool.Put(r)
-	res, err := r.ctx.Eval(script)
-	// if err == nil {
-	defer res.Free()
+
+	script := zstring.Bytes2String(bytes)
+	script = `let exports = {};const main = (async()=>{` + script + `})();`
+
+	var ret quickjs.Value
+	ret, err = r.ctx.Eval(script)
+	if err != nil {
+		return
+	}
+	defer ret.Free()
+	err = r.runtime.ExecuteAllPendingJobs()
+	if err != nil {
+		return
+	}
+
+	var exp quickjs.Value
+	exp, err = r.ctx.Eval("exports")
+	if err != nil {
+		return
+	}
+	defer exp.Free()
+
+	v, err = fn(&exp)
+
+	return
+}
+
+func RunLocalScript[T any](j *JS, script string, fn func(*Value) (T, error)) (v T, err error) {
+	script = `let exports = {};const main = (async()=>{` + script + `})();`
+	v, err = RunScript(j, script, fn)
+	return
+}
+
+func RunScript[T any](j *JS, script string, fn func(*Value) (T, error)) (v T, err error) {
+	r := j.pool.Get().(*runtime)
+	defer j.pool.Put(r)
+
+	var ret quickjs.Value
+	ret, err = r.ctx.Eval(script)
+	if err != nil {
+		e, _ := err.(*quickjs.Error)
+		zlog.Debug(e.Cause)
+		zlog.Debug(e.Stack)
+		return
+	}
+	defer ret.Free()
 	// }
 
 	// r.runtime.ExecutePendingJob()
-	r.runtime.ExecuteAllPendingJobs()
-	time.Sleep(time.Second * 1)
+	// zlog.Debug(r.runtime.IsJobPending())
+	// zlog.Debug(r.runtime.IsLoopJobPending())
+	err = r.runtime.ExecuteAllPendingJobs()
+	if err != nil {
+		return
+	}
+	// time.Sleep(time.Second * 1)
 	// rt.ExecuteAllPendingJobs()
-	return fn(&res, err)
+	return fn(&ret)
 	// zlog.Debug(err)
 	// zlog.Debug(res)
 
