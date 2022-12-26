@@ -5,7 +5,7 @@ import (
 	"zlsapp/service"
 )
 
-func InitTask() []service.Task {
+func InitTasks() []service.Task {
 	return []service.Task{
 		account.ClearLogs(),
 	}

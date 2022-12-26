@@ -13,7 +13,7 @@ import (
 // pubPath todo 后台前端界面不需要权限
 var pubPath = []string{"/", "/manage/base/login", "/admin*", "/static/*", "/html/*"}
 
-func InitRouter(_ *service.Conf) []service.Router {
+func InitRouters(_ *service.Conf) []service.Router {
 	return []service.Router{
 		&open.Open{
 			Path: "/_",
