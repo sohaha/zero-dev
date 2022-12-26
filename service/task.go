@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/sohaha/zlsgo/zlog"
 	"github.com/sohaha/zlsgo/zstring"
+	"github.com/sohaha/zlsgo/ztime"
 	"github.com/sohaha/zlsgo/ztime/cron"
 )
 
@@ -33,7 +34,7 @@ func RunTask(tasks []Task, app *App) (err error) {
 		}
 
 		next, _ := cron.ParseNextTime(task.Cron)
-		log("Register: " + zlog.Log.ColorTextWrap(zlog.ColorLightGreen, task.Name+" ["+task.Cron+"] -> "+next.Format("2006-01-02 15:04:05")))
+		log("Register: " + zlog.Log.ColorTextWrap(zlog.ColorLightGreen, task.Name) + zlog.ColorTextWrap(zlog.ColorLightWhite, " ["+task.Cron+"] -> ["+ztime.FormatTime(next)+"]"))
 	}
 
 	t.Run()
