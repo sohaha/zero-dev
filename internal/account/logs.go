@@ -9,6 +9,7 @@ import (
 	"github.com/sohaha/zlsgo/zjson"
 	"github.com/sohaha/zlsgo/znet"
 	"github.com/sohaha/zlsgo/zstring"
+	"github.com/sohaha/zlsgo/ztime"
 	"github.com/sohaha/zlsgo/ztype"
 	ipRegion "github.com/zlsgo/ip"
 )
@@ -92,4 +93,18 @@ func WrapLogs(c *znet.Context, action string, fn ...func(data *ztype.Map)) {
 
 	_, _ = parse.Insert(m, data)
 	// })
+}
+
+// ClearLogs 清理过期日志
+func ClearLogs() service.Task {
+	return service.Task{
+		Name: "ClearLogs",
+		Cron: "0 0 5 * * ? ?",
+		Run: func(app *service.App) {
+			m, _ := parse.GetModel(LogsModel)
+			_, _ = parse.Delete(m, ztype.Map{
+				parse.CreatedAtKey + " <= ": ztime.Time().AddDate(0, 0, -15).Format("2006-01-02 15:04:05"),
+			})
+		},
+	}
 }

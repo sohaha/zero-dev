@@ -28,7 +28,12 @@ func Init() (zdi.Invoker, error) {
 }
 
 func Start() error {
-	_, err := di.Invoke(service.RunWeb)
+	_, err := di.Invoke(service.RunTask)
+	if err != nil {
+		return zerror.With(err, "定时任务启动失败")
+	}
+
+	_, err = di.Invoke(service.RunWeb)
 	if err != nil {
 		err = zerror.With(err, "服务启动失败")
 	} else {

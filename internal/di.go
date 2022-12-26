@@ -22,6 +22,7 @@ func InitDI() zdi.Injector {
 	di.Provide(InitMiddleware)
 	di.Provide(InitRouter)
 	di.Provide(InitRouterBefore)
+	di.Provide(InitTask)
 
 	di.Provide(hashid.Init)
 

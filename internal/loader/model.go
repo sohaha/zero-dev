@@ -111,7 +111,7 @@ func registerModel(db *zdb.DB, path string, force bool) (*parse.Modeler, error) 
 		return nil, zerror.With(err, "添加模型失败: "+safePath)
 	}
 
-	modelLog("Register Model: " + zlog.Log.ColorTextWrap(zlog.ColorLightGreen, name))
+	modelLog("Register: " + zlog.Log.ColorTextWrap(zlog.ColorLightGreen, name))
 	mv.Path = path
 	return mv, nil
 }
