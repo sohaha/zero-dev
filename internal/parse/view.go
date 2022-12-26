@@ -17,7 +17,8 @@ func resolverViewLists(m *Modeler) ztype.Map {
 	columns := make(map[string]ztype.Map, 0)
 	data, ok := m.Views["lists"]
 	if !ok {
-		data = &View{}
+		// data = &View{}
+		return ztype.Map{}
 	}
 
 	fields := []string{IDKey}
@@ -58,7 +59,8 @@ func resolverViewInfo(m *Modeler) ztype.Map {
 
 	data, ok := m.Views["detail"]
 	if !ok {
-		data = &View{}
+		// data = &View{}
+		return info
 	}
 
 	columns := make(map[string]ztype.Map, 0)
