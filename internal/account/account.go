@@ -70,7 +70,6 @@ func (h *Account) Init(r *znet.Engine) {
 
 // PostLogin 用户登录
 func (h *Account) PostLogin(c *znet.Context) (any, error) {
-	c.SetHeader("Test", "test")
 	if h.isBusyLogin(c) {
 		return nil, error_code.InvalidInput.Text("错误次数过多，请稍后再试")
 	}

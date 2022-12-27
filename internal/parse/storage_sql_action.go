@@ -175,6 +175,9 @@ func (s *SQL) Find(filter ztype.Map, fn ...StorageOptionFn) (ztype.Maps, error) 
 			b.Limit(o.Limit)
 		}
 
+		if len(o.GroupBy) > 0 {
+			b.GroupBy(o.GroupBy...)
+		}
 		return nil
 	})
 
@@ -225,6 +228,10 @@ func (s *SQL) Pages(page, pagesize int, filter ztype.Map, fn ...StorageOptionFn)
 
 		if o.Limit > 0 {
 			b.Limit(o.Limit)
+		}
+
+		if len(o.GroupBy) > 0 {
+			b.GroupBy(o.GroupBy...)
 		}
 
 		// wheres := o.Wheres

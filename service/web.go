@@ -40,6 +40,8 @@ type (
 func InitWeb(app *App, middlewares []znet.Handler) *znet.Engine {
 	r := znet.New()
 	r.Log = app.Log
+	zlog.Log = r.Log
+
 	r.BindStructSuffix = ""
 	r.BindStructDelimiter = "-"
 	r.SetAddr(app.Conf.Base.Port)
@@ -47,6 +49,8 @@ func InitWeb(app *App, middlewares []znet.Handler) *znet.Engine {
 	isDebug := app.Conf.Base.Debug
 	if isDebug {
 		r.SetMode(znet.DebugMode)
+	} else {
+		r.SetMode(znet.ProdMode)
 	}
 
 	r.Use(znet.RewriteErrorHandler(func(c *znet.Context, err error) {

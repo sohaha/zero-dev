@@ -56,12 +56,14 @@ func (l *Loader) loadModeler(dir ...string) *Modeler {
 		}
 
 		for path, m := range models {
+			if m.Options.DisabledMigrator {
+				continue
+			}
 			err := m.Migration().Auto(conf.GetBool("migration.delete_column"))
 			if err != nil {
 				l.err = zerror.With(err, "模型迁移失败: "+path)
 				return
 			}
-
 		}
 	})
 

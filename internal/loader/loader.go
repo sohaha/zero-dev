@@ -43,6 +43,7 @@ func Init(di zdi.Injector) *Loader {
 	loader.loadModeler()
 	loader.loadModules()
 
+	// zlog.Panic(loader.err)
 	zerror.Panic(loader.err)
 
 	return loader

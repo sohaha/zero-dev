@@ -124,6 +124,28 @@ func injectionTemplate(j *jet.Engine) {
 		return items
 	})
 
+	j.AddFunc("QueryGroup", func(model string, field string, data ...ztype.Map) []string {
+		m, ok := parse.GetModel(model)
+		if !ok {
+			return []string{}
+		}
+
+		filter := ztype.Map{}
+		if len(data) > 0 {
+			filter = data[0]
+		}
+
+		items, _ := parse.Find(m, filter, func(so *parse.StorageOptions) error {
+			so.Fields = []string{field}
+			so.GroupBy = []string{field}
+			return nil
+		})
+
+		return zarray.Map(items, func(_ int, m ztype.Map) string {
+			return m.Get(field).String()
+		})
+	})
+
 	j.AddFunc("Pages", func(model string, page, pagesize interface{}, filter ztype.Map) ztype.Map {
 		m, ok := parse.GetModel(model)
 		if !ok {

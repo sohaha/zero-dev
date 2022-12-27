@@ -27,6 +27,7 @@ type StorageJoin struct {
 type StorageOptionFn func(*StorageOptions) error
 type StorageOptions struct {
 	Fields  []string
+	GroupBy []string
 	Limit   int
 	OrderBy map[string]int8
 	Join    []StorageJoin

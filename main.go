@@ -2,39 +2,31 @@ package main
 
 import (
 	app "zlsapp/internal"
+	"zlsapp/internal/account"
 	"zlsapp/internal/loader"
 	"zlsapp/service"
 
 	"github.com/sohaha/zlsgo/zcli"
+	"github.com/sohaha/zlsgo/zerror"
 	"github.com/sohaha/zlsgo/zlog"
 	"github.com/sohaha/zlsgo/znet"
 	"github.com/sohaha/zlsgo/zutil"
 )
 
+var name = "ZeroApp"
+var description = "ZeroApp is a web application framework."
+
 func main() {
 	var c *service.Conf
 
-	zcli.Name = "ZlsApp"
-	zcli.Logo = `
-_____
-/  _  \  ______  ______
-/  /_\  \ \____ \ \____ \
-/    |    \|  |_> >|  |_> >
-\____|__  /|   __/ |   __/
-	\/ |__|    |__|     `
+	zcli.Name = name
 	zcli.Version = "1.0.0"
 	zcli.EnableDetach = true
 
-	err := zutil.TryCatch(func() error {
-		di, err := app.Init()
-		if err == nil {
-			_ = di.Resolve(&c)
+	di, err := app.Init()
 
-			var router *znet.Engine
-			_, _ = di.Invoke(func(r *znet.Engine, l *loader.Loader) {
-				router = r
-			})
-			_ = router
+	if err == nil {
+		_, _ = di.Invoke(func(router *znet.Engine) {
 
 			// if c.Base.Debug {
 			// 	_ = router.GET(`/debug/statsviz{*:[\S]*}`, func(c *znet.Context) {
@@ -54,11 +46,23 @@ _____
 			// 	}))
 			// }
 
-			err = app.Start()
-		}
-		return err
-	})
+		})
 
+		err = zutil.TryCatch(func() error {
+			_ = di.Resolve(&c)
+
+			zcli.Add("passwd", "Modify account password", &account.PasswdCommand{
+				DI:   di,
+				Conf: c,
+			})
+
+			return zcli.LaunchServiceRun(zcli.Name, description, func() {
+				_, _ = di.Invoke(func(l *loader.Loader) {
+					zerror.Panic(app.Start())
+				})
+			})
+		})
+	}
 	if err != nil {
 		if c == nil || !c.Base.Debug {
 			zcli.Error(err.Error())
@@ -66,4 +70,5 @@ _____
 			zlog.Errorf("%+v\n", err)
 		}
 	}
+
 }
