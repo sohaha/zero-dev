@@ -26,7 +26,7 @@ func AddModelForJSON(name string, json []byte, bindStorage func(*Modeler) (Stora
 }
 
 func AddModel(name string, m *Modeler, bindStorage func(*Modeler) (Storageer, error), force ...bool) (err error) {
-	InitModel(m)
+	InitModel(name, m)
 	m.Storage, err = bindStorage(m)
 	if err != nil {
 		return err

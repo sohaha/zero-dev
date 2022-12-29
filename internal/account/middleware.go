@@ -3,6 +3,8 @@ package account
 import (
 	"time"
 
+	"zlsapp/common/hashid"
+	"zlsapp/conf"
 	"zlsapp/grbac"
 	"zlsapp/grbac/meta"
 	"zlsapp/internal/error_code"
@@ -17,13 +19,10 @@ import (
 	"github.com/sohaha/zlsgo/znet"
 	"github.com/sohaha/zlsgo/zstring"
 	"github.com/sohaha/zlsgo/ztype"
-	"github.com/speps/go-hashids/v2"
 )
 
 //go:embed permission.toml
 var defPermission []byte
-
-const DisabledAuthKey = "disabled-auth"
 
 func NewMiddleware(app *service.App, pubPath []string) znet.Handler {
 	var loaderOptions grbac.Option
@@ -50,7 +49,7 @@ func NewMiddleware(app *service.App, pubPath []string) znet.Handler {
 	h := &AccountHandlers{
 		Model: m,
 	}
-	_, _ = app.Di.Invoke(func(hashid *hashids.HashID) {
+	_, _ = app.Di.Invoke(func(hashid *hashid.HashID) {
 		h.hashid = hashid
 	})
 
@@ -65,7 +64,7 @@ func NewMiddleware(app *service.App, pubPath []string) znet.Handler {
 			}
 		}
 
-		if v, ok := c.Value(DisabledAuthKey); ok && ztype.ToBool(v) {
+		if v, ok := c.Value(conf.DisabledAuthKey); ok && ztype.ToBool(v) {
 			c.Next()
 			return nil
 		}

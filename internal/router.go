@@ -3,6 +3,7 @@ package app
 import (
 	"zlsapp/common/restapi"
 	"zlsapp/internal/account"
+	"zlsapp/internal/loader"
 	"zlsapp/internal/open"
 	"zlsapp/service"
 
@@ -18,6 +19,9 @@ func InitRouters(_ *service.Conf) []service.Router {
 		&open.Open{
 			Path: "/_",
 		},
+		&restapi.RestApi{
+			Path: "/api",
+		},
 		&account.Account{
 			Path: "/manage/base",
 		},
@@ -28,7 +32,8 @@ func InitRouters(_ *service.Conf) []service.Router {
 			Path: "/manage/model",
 		},
 		&restapi.RestApi{
-			Path: "/model",
+			Path:     "/model",
+			IsManage: true,
 		},
 		// model.NewRestApi(),
 		// model.NewManageRestApi(),
@@ -50,7 +55,11 @@ func InitMiddleware(conf *service.Conf, app *service.App) []znet.Handler {
 
 func InitRouterBefore(conf *service.Conf, app *service.App) service.RouterAfter {
 	return func(r *znet.Engine, app *service.App) {
-		bindModelTemplate(r, app.Di)
+		bindTemplate(r, app.Di)
 		bindStatic(r)
+
+		var l *loader.Loader
+		_ = app.Di.Resolve(&l)
+
 	}
 }

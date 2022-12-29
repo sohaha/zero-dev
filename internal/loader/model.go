@@ -9,6 +9,7 @@ import (
 	"github.com/sohaha/zlsgo/zerror"
 	"github.com/sohaha/zlsgo/zfile"
 	"github.com/sohaha/zlsgo/zlog"
+	"github.com/sohaha/zlsgo/znet"
 	"github.com/zlsgo/zdb"
 )
 
@@ -37,7 +38,7 @@ func (l *Loader) loadModeler(dir ...string) *Modeler {
 
 	models := make(map[string]*parse.Modeler, 0)
 
-	_, err := l.Di.Invoke(func(db *zdb.DB, c *service.Conf) {
+	_, err := l.Di.Invoke(func(db *zdb.DB, c *service.Conf, r *znet.Engine) {
 		conf := c.Core()
 		path := "./app/" + Model.Dir()
 		if len(dir) > 0 {

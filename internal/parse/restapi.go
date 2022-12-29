@@ -3,14 +3,92 @@ package parse
 import (
 	"errors"
 	"strings"
+	"zlsapp/common/hashid"
+	"zlsapp/conf"
 	"zlsapp/internal/error_code"
 
 	"github.com/sohaha/zlsgo/zarray"
+	"github.com/sohaha/zlsgo/zerror"
+	"github.com/sohaha/zlsgo/zlog"
 	"github.com/sohaha/zlsgo/znet"
 	"github.com/sohaha/zlsgo/ztype"
 	"github.com/sohaha/zlsgo/zvalid"
 	"github.com/zlsgo/zdb"
 )
+
+type Api struct {
+	Method string
+	Path   string
+	Handle znet.Handler
+	Public bool
+}
+
+func (m *Modeler) Routers(r *znet.Engine) {
+	for _, v := range m.apis {
+		r.Handle(v.Method, v.Path, v.Handle, znet.WrapFirstMiddleware(func(c *znet.Context) {
+			c.WithValue(conf.DisabledAuthKey, v.Public)
+			c.Next()
+		}))
+	}
+}
+
+func resolverApi(m *Modeler) {
+	m.apis = make(map[string]Api, 0)
+	apiOptions := ztype.New(m.Options.Api)
+	if !apiOptions.Bool() {
+		return
+	}
+	opts := apiOptions.Map()
+	if _, isBool := apiOptions.Value().(bool); isBool {
+		opts = ztype.Map{
+			"query": ztype.Map{
+				"public": true,
+			},
+			"pages": ztype.Map{
+				"public": true,
+			},
+		}
+	}
+
+	zlog.Debug(m.Name, opts)
+	for k := range opts {
+		v := opts.Get(k)
+		api := Api{
+			Path:   "/api/" + m.Alias,
+			Public: v.Get("public").Bool(),
+		}
+		switch k {
+		case "query":
+			api.Path = api.Path + "/:key"
+			api.Method = "GET"
+			api.Handle = func(c *znet.Context) (interface{}, error) {
+				return RestapiGetInfo(c, m, []string{}, []string{})
+			}
+		case "pages":
+			api.Method = "GET"
+			api.Handle = func(c *znet.Context) (interface{}, error) {
+				return RestapiGetPage(c, m, ztype.Map{}, []string{}, []string{})
+			}
+		case "create":
+			api.Method = "POST"
+		case "update":
+			api.Method = "PUT"
+			api.Path = api.Path + "/:key"
+		case "delete":
+			api.Path = api.Path + "/:key"
+			api.Method = "DELETE"
+		default:
+			zlog.Error("api method not found", k)
+			continue
+		}
+		if api.Handle == nil {
+			continue
+		}
+		m.apis[k] = api
+	}
+
+	// zlog.Debug(m.Alias)
+}
 
 type PageData struct {
 	Page  PageInfo   `json:"page"`
@@ -41,6 +119,7 @@ func restApiInfo(m *Modeler, key string, fn ...StorageOptionFn) (ztype.Map, erro
 	filter := ztype.Map{}
 	if key != "" && key != "0" {
 		filter[IDKey] = key
+
 	}
 
 	row, err := FindOne(m, filter, fn...)
@@ -52,6 +131,14 @@ func restApiInfo(m *Modeler, key string, fn ...StorageOptionFn) (ztype.Map, erro
 
 func RestapiGetInfo(c *znet.Context, m *Modeler, fields []string, withFilds []string) (interface{}, error) {
 	key := c.GetParam("key")
+
+	if m.Options.CryptID {
+		id, err := hashid.DecryptID(m.hashid, key)
+		if err != nil {
+			return nil, errors.New("ID 解密失败")
+		}
+		key = ztype.ToString(id)
+	}
 
 	finalFields, tmpFields, with, withMany := getFinalFields(m, c, fields, withFilds)
 
@@ -118,8 +205,16 @@ func RestapiGetInfo(c *znet.Context, m *Modeler, fields []string, withFilds []st
 		}
 	}
 
-	return info, nil
+	if m.Options.CryptID && zarray.Contains(finalFields, IDKey) {
+		id := info.Get(IDKey)
+		hid, err := hashid.EncryptID(m.hashid, id.Int64())
+		if err != nil {
+			return nil, zerror.With(err, "加密 ID 失败")
+		}
+		_ = info.Set(IDKey, hid)
+	}
 
+	return info, nil
 }
 
 func RestapiGetPage(c *znet.Context, m *Modeler, filter ztype.Map, fields []string, withFilds []string, fn ...func(so *StorageOptions) error) (*PageData, error) {
@@ -171,8 +266,17 @@ func RestapiGetPage(c *znet.Context, m *Modeler, filter ztype.Map, fields []stri
 		return nil, err
 	}
 
+	// TODO dev
 	_ = withMany
 	for _, info := range rows {
+		if m.Options.CryptID && zarray.Contains(finalFields, IDKey) {
+			id := info.Get(IDKey)
+			hid, err := hashid.EncryptID(m.hashid, id.Int64())
+			if err != nil {
+				return nil, zerror.With(err, "加密 ID 失败")
+			}
+			_ = info.Set(IDKey, hid)
+		}
 		for _, v := range tmpFields {
 			_ = info.Delete(v)
 		}

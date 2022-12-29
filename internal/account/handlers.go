@@ -16,12 +16,11 @@ import (
 	"github.com/sohaha/zlsgo/znet"
 	"github.com/sohaha/zlsgo/zstring"
 	"github.com/sohaha/zlsgo/ztype"
-	"github.com/speps/go-hashids/v2"
 )
 
 type AccountHandlers struct {
 	Model  *parse.Modeler
-	hashid *hashids.HashID
+	hashid *hashid.HashID
 }
 
 func (h *AccountHandlers) Update(id interface{}, update ztype.Map) error {

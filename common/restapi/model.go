@@ -2,6 +2,7 @@ package restapi
 
 import (
 	"strings"
+	"zlsapp/conf"
 	"zlsapp/internal/account"
 	"zlsapp/internal/error_code"
 	"zlsapp/internal/parse"
@@ -13,11 +14,15 @@ import (
 
 type RestApi struct {
 	service.App
-	Path string
+	Path     string
+	IsManage bool
 }
 
 func (h *RestApi) Init(g *znet.Engine) {
-	g.Use(func(c *znet.Context) (err error) {
+	g.Use(znet.WrapFirstMiddleware(func(c *znet.Context) error {
+		if !h.IsManage {
+			c.WithValue(conf.DisabledAuthKey, true)
+		}
 		name := c.GetParam("model")
 		m, ok := parse.GetModel(name)
 		if !ok {
@@ -26,9 +31,28 @@ func (h *RestApi) Init(g *znet.Engine) {
 
 		c.WithValue("model", m)
 		c.Next()
-		account.WrapActionLogs(c, "模型处理", m.Name)
+
+		if h.IsManage {
+			account.WrapActionLogs(c, "模型处理", m.Name)
+		}
 		return nil
-	})
+	}))
+
+	// g.Use(func(c *znet.Context) (err error) {
+	// 	name := c.GetParam("model")
+	// 	m, ok := parse.GetModel(name)
+	// 	if !ok {
+	// 		return error_code.NotFound.Text("模型不存在")
+	// 	}
+
+	// 	c.WithValue("model", m)
+	// 	c.Next()
+
+	// 	if h.IsManage {
+	// 		account.WrapActionLogs(c, "模型处理", m.Name)
+	// 	}
+	// 	return nil
+	// })
 
 	g.GET(":model", func(c *znet.Context) (interface{}, error) {
 		m := c.MustValue("model").(*parse.Modeler)

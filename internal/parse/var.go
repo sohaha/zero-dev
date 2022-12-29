@@ -4,6 +4,7 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"time"
+	"zlsapp/common/hashid"
 
 	"github.com/sohaha/zlsgo/zstring"
 	"github.com/sohaha/zlsgo/ztime"
@@ -19,6 +20,7 @@ type (
 		StorageType   StorageType
 		Name          string                    `json:"name"`
 		Path          string                    `json:"-"`
+		Alias         string                    `json:"-"`
 		Table         Table                     `json:"table"`
 		Columns       []*Column                 `json:"columns"`
 		Views         map[string]*View          `json:"views"`
@@ -33,6 +35,8 @@ type (
 		beforeProcess map[string][]beforeProcess
 		afterProcess  map[string][]afterProcess
 		Options       Options `json:"options"`
+		apis          map[string]Api
+		hashid        *hashid.HashID
 	}
 
 	Table struct {
@@ -41,8 +45,9 @@ type (
 	}
 	Options struct {
 		Api              interface{} `json:"api"`
-		ApiPath          string      `json:"api_path"`
+		ApiPrefix        string      `json:"api_prefix"`
 		CryptID          bool        `json:"crypt_id"`
+		Salt             string      `json:"salt"`
 		DisabledMigrator bool        `json:"disabled_migrator"`
 		SoftDeletes      bool        `json:"soft_deletes"`
 		Timestamps       bool        `json:"timestamps"`

@@ -6,24 +6,32 @@ import (
 	"github.com/speps/go-hashids/v2"
 )
 
-func Init(conf *service.Conf) *hashids.HashID {
-	hd := hashids.NewData()
+type HashID struct {
+	hash *hashids.HashID
+}
+
+func Init(conf *service.Conf) *HashID {
 	salt := conf.Core().GetString("hashid.salt")
 	if salt == "" {
 		salt = conf.Core().GetString("account.key")
 	}
+	return New(salt, 8)
+}
+
+func New(salt string, MinLength int) *HashID {
+	hd := hashids.NewData()
 	hd.Salt = salt
-	hd.MinLength = 8
-	hashI, _ := hashids.NewWithData(hd)
-	return hashI
+	hd.MinLength = MinLength
+	hash, _ := hashids.NewWithData(hd)
+	return &HashID{hash: hash}
 }
 
-func EncryptID(hashI *hashids.HashID, id int64) (string, error) {
-	return hashI.EncodeInt64([]int64{id})
+func EncryptID(hashI *HashID, id int64) (string, error) {
+	return hashI.hash.EncodeInt64([]int64{id})
 }
 
-func DecryptID(hashI *hashids.HashID, hid string) (int64, error) {
-	ids, err := hashI.DecodeInt64WithError(hid)
+func DecryptID(hashI *HashID, hid string) (int64, error) {
+	ids, err := hashI.hash.DecodeInt64WithError(hid)
 	if err != nil {
 		return 0, err
 	}

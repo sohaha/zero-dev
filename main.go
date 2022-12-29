@@ -3,7 +3,6 @@ package main
 import (
 	app "zlsapp/internal"
 	"zlsapp/internal/account"
-	"zlsapp/internal/loader"
 	"zlsapp/service"
 
 	"github.com/sohaha/zlsgo/zcli"
@@ -57,9 +56,7 @@ func main() {
 			})
 
 			return zcli.LaunchServiceRun(zcli.Name, description, func() {
-				_, _ = di.Invoke(func(l *loader.Loader) {
-					zerror.Panic(app.Start())
-				})
+				zerror.Panic(app.Start())
 			})
 		})
 	}

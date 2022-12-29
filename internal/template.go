@@ -3,7 +3,7 @@ package app
 import (
 	"net/http"
 	"strings"
-	"zlsapp/internal/account"
+	"zlsapp/conf"
 	"zlsapp/internal/parse"
 	"zlsapp/service"
 
@@ -16,20 +16,14 @@ import (
 	"github.com/zlsgo/jet"
 )
 
-func InitTemplate() *service.Template {
-	return &service.Template{
-		DIR: "app/templates",
-	}
-}
-
-func bindModelTemplate(r *znet.Engine, di zdi.Invoker) {
+func bindTemplate(r *znet.Engine, di zdi.Invoker) {
 	dir := "app/templates"
 	if !zfile.DirExist(dir) {
 		return
 	}
 
-	var conf *service.Conf
-	_ = di.Resolve(&conf)
+	var serviceConf *service.Conf
+	_ = di.Resolve(&serviceConf)
 
 	j := jet.New(r, dir, func(o *jet.Options) {})
 
@@ -48,7 +42,7 @@ func bindModelTemplate(r *znet.Engine, di zdi.Invoker) {
 	_, hasHome := zarray.Find(zarray.Keys(mapping), func(_ int, k string) bool { return k == "/" })
 	if !hasHome && j.Exists("index") {
 		r.GET("/", func(c *znet.Context) {
-			c.Template(http.StatusOK, "index", inlayTemplateArgs(c, conf, nil))
+			c.Template(http.StatusOK, "index", inlayTemplateArgs(c, serviceConf, nil))
 		})
 	}
 
@@ -62,9 +56,9 @@ func bindModelTemplate(r *znet.Engine, di zdi.Invoker) {
 				return
 			}
 
-			c.Template(http.StatusOK, template, inlayTemplateArgs(c, conf, nil))
+			c.Template(http.StatusOK, template, inlayTemplateArgs(c, serviceConf, nil))
 		}, znet.WrapFirstMiddleware(func(c *znet.Context) {
-			c.WithValue(account.DisabledAuthKey, true)
+			c.WithValue(conf.DisabledAuthKey, true)
 			c.Next()
 		}))
 	}

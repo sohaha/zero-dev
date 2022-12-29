@@ -1,12 +1,17 @@
 package parse
 
 import (
+	"zlsapp/common/hashid"
+
 	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/zjson"
 	"github.com/zlsgo/zdb/schema"
 )
 
-func InitModel(m *Modeler) {
+func InitModel(alias string, m *Modeler) {
+	m.Alias = alias
+	salt := m.Options.Salt
+	m.hashid = hashid.New(salt, 8)
 	m.readOnlyKeys = make([]string, 0)
 	m.cryptKeys = make(map[string]cryptProcess, 0)
 	m.afterProcess = make(map[string][]afterProcess, 0)
@@ -47,6 +52,7 @@ func InitModel(m *Modeler) {
 	}
 
 	resolverView(m)
+	resolverApi(m)
 }
 
 func (m *Modeler) isInlayField(field string) bool {

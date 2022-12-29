@@ -9,6 +9,10 @@ type Account struct {
 	Only   bool
 }
 
+const (
+	DisabledAuthKey = "disabled-auth"
+)
+
 func init() {
 	DefaultConf = append(DefaultConf, Account{
 		Key:    zstring.Rand(8),

@@ -3,6 +3,7 @@ package account
 import (
 	"errors"
 	"zlsapp/common"
+	"zlsapp/common/hashid"
 	"zlsapp/internal/error_code"
 	"zlsapp/service"
 
@@ -15,7 +16,6 @@ import (
 	"github.com/sohaha/zlsgo/ztime"
 	"github.com/sohaha/zlsgo/ztype"
 	"github.com/sohaha/zlsgo/zvalid"
-	"github.com/speps/go-hashids/v2"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -60,7 +60,7 @@ func (h *Account) Init(r *znet.Engine) {
 
 	h.failedCache = zcache.New("__account" + h.Model.Table.Name + "Failed__")
 
-	_, _ = h.Di.Invoke(func(hashid *hashids.HashID) {
+	_, _ = h.Di.Invoke(func(hashid *hashid.HashID) {
 		h.Handlers = &AccountHandlers{
 			Model:  h.Model,
 			hashid: hashid,
