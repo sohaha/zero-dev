@@ -35,7 +35,7 @@ type (
 		beforeProcess map[string][]beforeProcess
 		afterProcess  map[string][]afterProcess
 		Options       Options `json:"options"`
-		apis          map[string]Api
+		apis          map[ApiKeyType]Api
 		hashid        *hashid.HashID
 	}
 

@@ -42,6 +42,11 @@ func (h *RestApi) Init(g *znet.Engine) {
 
 	g.GET(":model", func(c *znet.Context) (interface{}, error) {
 		m := c.MustValue("model").(*parse.Modeler)
+
+		if !h.IsManage && !parse.JudgeRouters(m, parse.ApiKeyPages) {
+			return nil, error_code.PermissionDenied.Text("无权访问")
+		}
+
 		fields := parse.GetViewFields(m, "lists")
 		var withFilds []string
 		if with, _ := c.GetQuery("with"); with != "" {
@@ -63,31 +68,61 @@ func (h *RestApi) Init(g *znet.Engine) {
 
 	g.GET(":model/:key", func(c *znet.Context) (interface{}, error) {
 		m := c.MustValue("model").(*parse.Modeler)
-
+		if !h.IsManage && !parse.JudgeRouters(m, parse.ApiKeyQuery) {
+			return nil, error_code.PermissionDenied.Text("无权访问")
+		}
 		fields := parse.GetViewFields(m, "info")
 		var withFilds []string
 		if with, _ := c.GetQuery("with"); with != "" {
 			withFilds = strings.Split(with, ",")
 		}
 
-		return parse.RestapiGetInfo(c, m, fields, withFilds)
+		filter := ztype.Map{}
+		if !h.IsManage && m.Options.CreatedBy {
+			uid := common.GetUID(c)
+			filter[parse.CreatedByKey] = uid
+			filter[parse.CreatedByKey+" != "] = ""
+		}
+
+		return parse.RestapiGetInfo(c, m, filter, fields, withFilds)
 	})
 
 	g.POST(":model", func(c *znet.Context) (interface{}, error) {
 		m := c.MustValue("model").(*parse.Modeler)
 
+		if !h.IsManage && !parse.JudgeRouters(m, parse.ApiKeyCreate) {
+			return nil, error_code.PermissionDenied.Text("无权访问")
+		}
 		return parse.RestapiCreate(c, m)
 	})
 
 	g.PATCH(":model/:key", func(c *znet.Context) (interface{}, error) {
 		m := c.MustValue("model").(*parse.Modeler)
 
-		return parse.RestapiUpdate(c, m)
+		if !h.IsManage && !parse.JudgeRouters(m, parse.ApiKeyUpdate) {
+			return nil, error_code.PermissionDenied.Text("无权访问")
+		}
+		filter := ztype.Map{}
+		if !h.IsManage && m.Options.CreatedBy {
+			uid := common.GetUID(c)
+			filter[parse.CreatedByKey] = uid
+			filter[parse.CreatedByKey+" != "] = ""
+		}
+		return parse.RestapiUpdate(c, m, filter)
 	})
 
 	g.DELETE(":model/:key", func(c *znet.Context) (interface{}, error) {
 		m := c.MustValue("model").(*parse.Modeler)
 
-		return parse.RestapiDelete(c, m)
+		if !h.IsManage && !parse.JudgeRouters(m, parse.ApiKeyDelete) {
+			return nil, error_code.PermissionDenied.Text("无权访问")
+		}
+		filter := ztype.Map{}
+		if !h.IsManage && m.Options.CreatedBy {
+			uid := common.GetUID(c)
+			filter[parse.CreatedByKey] = uid
+			filter[parse.CreatedByKey+" != "] = ""
+		}
+		return parse.RestapiDelete(c, m, filter)
 	})
 }

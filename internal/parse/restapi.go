@@ -5,7 +5,6 @@ import (
 	"strings"
 	"zlsapp/common"
 	"zlsapp/common/hashid"
-	"zlsapp/conf"
 	"zlsapp/internal/error_code"
 
 	"github.com/sohaha/zlsgo/zarray"
@@ -24,17 +23,26 @@ type Api struct {
 	Public bool
 }
 
-func (m *Modeler) Routers(r *znet.Engine) {
-	for _, v := range m.apis {
-		r.Handle(v.Method, v.Path, v.Handle, znet.WrapFirstMiddleware(func(c *znet.Context) {
-			c.WithValue(conf.DisabledAuthKey, v.Public)
-			c.Next()
-		}))
+type ApiKeyType string
+
+const (
+	ApiKeyPages  ApiKeyType = "pages"
+	ApiKeyQuery  ApiKeyType = "query"
+	ApiKeyCreate ApiKeyType = "create"
+	ApiKeyUpdate ApiKeyType = "update"
+	ApiKeyDelete ApiKeyType = "delete"
+)
+
+func JudgeRouters(m *Modeler, t ApiKeyType) bool {
+	if _, ok := m.apis[t]; !ok {
+		return false
 	}
+
+	return true
 }
 
 func resolverApi(m *Modeler) {
-	m.apis = make(map[string]Api, 0)
+	m.apis = make(map[ApiKeyType]Api, 0)
 	apiOptions := ztype.New(m.Options.Api)
 	if !apiOptions.Bool() {
 		return
@@ -58,37 +66,36 @@ func resolverApi(m *Modeler) {
 			Path:   "/api/" + m.Alias,
 			Public: v.Get("public").Bool(),
 		}
-		switch k {
-		case "query":
-			api.Path = api.Path + "/:key"
-			api.Method = "GET"
-			api.Handle = func(c *znet.Context) (interface{}, error) {
-				return RestapiGetInfo(c, m, []string{}, []string{})
-			}
-		case "pages":
-			api.Method = "GET"
-			api.Handle = func(c *znet.Context) (interface{}, error) {
-				return RestapiGetPage(c, m, ztype.Map{}, []string{}, []string{})
-			}
-		case "create":
-			api.Method = "POST"
-		case "update":
-			api.Method = "PUT"
-			api.Path = api.Path + "/:key"
-		case "delete":
-			api.Path = api.Path + "/:key"
-			api.Method = "DELETE"
-		default:
-			zlog.Error("api method not found", k)
-			continue
-		}
-		if api.Handle == nil {
-			continue
-		}
-		m.apis[k] = api
+		// switch k {
+		// case "query":
+		// 	api.Path = api.Path + "/:key"
+		// 	api.Method = "GET"
+		// 	api.Handle = func(c *znet.Context) (interface{}, error) {
+		// 		return RestapiGetInfo(c, m, []string{}, []string{})
+		// 	}
+		// case "pages":
+		// 	api.Method = "GET"
+		// 	api.Handle = func(c *znet.Context) (interface{}, error) {
+		// 		return RestapiGetPage(c, m, ztype.Map{}, []string{}, []string{})
+		// 	}
+		// case "create":
+		// 	api.Method = "POST"
+		// case "update":
+		// 	api.Method = "PUT"
+		// 	api.Path = api.Path + "/:key"
+		// case "delete":
+		// 	api.Path = api.Path + "/:key"
+		// 	api.Method = "DELETE"
+		// default:
+		// 	zlog.Error("api method not found", k)
+		// 	continue
+		// }
+		// if api.Handle == nil {
+		// 	continue
+		// }
+		m.apis[ApiKeyType(k)] = api
 	}
 
-	// zlog.Debug(m.Alias)
 }
 
 type PageData struct {
@@ -116,11 +123,9 @@ func GetPages(c *znet.Context) (page, pagesize int, err error) {
 	return
 }
 
-func restApiInfo(m *Modeler, key string, fn ...StorageOptionFn) (ztype.Map, error) {
-	filter := ztype.Map{}
+func restApiInfo(m *Modeler, key string, filter ztype.Map, fn ...StorageOptionFn) (ztype.Map, error) {
 	if key != "" && key != "0" {
 		filter[IDKey] = key
-
 	}
 
 	row, err := FindOne(m, filter, fn...)
@@ -143,14 +148,14 @@ func getRestapiKey(c *znet.Context, m *Modeler) (string, error) {
 	return key, nil
 }
 
-func RestapiGetInfo(c *znet.Context, m *Modeler, fields []string, withFilds []string) (interface{}, error) {
+func RestapiGetInfo(c *znet.Context, m *Modeler, filter ztype.Map, fields []string, withFilds []string) (interface{}, error) {
 	key, err := getRestapiKey(c, m)
 	if err != nil {
 		return nil, err
 	}
 	finalFields, tmpFields, with, withMany := getFinalFields(m, c, fields, withFilds)
 
-	info, err := restApiInfo(m, key, func(so *StorageOptions) error {
+	info, err := restApiInfo(m, key, filter, func(so *StorageOptions) error {
 		table := m.Table.Name
 		for k, v := range with {
 			m, ok := GetModel(v.Model)
@@ -319,13 +324,13 @@ func RestapiCreate(c *znet.Context, m *Modeler) (interface{}, error) {
 	return ztype.Map{"id": id}, nil
 }
 
-func RestapiDelete(c *znet.Context, m *Modeler) (interface{}, error) {
+func RestapiDelete(c *znet.Context, m *Modeler, filter ztype.Map) (interface{}, error) {
 	key, err := getRestapiKey(c, m)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = restApiInfo(m, key)
+	_, err = restApiInfo(m, key, filter)
 	if err != nil {
 		return nil, err
 	}
@@ -335,13 +340,13 @@ func RestapiDelete(c *znet.Context, m *Modeler) (interface{}, error) {
 	return nil, err
 }
 
-func RestapiUpdate(c *znet.Context, m *Modeler) (interface{}, error) {
+func RestapiUpdate(c *znet.Context, m *Modeler, filter ztype.Map) (interface{}, error) {
 	key, err := getRestapiKey(c, m)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = restApiInfo(m, key)
+	_, err = restApiInfo(m, key, filter)
 	if err != nil {
 		return nil, error_code.InvalidInput.Error(err)
 	}
