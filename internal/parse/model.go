@@ -2,9 +2,11 @@ package parse
 
 import (
 	"zlsapp/common/hashid"
+	"zlsapp/conf"
 
 	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/zjson"
+	"github.com/sohaha/zlsgo/zstring"
 	"github.com/zlsgo/zdb/schema"
 )
 
@@ -31,6 +33,10 @@ func InitModel(alias string, m *Modeler) {
 		m.inlayFields = append(m.inlayFields, CreatedAtKey, UpdatedAtKey)
 	}
 
+	if m.Options.CreatedBy {
+		m.inlayFields = append(m.inlayFields, CreatedByKey)
+	}
+
 	// if m.Options.SoftDeletes {
 	// 	m.inlayFields = append(m.inlayFields, DeletedAtKey)
 	// }
@@ -49,6 +55,25 @@ func InitModel(alias string, m *Modeler) {
 				m.Relations[k].Foreign = IDKey
 			}
 		}
+
+		newRelations := make(map[string]*ModelRelation, len(relations))
+		for k := range relations {
+			v := relations[k]
+			newRelations[zstring.CamelCaseToSnakeCase(k)] = v
+		}
+		m.Relations = newRelations
+	}
+
+	if m.Options.CreatedBy {
+		m.Relations[zstring.SnakeCaseToCamelCase(CreatedByKey, true)] = &ModelRelation{
+			Key:     CreatedByKey,
+			Model:   conf.UsersModel,
+			Foreign: "_id",
+			Fields: []string{
+				"account",
+				"nickname",
+			},
+		}
 	}
 
 	resolverView(m)
@@ -59,11 +84,12 @@ func (m *Modeler) isInlayField(field string) bool {
 	if field == IDKey {
 		return true
 	}
-	if !m.Options.Timestamps {
+
+	if !m.Options.Timestamps && !m.Options.CreatedBy {
 		return false
 	}
 
-	return field == CreatedAtKey || field == UpdatedAtKey
+	return field == CreatedAtKey || field == UpdatedAtKey || field == CreatedByKey
 }
 
 func (m *Modeler) GetFields(exclude ...string) []string {
@@ -117,6 +143,19 @@ func (m *Modeler) GetColumn(name string) (*Column, bool) {
 				Type:  schema.Int,
 				Size:  11,
 				Label: "删除时间戳"}, true
+		}
+	}
+
+	if m.Options.CreatedBy {
+		if name == CreatedByKey {
+			return &Column{
+				Name:     name,
+				Type:     schema.String,
+				Nullable: true,
+				Default:  "",
+				Size:     120,
+				ReadOnly: true,
+				Label:    "创建人 ID"}, true
 		}
 	}
 

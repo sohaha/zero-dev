@@ -11,6 +11,8 @@ type Account struct {
 
 const (
 	DisabledAuthKey = "disabled-auth"
+
+	UsersModel = "inlay::accounts"
 )
 
 func init() {

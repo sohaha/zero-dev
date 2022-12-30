@@ -17,6 +17,7 @@ func getFinalFields(m *Modeler, c *znet.Context, fields []string, withFilds []st
 
 	finalFields = zarray.Unique(append(fields, mustFields...))
 	_, tmpFields = zarray.Diff(fields, mustFields)
+
 	return
 }
 
@@ -42,6 +43,10 @@ func GetRequestFields(c *znet.Context, m *Modeler) []string {
 		tableFields = append(tableFields, CreatedAtKey, UpdatedAtKey)
 	}
 
+	if m.Options.CreatedBy {
+		tableFields = append(tableFields, CreatedByKey)
+	}
+
 	if f, ok := c.GetQuery("fields"); ok && f != "" {
 		fields := strings.Split(f, ",")
 		if len(fields) > 0 {
@@ -51,5 +56,7 @@ func GetRequestFields(c *znet.Context, m *Modeler) []string {
 		}
 	}
 
-	return tableFields
+	return zarray.Map(tableFields, func(_ int, f string) string {
+		return m.Table.Name + "." + f
+	})
 }

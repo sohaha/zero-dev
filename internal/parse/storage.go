@@ -3,6 +3,7 @@ package parse
 import (
 	"github.com/sohaha/zlsgo/ztype"
 	"github.com/zlsgo/zdb"
+	"github.com/zlsgo/zdb/builder"
 )
 
 const (
@@ -12,9 +13,10 @@ const (
 
 type StorageType uint8
 type StorageJoin struct {
-	Table string
-	As    string
-	Expr  string
+	Table  string
+	As     string
+	Expr   string
+	Option builder.JoinOption
 }
 
 // type StorageWhere struct {

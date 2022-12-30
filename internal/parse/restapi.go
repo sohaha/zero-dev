@@ -3,6 +3,7 @@ package parse
 import (
 	"errors"
 	"strings"
+	"zlsapp/common"
 	"zlsapp/common/hashid"
 	"zlsapp/conf"
 	"zlsapp/internal/error_code"
@@ -129,17 +130,24 @@ func restApiInfo(m *Modeler, key string, fn ...StorageOptionFn) (ztype.Map, erro
 	return row, err
 }
 
-func RestapiGetInfo(c *znet.Context, m *Modeler, fields []string, withFilds []string) (interface{}, error) {
+func getRestapiKey(c *znet.Context, m *Modeler) (string, error) {
 	key := c.GetParam("key")
 
 	if m.Options.CryptID {
 		id, err := hashid.DecryptID(m.hashid, key)
 		if err != nil {
-			return nil, errors.New("ID 解密失败")
+			return "", errors.New("ID 解密失败")
 		}
 		key = ztype.ToString(id)
 	}
+	return key, nil
+}
 
+func RestapiGetInfo(c *znet.Context, m *Modeler, fields []string, withFilds []string) (interface{}, error) {
+	key, err := getRestapiKey(c, m)
+	if err != nil {
+		return nil, err
+	}
 	finalFields, tmpFields, with, withMany := getFinalFields(m, c, fields, withFilds)
 
 	info, err := restApiInfo(m, key, func(so *StorageOptions) error {
@@ -153,9 +161,10 @@ func RestapiGetInfo(c *znet.Context, m *Modeler, fields []string, withFilds []st
 			t := m.Table.Name
 			asName := k
 			so.Join = append(so.Join, StorageJoin{
-				Table: t,
-				As:    asName,
-				Expr:  asName + "." + v.Foreign + " = " + table + "." + v.Key,
+				Table:  t,
+				As:     asName,
+				Option: v.Join,
+				Expr:   asName + "." + v.Foreign + " = " + table + "." + v.Key,
 			})
 
 			if len(v.Fields) > 0 {
@@ -238,13 +247,15 @@ func RestapiGetPage(c *znet.Context, m *Modeler, filter ztype.Map, fields []stri
 				t := m.Table.Name
 				asName := k
 				so.Join = append(so.Join, StorageJoin{
-					Table: t,
-					As:    k,
-					Expr:  asName + "." + v.Foreign + " = " + table + "." + v.Key,
+					Table:  t,
+					As:     k,
+					Option: v.Join,
+					Expr:   asName + "." + v.Foreign + " = " + table + "." + v.Key,
 				})
 
 				if len(v.Fields) > 0 {
 					finalFields = append(finalFields, zarray.Map(v.Fields, func(_ int, v string) string {
+						// TODO 修改了字段,这是暂时的
 						return asName + "." + v
 					})...)
 				} else {
@@ -298,7 +309,8 @@ func RestapiCreate(c *znet.Context, m *Modeler) (interface{}, error) {
 	json = json.MatchKeys(m.fields)
 	data := json.MapString()
 
-	id, err := Insert(m, data)
+	uid := common.GetUID(c)
+	id, err := Insert(m, data, uid)
 
 	if err != nil {
 		return nil, error_code.InvalidInput.Error(err)
@@ -308,8 +320,12 @@ func RestapiCreate(c *znet.Context, m *Modeler) (interface{}, error) {
 }
 
 func RestapiDelete(c *znet.Context, m *Modeler) (interface{}, error) {
-	key := c.GetParam("key")
-	_, err := restApiInfo(m, key)
+	key, err := getRestapiKey(c, m)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = restApiInfo(m, key)
 	if err != nil {
 		return nil, err
 	}
@@ -320,8 +336,12 @@ func RestapiDelete(c *znet.Context, m *Modeler) (interface{}, error) {
 }
 
 func RestapiUpdate(c *znet.Context, m *Modeler) (interface{}, error) {
-	key := c.GetParam("key")
-	_, err := restApiInfo(m, key)
+	key, err := getRestapiKey(c, m)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = restApiInfo(m, key)
 	if err != nil {
 		return nil, error_code.InvalidInput.Error(err)
 	}

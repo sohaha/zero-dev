@@ -64,8 +64,8 @@ func (m *Migration) InitValue(all bool) error {
 				continue
 			}
 		}
-
-		_, err := Insert(m.Model, data)
+		uid := ""
+		_, err := Insert(m.Model, data, uid)
 		if err != nil {
 			return zerror.With(err, "初始化数据失败")
 		}
@@ -113,6 +113,10 @@ func (m *Migration) UpdateTable(deleteColumn bool) error {
 			newColumns = append(newColumns, DeletedAtKey)
 		}
 
+		if m.Model.Options.CreatedBy {
+			newColumns = append(newColumns, CreatedByKey)
+		}
+
 		if m.Model.Options.Timestamps {
 			if zarray.Contains(oldColumns, CreatedAtKey) {
 				newColumns = append(newColumns, CreatedAtKey)
@@ -153,6 +157,32 @@ func (m *Migration) UpdateTable(deleteColumn bool) error {
 		_, err := m.DB.Exec(sql, values...)
 		if err != nil {
 			return err
+		}
+	}
+
+	if m.Model.Options.SoftDeletes {
+		if !zarray.Contains(oldColumns, DeletedAtKey) {
+			sql, values := table.AddColumn(DeletedAtKey, "int", func(f *schema.Field) {
+				f.Comment = "删除时间戳"
+			})
+			_, err := m.DB.Exec(sql, values...)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	if m.Model.Options.CreatedBy {
+		if !zarray.Contains(oldColumns, CreatedByKey) {
+			sql, values := table.AddColumn(CreatedByKey, "string", func(f *schema.Field) {
+				f.Comment = "创建人 ID"
+				f.NotNull = false
+				f.Size = 120
+			})
+			_, err := m.DB.Exec(sql, values...)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -231,6 +261,14 @@ func (m *Migration) fillField(fields []*schema.Field) []*schema.Field {
 		}))
 		fields = append(fields, schema.NewField(UpdatedAtKey, schema.Time, func(f *schema.Field) {
 			f.Comment = "更新时间"
+		}))
+	}
+
+	if m.Model.Options.CreatedBy {
+		fields = append(fields, schema.NewField(CreatedByKey, schema.String, func(f *schema.Field) {
+			f.Comment = "创建人 ID"
+			f.NotNull = false
+			f.Size = 120
 		}))
 	}
 	return fields

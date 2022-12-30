@@ -2,6 +2,7 @@ package app
 
 import (
 	"zlsapp/common/restapi"
+	"zlsapp/controller/extend"
 	"zlsapp/internal/account"
 	"zlsapp/internal/loader"
 	"zlsapp/internal/open"
@@ -35,6 +36,8 @@ func InitRouters(_ *service.Conf) []service.Router {
 			Path:     "/model",
 			IsManage: true,
 		},
+		&extend.File{},
+
 		// model.NewRestApi(),
 		// model.NewManageRestApi(),
 	}

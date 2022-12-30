@@ -44,6 +44,9 @@ func resolverViewLists(m *Modeler) ztype.Map {
 			"options": column.Options,
 			"layout":  layout,
 		}
+		if m.Options.CryptID && column.Name == IDKey {
+			columns[column.Name]["type"] = "string"
+		}
 	}
 
 	info := ztype.Map{
@@ -92,6 +95,10 @@ func resolverViewInfo(m *Modeler) ztype.Map {
 
 		if column.Options != nil && len(column.Options) > 0 {
 			columns[column.Name]["options"] = column.Options
+		}
+
+		if m.Options.CryptID && column.Name == IDKey {
+			columns[column.Name]["type"] = "string"
 		}
 	}
 

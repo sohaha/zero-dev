@@ -3,10 +3,8 @@ package parse
 import (
 	"errors"
 	"strings"
-	"zlsapp/common/hashid"
 
 	"github.com/sohaha/zlsgo/zstring"
-	"github.com/sohaha/zlsgo/ztype"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -44,14 +42,6 @@ func (m *Modeler) GetCryptProcess(cryptName string) (fn cryptProcess, err error)
 	case "md5":
 		fn = func(s string) (string, error) {
 			return zstring.Md5(s), nil
-		}
-	case "hashid":
-		fn = func(s string) (string, error) {
-			i, err := hashid.DecryptID(m.hashid, s)
-			if err != nil {
-				return "", err
-			}
-			return ztype.ToString(i), nil
 		}
 	case "password":
 		fn = func(s string) (string, error) {

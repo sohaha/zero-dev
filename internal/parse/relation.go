@@ -2,15 +2,17 @@ package parse
 
 import (
 	"github.com/sohaha/zlsgo/znet"
+	"github.com/zlsgo/zdb/builder"
 )
 
 type ModelRelation struct {
-	Name    string   `json:"name"`
-	Type    string   `json:"type"`
-	Model   string   `json:"model"`
-	Foreign string   `json:"foreign"`
-	Key     string   `json:"key"`
-	Fields  []string `json:"fields"`
+	Name    string             `json:"name"`
+	Type    string             `json:"type"`
+	Join    builder.JoinOption `json:"-"`
+	Model   string             `json:"model"`
+	Foreign string             `json:"foreign"`
+	Key     string             `json:"key"`
+	Fields  []string           `json:"fields"`
 }
 
 func GetRequestWiths(c *znet.Context, m *Modeler, withFilds []string) (mustFields []string, hasOne map[string]*ModelRelation, hasMany map[string]*ModelRelation) {
@@ -31,6 +33,7 @@ func GetRequestWiths(c *znet.Context, m *Modeler, withFilds []string) (mustField
 		if r.Type == "hasMany" {
 			hasMany[v] = r
 		} else {
+			r.Join = builder.LeftJoin
 			hasOne[v] = r
 		}
 	}

@@ -51,6 +51,7 @@ type (
 		DisabledMigrator bool        `json:"disabled_migrator"`
 		SoftDeletes      bool        `json:"soft_deletes"`
 		Timestamps       bool        `json:"timestamps"`
+		CreatedBy        bool        `json:"created_by"`
 	}
 	Validations struct {
 		Args    interface{} `json:"args"`
@@ -67,6 +68,7 @@ type (
 const (
 	IDKey        = "_id"
 	CreatedAtKey = "created_at"
+	CreatedByKey = "created_by"
 	UpdatedAtKey = "updated_at"
 	DeletedAtKey = "deleted_at"
 )

@@ -61,6 +61,10 @@ func (h *RestApi) Init(g *znet.Engine) {
 		if with, _ := c.GetQuery("with"); with != "" {
 			withFilds = strings.Split(with, ",")
 		}
+
+		// if m.Options.CreatedBy && (len(fields) == 0 || zarray.Contains(fields, parse.CreatedByKey)) {
+		// 	withFilds = zarray.Unique(append(withFilds, zstring.SnakeCaseToCamelCase(parse.CreatedByKey, true)))
+		// }
 		return parse.RestapiGetPage(c, m, ztype.Map{}, fields, withFilds)
 	})
 
@@ -72,6 +76,7 @@ func (h *RestApi) Init(g *znet.Engine) {
 		if with, _ := c.GetQuery("with"); with != "" {
 			withFilds = strings.Split(with, ",")
 		}
+
 		return parse.RestapiGetInfo(c, m, fields, withFilds)
 	})
 

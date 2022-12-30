@@ -71,7 +71,6 @@ func WrapLogs(c *znet.Context, action string, fn ...func(data *ztype.Map)) {
 	u := useragent.Parse(c.GetUserAgent())
 
 	data := ztype.Map{
-		"uid":             uid,
 		"action":          action,
 		"category":        LogTypeCommon,
 		"ip":              ip,
@@ -91,7 +90,7 @@ func WrapLogs(c *znet.Context, action string, fn ...func(data *ztype.Map)) {
 		f(&data)
 	}
 
-	_, _ = parse.Insert(m, data)
+	_, _ = parse.Insert(m, data, uid)
 	// })
 }
 

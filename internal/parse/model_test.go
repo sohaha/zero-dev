@@ -58,7 +58,7 @@ func TestModelAction(t *testing.T) {
 		"key":      "123",
 		"category": 1,
 		"content":  "test content",
-	})
+	}, "")
 	t.Log(id)
 	tt.NoError(err)
 

@@ -131,7 +131,7 @@ func FindOne[T Filter](m *Modeler, filter T, fn ...StorageOptionFn) (ztype.Map, 
 	return rows.Index(0), nil
 }
 
-func Insert(m *Modeler, data ztype.Map) (lastId interface{}, err error) {
+func Insert(m *Modeler, data ztype.Map, createdBy string) (lastId interface{}, err error) {
 	data, err = m.valuesBeforeProcess(data)
 	if err != nil {
 		return 0, err
@@ -145,6 +145,10 @@ func Insert(m *Modeler, data ztype.Map) (lastId interface{}, err error) {
 	if m.Options.Timestamps {
 		data[CreatedAtKey] = ztime.Time()
 		data[UpdatedAtKey] = ztime.Time()
+	}
+
+	if m.Options.CreatedBy {
+		data[CreatedByKey] = createdBy
 	}
 
 	if m.Options.SoftDeletes {

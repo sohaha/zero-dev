@@ -54,25 +54,32 @@ func InitWeb(app *App, middlewares []znet.Handler) *znet.Engine {
 	}
 
 	r.Use(znet.RewriteErrorHandler(func(c *znet.Context, err error) {
-		statusCode := http.StatusInternalServerError
-		switch zerror.GetTag(err) {
-		case zerror.InvalidInput:
-			statusCode = http.StatusBadRequest
-		case zerror.PermissionDenied:
-			statusCode = http.StatusForbidden
-		case zerror.Unauthorized:
-			statusCode = http.StatusUnauthorized
-		}
 
 		var code int32
-		errCode, ok := zerror.UnwrapCode(err)
-		if ok && errCode != 0 {
-			code = int32(errCode)
-		} else {
+		statusCode := http.StatusInternalServerError
+		switch zerror.GetTag(err) {
+		case zerror.Internal:
+			statusCode = http.StatusInternalServerError
 			code = int32(error_code.ServerError)
+		case zerror.InvalidInput:
+			statusCode = http.StatusBadRequest
+			code = int32(error_code.InvalidInput)
+		case zerror.PermissionDenied:
+			statusCode = http.StatusForbidden
+			code = int32(error_code.PermissionDenied)
+		case zerror.Unauthorized:
+			statusCode = http.StatusUnauthorized
+			code = int32(error_code.Unauthorized)
+		default:
+			errCode, ok := zerror.UnwrapCode(err)
+			if ok && errCode != 0 {
+				code = int32(errCode)
+			} else {
+				code = int32(error_code.ServerError)
+			}
 		}
 
-		errMsg := err.Error()
+		errMsg := strings.Join(zerror.UnwrapErrors(err), ": ")
 		if errMsg == "" {
 			errMsg = "unknown error"
 		}
