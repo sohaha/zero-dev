@@ -21,3 +21,4 @@ pkg/
 dist3/
 .DS_Store
 
+resource/upload/

@@ -2,6 +2,7 @@ package restapi
 
 import (
 	"strings"
+	"zlsapp/common"
 	"zlsapp/conf"
 	"zlsapp/internal/account"
 	"zlsapp/internal/error_code"
@@ -32,27 +33,12 @@ func (h *RestApi) Init(g *znet.Engine) {
 		c.WithValue("model", m)
 		c.Next()
 
-		if h.IsManage {
+		uid := common.GetUID(c)
+		if uid != "" {
 			account.WrapActionLogs(c, "模型处理", m.Name)
 		}
 		return nil
 	}))
-
-	// g.Use(func(c *znet.Context) (err error) {
-	// 	name := c.GetParam("model")
-	// 	m, ok := parse.GetModel(name)
-	// 	if !ok {
-	// 		return error_code.NotFound.Text("模型不存在")
-	// 	}
-
-	// 	c.WithValue("model", m)
-	// 	c.Next()
-
-	// 	if h.IsManage {
-	// 		account.WrapActionLogs(c, "模型处理", m.Name)
-	// 	}
-	// 	return nil
-	// })
 
 	g.GET(":model", func(c *znet.Context) (interface{}, error) {
 		m := c.MustValue("model").(*parse.Modeler)
@@ -62,10 +48,17 @@ func (h *RestApi) Init(g *znet.Engine) {
 			withFilds = strings.Split(with, ",")
 		}
 
+		filter := ztype.Map{}
+		if !h.IsManage && m.Options.CreatedBy {
+			uid := common.GetUID(c)
+			filter[parse.CreatedByKey] = uid
+			filter[parse.CreatedByKey+" != "] = ""
+		}
+
 		// if m.Options.CreatedBy && (len(fields) == 0 || zarray.Contains(fields, parse.CreatedByKey)) {
 		// 	withFilds = zarray.Unique(append(withFilds, zstring.SnakeCaseToCamelCase(parse.CreatedByKey, true)))
 		// }
-		return parse.RestapiGetPage(c, m, ztype.Map{}, fields, withFilds)
+		return parse.RestapiGetPage(c, m, filter, fields, withFilds)
 	})
 
 	g.GET(":model/:key", func(c *znet.Context) (interface{}, error) {

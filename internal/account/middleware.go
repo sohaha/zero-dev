@@ -55,6 +55,28 @@ func NewMiddleware(app *service.App, pubPath []string) znet.Handler {
 
 	key := app.Conf.Core().GetString("account.key")
 
+	getUser := func(c *znet.Context) (user ztype.Map, err error) {
+		j, err := h.ParsingManageToken(c, key)
+		if err != nil {
+			return ztype.Map{}, err
+		}
+
+		user, err = h.QueryRoles(j)
+		if err != nil {
+			return ztype.Map{}, error_code.Unauthorized.Text(err.Error())
+		}
+
+		// if app.Conf.Core().GetBool("account.only") {
+		salt := user.Get("salt").String()
+		if salt != j.U[:8] {
+			return nil, error_code.AuthorizedExpires.Text("登录状态失效，请重新登录")
+		}
+		// }
+
+		c.WithValue("uid", user.Get(parse.IDKey).Value())
+		return user, nil
+	}
+
 	return func(c *znet.Context) error {
 		path := c.Request.URL.Path
 		for _, v := range pubPath {
@@ -65,6 +87,7 @@ func NewMiddleware(app *service.App, pubPath []string) znet.Handler {
 		}
 
 		if v, ok := c.Value(conf.DisabledAuthKey); ok && ztype.ToBool(v) {
+			_, _ = getUser(c)
 			c.Next()
 			return nil
 		}
@@ -79,22 +102,10 @@ func NewMiddleware(app *service.App, pubPath []string) znet.Handler {
 			return nil
 		}
 
-		j, err := h.ParsingManageToken(c, key)
+		user, err := getUser(c)
 		if err != nil {
 			return err
 		}
-
-		user, err := h.QueryRoles(j)
-		if err != nil {
-			return error_code.Unauthorized.Text(err.Error())
-		}
-
-		// if app.Conf.Core().GetBool("account.only") {
-		salt := user.Get("salt").String()
-		if salt != j.U[:8] {
-			return error_code.AuthorizedExpires.Text("登录状态失效，请重新登录")
-		}
-		// }
 
 		roles := user.Get("roles").Slice().String()
 
@@ -107,7 +118,6 @@ func NewMiddleware(app *service.App, pubPath []string) znet.Handler {
 			return error_code.PermissionDenied.Text("权限不足")
 		}
 
-		c.WithValue("uid", user.Get(parse.IDKey).Value())
 		c.Next()
 		return nil
 	}
