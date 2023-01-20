@@ -1,7 +1,11 @@
 package parse
 
 import (
+	"bytes"
 	"errors"
+	"io"
+	"mime/multipart"
+	"path/filepath"
 	"strings"
 	"zlsapp/common"
 	"zlsapp/common/hashid"
@@ -9,8 +13,10 @@ import (
 
 	"github.com/sohaha/zlsgo/zarray"
 	"github.com/sohaha/zlsgo/zerror"
+	"github.com/sohaha/zlsgo/zfile"
 	"github.com/sohaha/zlsgo/zlog"
 	"github.com/sohaha/zlsgo/znet"
+	"github.com/sohaha/zlsgo/zstring"
 	"github.com/sohaha/zlsgo/ztype"
 	"github.com/sohaha/zlsgo/zvalid"
 	"github.com/zlsgo/zdb"
@@ -368,4 +374,98 @@ func RestapiUpdate(c *znet.Context, m *Modeler, filter ztype.Map) (interface{}, 
 	}
 
 	return nil, nil
+}
+
+type UploadOption struct {
+	Key      string
+	Dir      string
+	MimeType []string
+	MaxSize  int64
+}
+
+func RestapiUpload(c *znet.Context, m *Modeler, opt ...func(o *UploadOption)) (interface{}, error) {
+	o := UploadOption{
+		Key:     "file",
+		MaxSize: 1024 * 1024 * 2,
+	}
+
+	files, err := c.FormFiles(o.Key)
+	if err != nil {
+		return nil, zerror.InvalidInput.Wrap(err, "上传失败")
+	}
+
+	uploadDir := zfile.RealPathMkdir("resource/upload/"+m.Alias+"/"+o.Dir, true)
+
+	// dir := c.DefaultFormOrQuery("dir", "")
+	// dir = zfile.RealPathMkdir(uploadDir+dir, true)
+	// if !zfile.IsSubPath(dir, uploadDir) {
+	// 	return nil, error_code.InvalidInput.Text("非法存储目录")
+	// }
+
+	uploads := make(map[string]*multipart.FileHeader, len(files))
+	buf := bytes.NewBuffer(nil)
+
+	for _, v := range files {
+		f, err := v.Open()
+		if err != nil {
+			return nil, zerror.InvalidInput.Wrap(err, "文件读取失败")
+		}
+
+		if _, err := io.Copy(buf, f); err != nil {
+			if err != nil {
+				return nil, zerror.InvalidInput.Wrap(err, "文件读取失败")
+			}
+		}
+
+		f.Close()
+
+		b := buf.Bytes()
+		if len(b) > int(o.MaxSize) {
+			return nil, zerror.InvalidInput.Wrap(err, "文件大小超出限制")
+		}
+
+		mt := zfile.GetMimeType(v.Filename, b)
+		n := strings.Split(mt, "/")
+		if len(n) < 2 {
+			return nil, zerror.InvalidInput.Wrap(err, "文件类型错误")
+		}
+
+		if len(o.MimeType) > 0 {
+			ok := false
+			for _, v := range o.MimeType {
+				if v == mt || v == n[1] {
+					ok = true
+					break
+				}
+			}
+
+			if !ok {
+				return nil, error_code.InvalidInput.Text("不支持的文件类型")
+			}
+		}
+
+		ext := filepath.Ext(v.Filename)
+		if ext == "" {
+			if len(n) > 1 {
+				ext = "." + n[len(n)]
+			}
+		}
+
+		id := zstring.Md5Byte(b) + ext
+		uploads[id] = v
+
+		buf.Reset()
+	}
+
+	for n, f := range uploads {
+		err = c.SaveUploadedFile(f, uploadDir+n)
+		if err != nil {
+			return nil, error_code.ServerError.Text("文件保存失败", err)
+		}
+	}
+
+	return zarray.Map(zarray.Keys(uploads), func(_ int, p string) string {
+		return "/" + zfile.SafePath(uploadDir+p, "resource")
+	}), nil
+
 }

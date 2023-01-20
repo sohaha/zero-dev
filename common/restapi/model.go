@@ -125,4 +125,5 @@ func (h *RestApi) Init(g *znet.Engine) {
 		}
 		return parse.RestapiDelete(c, m, filter)
 	})
+
 }
