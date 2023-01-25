@@ -1,6 +1,7 @@
 package account
 
 import (
+	"zlsapp/core/api"
 	"zlsapp/internal/parse"
 	"zlsapp/service"
 
@@ -29,7 +30,7 @@ func (u *Users) KeyGet(c *znet.Context) (any, error) {
 }
 
 func (u *Users) Get(c *znet.Context) (any, error) {
-	page, size, err := parse.GetPages(c)
+	page, size, err := api.GetPages(c)
 	if err != nil {
 		return nil, zerror.InvalidInput.Wrap(err, "Invalid page or size")
 	}

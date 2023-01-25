@@ -8,7 +8,7 @@ import (
 
 type View struct {
 	Title   string        `json:"title"`
-	Fields  []string      `json:"fields"`
+	Fields  []string      `json:"Fields"`
 	Layouts ztype.Map     `json:"layouts"`
 	Filters []interface{} `json:"filters"`
 }
@@ -52,7 +52,7 @@ func resolverViewLists(m *Modeler) ztype.Map {
 	info := ztype.Map{
 		"title":   zutil.IfVal(data.Title != "", data.Title, m.Name+""),
 		"columns": columns,
-		"fields":  fields,
+		"Fields":  fields,
 	}
 	return info
 }
@@ -103,7 +103,7 @@ func resolverViewInfo(m *Modeler) ztype.Map {
 	}
 
 	info["columns"] = columns
-	info["fields"] = fields
+	info["Fields"] = fields
 	if data.Layouts != nil {
 		info["layouts"] = data.Layouts
 	}

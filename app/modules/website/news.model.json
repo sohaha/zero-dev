@@ -38,6 +38,7 @@
         },
         {
             "title": "新的新闻",
+            "cover": "cover",
             "content": "新的新闻内容"
         }
     ],
@@ -54,6 +55,11 @@
                             "minRows": 5
                         }
                     }
+                },
+                "cover": {
+                    "props": {},
+                    "api": "http://127.0.0.1:8181/extend/file/upload-image",
+                    "component2": "NUpload"
                 }
             }
         },

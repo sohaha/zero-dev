@@ -10,9 +10,9 @@ type Account struct {
 }
 
 const (
-	DisabledAuthKey = "disabled-auth"
-
-	UsersModel = "inlay::accounts"
+	DisabledAuthKey    = "disabled-auth"
+	ManageRouterPrefix = "/manage"
+	UsersModel         = "inlay::accounts"
 )
 
 func init() {

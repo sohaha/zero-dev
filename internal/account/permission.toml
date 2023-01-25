@@ -6,8 +6,8 @@ method = "*"
 path = "*"
 
 # /_/ 前缀的 API 为内部 API，不需要鉴权
-[1]
-allow_anyone = true
-method = "*"
-path = "/_/*"
-sort = 100
+#[1]
+#allow_anyone = true
+#method = "*"
+#path = "/_/*"
+#sort = 100

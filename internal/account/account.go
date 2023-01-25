@@ -2,8 +2,10 @@ package account
 
 import (
 	"errors"
+
 	"zlsapp/common"
 	"zlsapp/common/hashid"
+	"zlsapp/core/api"
 	"zlsapp/internal/error_code"
 	"zlsapp/service"
 
@@ -194,7 +196,7 @@ func (h *Account) GetLogs(c *znet.Context) (any, error) {
 	fields := m.GetFields()
 	withFilds := []string{"user"}
 
-	res, err := parse.RestapiGetPage(c, m, filter, fields, withFilds, func(so *parse.StorageOptions) error {
+	res, err := api.RestapiGetPage(c, m, filter, fields, withFilds, func(so *parse.StorageOptions) error {
 		// so.Wheres = []parse.StorageWhere{
 		// 	{
 		// 		Field: "category",

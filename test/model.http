@@ -3,7 +3,7 @@ GET {{host}}/manage/model
 Authorization: Basic {{token}}
 
 ### 模型详情
-GET {{host}}/manage/model/news
+GET {{host}}/manage/model/website-faq
 Authorization: Basic {{token}}
 
 

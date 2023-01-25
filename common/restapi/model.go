@@ -2,8 +2,10 @@ package restapi
 
 import (
 	"strings"
+
 	"zlsapp/common"
 	"zlsapp/conf"
+	"zlsapp/core/api"
 	"zlsapp/internal/account"
 	"zlsapp/internal/error_code"
 	"zlsapp/internal/parse"
@@ -43,7 +45,7 @@ func (h *RestApi) Init(g *znet.Engine) {
 	g.GET(":model", func(c *znet.Context) (interface{}, error) {
 		m := c.MustValue("model").(*parse.Modeler)
 
-		if !h.IsManage && !parse.JudgeRouters(m, parse.ApiKeyPages) {
+		if !h.IsManage {
 			return nil, error_code.PermissionDenied.Text("无权访问")
 		}
 
@@ -63,12 +65,12 @@ func (h *RestApi) Init(g *znet.Engine) {
 		// if m.Options.CreatedBy && (len(fields) == 0 || zarray.Contains(fields, parse.CreatedByKey)) {
 		// 	withFilds = zarray.Unique(append(withFilds, zstring.SnakeCaseToCamelCase(parse.CreatedByKey, true)))
 		// }
-		return parse.RestapiGetPage(c, m, filter, fields, withFilds)
+		return api.RestapiGetPage(c, m, filter, fields, withFilds)
 	})
 
 	g.GET(":model/:key", func(c *znet.Context) (interface{}, error) {
 		m := c.MustValue("model").(*parse.Modeler)
-		if !h.IsManage && !parse.JudgeRouters(m, parse.ApiKeyQuery) {
+		if !h.IsManage {
 			return nil, error_code.PermissionDenied.Text("无权访问")
 		}
 		fields := parse.GetViewFields(m, "info")
@@ -84,22 +86,22 @@ func (h *RestApi) Init(g *znet.Engine) {
 			filter[parse.CreatedByKey+" != "] = ""
 		}
 
-		return parse.RestapiGetInfo(c, m, filter, fields, withFilds)
+		return api.RestapiGetInfo(c, m, filter, fields, withFilds)
 	})
 
 	g.POST(":model", func(c *znet.Context) (interface{}, error) {
 		m := c.MustValue("model").(*parse.Modeler)
 
-		if !h.IsManage && !parse.JudgeRouters(m, parse.ApiKeyCreate) {
+		if !h.IsManage {
 			return nil, error_code.PermissionDenied.Text("无权访问")
 		}
-		return parse.RestapiCreate(c, m)
+		return api.RestapiCreate(c, m)
 	})
 
 	g.PATCH(":model/:key", func(c *znet.Context) (interface{}, error) {
 		m := c.MustValue("model").(*parse.Modeler)
 
-		if !h.IsManage && !parse.JudgeRouters(m, parse.ApiKeyUpdate) {
+		if !h.IsManage {
 			return nil, error_code.PermissionDenied.Text("无权访问")
 		}
 		filter := ztype.Map{}
@@ -108,13 +110,13 @@ func (h *RestApi) Init(g *znet.Engine) {
 			filter[parse.CreatedByKey] = uid
 			filter[parse.CreatedByKey+" != "] = ""
 		}
-		return parse.RestapiUpdate(c, m, filter)
+		return api.RestapiUpdate(c, m, filter)
 	})
 
 	g.DELETE(":model/:key", func(c *znet.Context) (interface{}, error) {
 		m := c.MustValue("model").(*parse.Modeler)
 
-		if !h.IsManage && !parse.JudgeRouters(m, parse.ApiKeyDelete) {
+		if !h.IsManage {
 			return nil, error_code.PermissionDenied.Text("无权访问")
 		}
 		filter := ztype.Map{}
@@ -123,7 +125,7 @@ func (h *RestApi) Init(g *znet.Engine) {
 			filter[parse.CreatedByKey] = uid
 			filter[parse.CreatedByKey+" != "] = ""
 		}
-		return parse.RestapiDelete(c, m, filter)
+		return api.RestapiDelete(c, m, filter)
 	})
 
 }

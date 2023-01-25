@@ -54,7 +54,6 @@ func InitWeb(app *App, middlewares []znet.Handler) *znet.Engine {
 	}
 
 	r.Use(znet.RewriteErrorHandler(func(c *znet.Context, err error) {
-
 		var code int32
 		statusCode := http.StatusInternalServerError
 		switch zerror.GetTag(err) {

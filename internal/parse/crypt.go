@@ -21,18 +21,18 @@ func (m *Modeler) DecodeID(id any) {
 	//			if i == 0 {
 	//				id = v.String()
 	//			} else {
-	//					_, _ = h.Di.Invoke(func(hashid *hashids.HashID) {
+	//					_, _ = h.Di.Invoke(func(Hashid *hashids.HashID) {
 	//			h.Handlers = &AccountHandlers{
 	//				Model:  h.Model,
-	//				hashid: hashid,
+	//				Hashid: Hashid,
 	//			}
 	//		})
-	//				id, err = hashid.EncryptID(h.hashid, i)
+	//				id, err = Hashid.EncryptID(h.Hashid, i)
 	//				if err != nil {
 	//					return "", err
 	//				}
 	//			}
-	//	 hashid.EncryptID(h.hashid, i)
+	//	 Hashid.EncryptID(h.Hashid, i)
 }
 
 func (m *Modeler) GetCryptProcess(cryptName string) (fn cryptProcess, err error) {

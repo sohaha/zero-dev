@@ -1,6 +1,7 @@
 package account
 
 import (
+	"strings"
 	"time"
 
 	"zlsapp/common/hashid"
@@ -79,6 +80,9 @@ func NewMiddleware(app *service.App, pubPath []string) znet.Handler {
 
 	return func(c *znet.Context) error {
 		path := c.Request.URL.Path
+		if !strings.HasPrefix(path, conf.ManageRouterPrefix) {
+			return nil
+		}
 		for _, v := range pubPath {
 			if zstring.Match(path, v) {
 				c.Next()

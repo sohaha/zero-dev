@@ -25,7 +25,7 @@ GET {{host}}/model/news?with=category&fields=title,content,created_at,topic
 Authorization: Basic {{token}}
 
 ### 分类列表-关联新闻
-GET {{host}}/model/category?with=post
+GET {{host}}/model/website-setting?with=CreatedBy
 Authorization: Basic {{token}}
 
 

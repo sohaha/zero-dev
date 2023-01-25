@@ -18,6 +18,8 @@ func (t FileType) Dir() string {
 		return "flows"
 	case View:
 		return "views"
+	case HTTP:
+		return "apis"
 	}
 	return ""
 }
@@ -30,6 +32,8 @@ func (t FileType) Suffix() string {
 		return ".flow.json"
 	case View:
 		return ".view.json"
+	case HTTP:
+		return ".http.json"
 	}
 	return ""
 }
@@ -38,6 +42,7 @@ const (
 	Model FileType = iota + 1
 	Flow
 	View
+	HTTP
 )
 
 func Scan(root string, suffix string, recurve ...bool) (files []string) {

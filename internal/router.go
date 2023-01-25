@@ -1,11 +1,9 @@
 package app
 
 import (
-	"zlsapp/common/restapi"
-	"zlsapp/controller/extend"
+	"zlsapp/controller"
 	"zlsapp/internal/account"
 	"zlsapp/internal/loader"
-	"zlsapp/internal/open"
 	"zlsapp/service"
 
 	"github.com/sohaha/zlsgo/znet"
@@ -13,34 +11,33 @@ import (
 )
 
 // pubPath todo 后台前端界面不需要权限
-var pubPath = []string{"/", "/manage/base/login", "/admin*", "/static/*", "/html/*"}
+var pubPath = []string{"/", "/manage/base/login", "/_*", "/static/*", "/html/*"}
 
 func InitRouters(_ *service.Conf) []service.Router {
-	return []service.Router{
-		&open.Open{
+	r := []service.Router{
+		// &controller.Home{},
+		&controller.Inlay{
 			Path: "/_",
 		},
-		&restapi.RestApi{
-			Path: "/api",
-		},
-		&account.Account{
-			Path: "/manage/base",
-		},
-		&account.Roles{
-			Path: "/manage/account/roles",
-		},
-		&restapi.ManageRestApi{
-			Path: "/manage/model",
-		},
-		&restapi.RestApi{
-			Path:     "/model",
-			IsManage: true,
-		},
-		&extend.File{},
+		// &open.Open{
+		// 	Path: "/__",
+		// },
+		// &restapi.RestApi{
+		// 	Path: "/api",
+		// },
+
+		// &restapi.RestApi{
+		// 	Path:     "/model",
+		// 	IsManage: true,
+		// },
+		// &extend.File{},
 
 		// model.NewRestApi(),
 		// model.NewManageRestApi(),
 	}
+
+	r = append(r, controller.ManageRouter()...)
+	return r
 }
 
 func InitMiddleware(conf *service.Conf, app *service.App) []znet.Handler {
@@ -59,10 +56,10 @@ func InitMiddleware(conf *service.Conf, app *service.App) []znet.Handler {
 func InitRouterBefore(conf *service.Conf, app *service.App) service.RouterAfter {
 	return func(r *znet.Engine, app *service.App) {
 		bindTemplate(r, app.Di)
-		bindStatic(r)
 
 		var l *loader.Loader
 		_ = app.Di.Resolve(&l)
 
+		bindStatic(r)
 	}
 }

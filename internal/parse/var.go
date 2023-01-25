@@ -4,6 +4,7 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"time"
+
 	"zlsapp/common/hashid"
 
 	"github.com/sohaha/zlsgo/zstring"
@@ -18,16 +19,16 @@ type (
 		Raw           []byte
 		Storage       Storageer
 		StorageType   StorageType
-		Name          string                    `json:"name"`
-		Path          string                    `json:"-"`
-		Alias         string                    `json:"-"`
-		Table         Table                     `json:"table"`
-		Columns       []*Column                 `json:"columns"`
-		Views         map[string]*View          `json:"views"`
-		views         ztype.Map                 `json:"-"`
+		Name          string           `json:"name"`
+		Path          string           `json:"-"`
+		Alias         string           `json:"-"`
+		Table         Table            `json:"table"`
+		Columns       []*Column        `json:"columns"`
+		Views         map[string]*View `json:"views"`
+		views         ztype.Map
 		Relations     map[string]*ModelRelation `json:"relations"`
 		Values        []map[string]interface{}  `json:"values"`
-		fields        []string
+		Fields        []string
 		inlayFields   []string
 		fullFields    []string
 		readOnlyKeys  []string
@@ -35,8 +36,8 @@ type (
 		beforeProcess map[string][]beforeProcess
 		afterProcess  map[string][]afterProcess
 		Options       Options `json:"options"`
-		apis          map[ApiKeyType]Api
-		hashid        *hashid.HashID
+		// apis          map[ApiKeyType]Api
+		Hashid *hashid.HashID
 	}
 
 	Table struct {
@@ -44,14 +45,14 @@ type (
 		Comment string `json:"comment"`
 	}
 	Options struct {
-		Api              interface{} `json:"api"`
-		ApiPrefix        string      `json:"api_prefix"`
-		CryptID          bool        `json:"crypt_id"`
-		Salt             string      `json:"salt"`
-		DisabledMigrator bool        `json:"disabled_migrator"`
-		SoftDeletes      bool        `json:"soft_deletes"`
-		Timestamps       bool        `json:"timestamps"`
-		CreatedBy        bool        `json:"created_by"`
+		// Api              interface{} `json:"api"`
+		// ApiPrefix        string      `json:"api_prefix"`
+		CryptID          bool   `json:"crypt_id"`
+		Salt             string `json:"salt"`
+		DisabledMigrator bool   `json:"disabled_migrator"`
+		SoftDeletes      bool   `json:"soft_deletes"`
+		Timestamps       bool   `json:"timestamps"`
+		CreatedBy        bool   `json:"created_by"`
 	}
 	Validations struct {
 		Args    interface{} `json:"args"`

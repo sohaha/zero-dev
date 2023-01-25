@@ -13,12 +13,12 @@ import (
 func InitModel(alias string, m *Modeler) {
 	m.Alias = alias
 	salt := m.Options.Salt
-	m.hashid = hashid.New(salt, 8)
+	m.Hashid = hashid.New(salt, 8)
 	m.readOnlyKeys = make([]string, 0)
 	m.cryptKeys = make(map[string]cryptProcess, 0)
 	m.afterProcess = make(map[string][]afterProcess, 0)
 	m.beforeProcess = make(map[string][]beforeProcess, 0)
-	m.fields = zarray.Map(m.Columns, func(_ int, c *Column) string {
+	m.Fields = zarray.Map(m.Columns, func(_ int, c *Column) string {
 		resolverColumn(m, c)
 
 		resolverValidRule(c)
@@ -41,7 +41,7 @@ func InitModel(alias string, m *Modeler) {
 	// 	m.inlayFields = append(m.inlayFields, DeletedAtKey)
 	// }
 
-	m.fullFields = append([]string{IDKey}, m.fields...)
+	m.fullFields = append([]string{IDKey}, m.Fields...)
 	m.fullFields = zarray.Unique(append(m.fullFields, m.inlayFields...))
 	if m.Raw == nil {
 		m.Raw, _ = zjson.Marshal(m)
@@ -77,7 +77,7 @@ func InitModel(alias string, m *Modeler) {
 	}
 
 	resolverView(m)
-	resolverApi(m)
+	// resolverApi(m)
 }
 
 func (m *Modeler) isInlayField(field string) bool {

@@ -6,4 +6,5 @@ func (l *Loader) loadModules() {
 	}
 	l.loadModeler("./app/modules")
 	l.loadViews("./app/modules")
+	l.loadRestapi("./app/modules")
 }

@@ -1,6 +1,8 @@
 package loader
 
 import (
+	"github.com/sohaha/zlsgo/zlog"
+	"github.com/sohaha/zlsgo/znet"
 	"zlsapp/service"
 
 	"github.com/fsnotify/fsnotify"
@@ -14,6 +16,7 @@ type files struct {
 
 type Loader struct {
 	Model     *Modeler
+	HTTP      *HTTPer
 	Views     *Views
 	Di        zdi.Invoker
 	err       error
@@ -40,12 +43,25 @@ func Init(di zdi.Injector) *Loader {
 	})
 
 	// loader.loadViews()
+
+	loader.loadRestapi()
 	loader.loadModeler()
 	loader.loadModules()
-	loader.loadRestapi()
 
 	// zlog.Panic(loader.err)
 	zerror.Panic(loader.err)
 
-	return loader
+	return loader.load()
+}
+
+func (l *Loader) load() *Loader {
+	_, _ = l.Di.Invoke(func(r *znet.Engine) {
+		h := l.HTTP
+		for _, path := range h.Files {
+			registerRouter(path, r)
+		}
+
+		zlog.Debug(r)
+	})
+	return l
 }

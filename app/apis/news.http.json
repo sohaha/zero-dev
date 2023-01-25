@@ -1,3 +1,30 @@
 {
-    "name": "新闻模型"
+  "name": "新闻接口",
+  "routes": [
+    {
+      "path": "/ss/id",
+      "method": "GET",
+      "handler": "news"
+    },
+    {
+      "path": "",
+      "method": "GET",
+      "handler": "000"
+    },
+    {
+      "path": "/",
+      "method": "GET",
+      "handler": "111"
+    },
+    {
+      "path": "/ss/:id",
+      "method": "GET",
+      "handler": "model.website-news.find"
+    },
+    {
+      "path": "/ss/_{file:.*}",
+      "method": "GET",
+      "handler": "333"
+    }
+  ]
 }
